@@ -13,7 +13,7 @@ private:
     Mesh *mesh;
     Texture *texture;
     Camera *camera;
-    Chunk *chunks[8][8];
+    Chunk *chunks[2][2];
 
 public:
     Game();

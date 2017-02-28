@@ -22,7 +22,7 @@ Game::~Game() {
     delete shader;
     delete texture;
     delete camera;
-    delete[] chunks;
+    //delete[] chunks;
 }
 
 float noise(glm::vec3 position, int octaves, float frequency, float persistence) {
@@ -78,9 +78,9 @@ void Game::init() {
     glEnable(GL_DEPTH_TEST);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-    for (int x = 0; x < 8; x++) {
-        for (int z = 0; z < 8; z++) {
-            chunks[x][z] = new Chunk(x - 4, 0, z - 4);
+    for (int x = 0; x < 2; x++) {
+        for (int z = 0; z < 2; z++) {
+            chunks[x][z] = new Chunk(x - 1, 0, z - 1);
 
             placeBlocks(chunks[x][z]);
         }
@@ -106,8 +106,8 @@ void Game::render() {
     shader->uniform("projection", projection);
     shader->uniform("cameraPos", camera->getPosition());
 
-    for (int x = 0; x < 8; x++) {
-        for (int z = 0; z < 8; z++) {
+    for (int x = 0; x < 2; x++) {
+        for (int z = 0; z < 2; z++) {
             chunks[x][z]->render(shader);
         }
     }
