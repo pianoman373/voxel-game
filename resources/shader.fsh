@@ -14,6 +14,6 @@ void main() {
 
 	vec3 blockColor = vec3(0.63, 0.83, 1.0);
 
-	color = vec4(blockColor * (diffuse + diffuse2), 1.0);
+	color = vec4(blockColor * fragColor * (diffuse + diffuse2), 1.0);
 	//color = vec4((fragColor / 2), 1.0);
 }
