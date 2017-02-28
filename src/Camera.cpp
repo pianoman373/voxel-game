@@ -81,7 +81,7 @@ void Camera::update() {
 
     glm::vec4 vec2 = mat * glm::vec4(this->up, 1.0f);
 
-    //this->up = glm::normalize(glm::vec3(vec2));
+    //this->up = glm::normalize(position);
 
     //horizontal
     glm::mat4 mat2 = glm::mat4();

@@ -1,9 +1,14 @@
+#define GLEW_STATIC
+#include <GL/glew.h>
+#include <GL/gl.h>
+
 #include <GLFW/glfw3.h>
 #include <iostream>
-#include <glad/glad.h>
 
 #include "Input.hpp"
 #include "Game.hpp"
+
+#include "AntTweakBar.h"
 
 Game game;
 
@@ -26,11 +31,24 @@ int main() {
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
     glfwSetCursorPos(window, 0, 0);
 
-	gladLoadGL();
+    glewExperimental = GL_TRUE;
+    if (glewInit() != GLEW_OK)
+    {
+        std::cout << "Failed to initialize GLEW" << std::endl;
+        return -1;
+    }
 
     int width, height;
     glfwGetFramebufferSize(window, &width, &height);
     glViewport(0, 0, width, height);
+
+    // Initialize the GUI
+    TwInit(TW_OPENGL_CORE, NULL);
+    TwWindowSize(800, 600);
+    TwBar * EulerGUI = TwNewBar("Euler settings");
+    TwBar * QuaternionGUI = TwNewBar("Quaternion settings");
+    TwSetParam(EulerGUI, NULL, "refresh", TW_PARAM_CSTRING, 1, "0.1");
+    TwSetParam(QuaternionGUI, NULL, "position", TW_PARAM_CSTRING, 1, "808 16");
 
     game.init();
 
@@ -44,6 +62,8 @@ int main() {
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         game.render();
+
+        TwDraw();
 
 	    glfwSwapBuffers(window);
 	}

@@ -15,14 +15,17 @@ else()
     endif()
 endif()
 
-include_directories(lib/glad/include/
-                    lib/glfw/include/
+include_directories(lib/glfw/include/
                     lib/stb/
-                    lib/glm/)
+                    lib/glm/
+                    lib/AntTweakBar/include/
+                    lib/glew-2.0.0/include/)
+
+link_directories(lib/AntTweakBar/lib/
+				 lib/glew-2.0.0/lib/)
 
 file(GLOB PROJECT_SOURCES src/*.cpp
-                          src/*.c
-                          lib/glad/src/glad.c)
+                          src/*.c)
 file(GLOB PROJECT_HEADERS src/*.h
                           src/*.hpp)
 file(GLOB PROJECT_RESOURCES resources/*.* resources/shaders/*.*)
@@ -33,6 +36,6 @@ add_executable(${PROJECT_NAME} ${PROJECT_SOURCES}
                                ${PROJECT_HEADERS}
                                ${PROJECT_RESOURCES})
 
-target_link_libraries(${PROJECT_NAME} glfw)
+target_link_libraries(${PROJECT_NAME} glfw GLEW GL AntTweakBar)
 set_target_properties(${PROJECT_NAME} PROPERTIES
     RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
