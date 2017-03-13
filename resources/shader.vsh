@@ -8,10 +8,13 @@ layout (location = 3) in vec2 texCoord;
 out vec3 fragNormal;
 out vec3 fragColor;
 out vec2 uv;
+out vec4 fragLightSpace;
 
 uniform mat4 model;
 uniform mat4 view;
 uniform mat4 projection;
+uniform mat4 lightSpaceMatrix;
+
 uniform vec3 cameraPos;
 
 void main() {
@@ -25,7 +28,9 @@ void main() {
 
 	vec3 newpos = dir * 256;
 
+	vec3 FragPos = vec3(model * vec4(position, 1.0));
 
+	fragLightSpace = lightSpaceMatrix * vec4(FragPos, 1.0);
 
 	//gl_Position = projection * view * vec4(newpos, 1.0);
 	gl_Position = projection * view * model * vec4(position, 1.0);

@@ -1,5 +1,10 @@
 #pragma once
 
+enum MeshMode {
+    BLOCKS,
+    SIMPLE_TEXTURED
+};
+
 class Mesh {
 private:
     unsigned int VAO;
@@ -7,9 +12,9 @@ private:
     int size;
 
 public:
-    Mesh(float *vertices, int size);
+   ~Mesh();
 
-    ~Mesh();
+    void initialize(float *vertices, int size, MeshMode mode);
 
     void render();
 };

@@ -13,7 +13,9 @@ private:
     unsigned int id;
 public:
     // Constructor reads and builds the shader
-    Shader(const char* vertexPath, const char* fragmentPath);
+    Shader();
+
+    void load(const char* vertexPath, const char* fragmentPath);
 
     // Use the program
     void bind();

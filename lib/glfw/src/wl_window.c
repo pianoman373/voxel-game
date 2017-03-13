@@ -249,6 +249,8 @@ static GLFWbool createShellSurface(_GLFWwindow* window)
         wl_shell_surface_set_toplevel(window->wl.shellSurface);
     }
 
+    wl_surface_commit(window->wl.surface);
+
     return GLFW_TRUE;
 }
 
@@ -632,6 +634,27 @@ int _glfwPlatformWindowVisible(_GLFWwindow* window)
 int _glfwPlatformWindowMaximized(_GLFWwindow* window)
 {
     return window->wl.maximized;
+}
+
+void _glfwPlatformSetWindowResizable(_GLFWwindow* window, GLFWbool enabled)
+{
+    // TODO
+    _glfwInputError(GLFW_PLATFORM_ERROR,
+                    "Wayland: Window attribute setting not implemented yet");
+}
+
+void _glfwPlatformSetWindowDecorated(_GLFWwindow* window, GLFWbool enabled)
+{
+    // TODO
+    _glfwInputError(GLFW_PLATFORM_ERROR,
+                    "Wayland: Window attribute setting not implemented yet");
+}
+
+void _glfwPlatformSetWindowFloating(_GLFWwindow* window, GLFWbool enabled)
+{
+    // TODO
+    _glfwInputError(GLFW_PLATFORM_ERROR,
+                    "Wayland: Window attribute setting not implemented yet");
 }
 
 void _glfwPlatformPollEvents(void)

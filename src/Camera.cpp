@@ -26,7 +26,7 @@ glm::mat4 Camera::getView() {
 }
 
 glm::mat4 Camera::getProjection() {
-    return glm::perspective(70.0f, 800.0f / 600.0f, 0.1f, 10000.0f);
+    return glm::perspective(70.0f, 1500.0f / 900.0f, 0.1f, 10000.0f);
 }
 
 glm::vec2 lastpos = glm::vec2();
@@ -52,7 +52,10 @@ void Camera::update() {
 
     if (Input::isKeyDown(GLFW_KEY_F))
         this->position -= this->up * MOVEMENT_SPEED;
+}
 
+void Camera::updateMouse() {
+    glm::vec3 right = glm::cross(this->up, this->direction);
     glm::vec2 offset = Input::getCursorPos() - lastpos;
 
     float xOffset = -offset.x / 10;

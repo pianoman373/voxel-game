@@ -6,6 +6,7 @@
 #include <GL/glew.h>
 
 Texture::Texture(const char *file) {
+    stbi_set_flip_vertically_on_load(true);
     int width, height;
     unsigned char* image = stbi_load(file, &width, &height, 0, STBI_rgb);
 

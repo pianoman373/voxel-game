@@ -28,6 +28,6 @@ void MeshFactory::vertex(float x, float y, float z, float nx, float ny, float nz
     vertex(x, y, z, nx, ny, nz, 0.0f, 0.0f, 0.0f, u, v);
 }
 
-Mesh* MeshFactory::toMesh() {
-    return new Mesh(vertices.data(), count);
+void MeshFactory::toMesh(Mesh &mesh) {
+    mesh.initialize(vertices.data(), count, MeshMode::BLOCKS);
 }

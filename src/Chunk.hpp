@@ -1,4 +1,6 @@
-#define CHUNK_SIZE 64
+#pragma once
+
+#define CHUNK_SIZE 32
 
 #include "Mesh.hpp"
 #include "Shader.hpp"
@@ -6,7 +8,7 @@
 class Chunk {
 private:
     char blocks[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
-    Mesh *mesh;
+    Mesh mesh;
 
 public:
     int chunk_x;
@@ -23,5 +25,5 @@ public:
 
     void generateMesh();
 
-    void render(Shader *shader);
+    void render(Shader &shader);
 };

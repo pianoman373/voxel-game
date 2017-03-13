@@ -1,6 +1,6 @@
 //========================================================================
 // Joystick input test
-// Copyright (c) Camilla Berglund <elmindreda@glfw.org>
+// Copyright (c) Camilla Löwy <elmindreda@glfw.org>
 //
 // This software is provided 'as-is', without any express or implied
 // warranty. In no event will the authors be held liable for any damages
@@ -128,22 +128,18 @@ int main(void)
     while (!glfwWindowShouldClose(window))
     {
         int i, width, height;
-        struct nk_panel layout;
 
         glfwGetWindowSize(window, &width, &height);
 
         glClear(GL_COLOR_BUFFER_BIT);
         nk_glfw3_new_frame();
 
-        if (nk_begin(nk, &layout,
+        if (nk_begin(nk,
                      "Joysticks",
-                     nk_rect(0.f, 0.f, 0.f, 0.f),
+                     nk_rect(width - 200.f, 0.f, 200.f, (float) height),
                      NK_WINDOW_MINIMIZABLE |
                      NK_WINDOW_TITLE))
         {
-            nk_window_set_bounds(nk, nk_rect(width - 200.f, 0.f,
-                                             200.f, (float) height));
-
             nk_layout_row_dynamic(nk, 30, 1);
 
             if (joystick_count)
@@ -162,7 +158,7 @@ int main(void)
 
         for (i = 0;  i < joystick_count;  i++)
         {
-            if (nk_begin(nk, &layout,
+            if (nk_begin(nk,
                          joystick_label(joysticks[i]),
                          nk_rect(i * 20.f, i * 20.f, 400.f, 400.f),
                          NK_WINDOW_BORDER |
@@ -196,8 +192,6 @@ int main(void)
                         nk_select_label(nk, name, NK_TEXT_CENTERED, buttons[j]);
                     }
                 }
-
-                nk_layout_row_end(nk);
             }
 
             nk_end(nk);

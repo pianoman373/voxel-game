@@ -4,7 +4,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-const float MOVEMENT_SPEED = 0.1f;
+const float MOVEMENT_SPEED = 0.5f;
 const float ROTATION_SPEED = 0.01f;
 
 class Camera {
@@ -27,4 +27,6 @@ public:
     glm::mat4 getProjection();
 
     void update();
+
+    void updateMouse();
 };

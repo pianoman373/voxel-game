@@ -5,10 +5,18 @@ Chunk::Chunk(int x, int y, int z) {
     chunk_x = x;
     chunk_y = y;
     chunk_z = z;
+
+    for (int x = 0; x < CHUNK_SIZE; x++) {
+        for (int y = 0; y < CHUNK_SIZE; y++) {
+            for (int z = 0; z < CHUNK_SIZE; z++) {
+                blocks[x][y][z] = 0;
+            }
+        }
+    }
 }
 
 Chunk::~Chunk() {
-    delete mesh;
+
 }
 
 char Chunk::getBlock(int x, int y, int z) {
@@ -27,13 +35,9 @@ void Chunk::setBlock(int x, int y, int z, char block) {
 void Chunk::generateMesh() {
     MeshFactory ms = MeshFactory();
 
-    for (int x = 0; x < 64; x++) {
-        for (int z = 0; z < 64; z++) {
-            for (int y = 0; y < 64; y++) {
-                float r = 1.0f;
-                float g = 1.0f;
-                float b = 1.0f;
-
+    for (int x = 0; x < CHUNK_SIZE; x++) {
+        for (int z = 0; z < CHUNK_SIZE; z++) {
+            for (int y = 0; y < CHUNK_SIZE; y++) {
                 if (getBlock(x + 1, y, z) == 0 && getBlock(x, y, z) != 0) { //+x face
                     glm::vec3 col1 = glm::vec3(1.0f); //neg y pos z
                     glm::vec3 col2 = glm::vec3(1.0f); //pos y pos z
@@ -177,11 +181,11 @@ void Chunk::generateMesh() {
             }
         }
     }
-    this->mesh = ms.toMesh();
+    ms.toMesh(this->mesh);
 }
 
-void Chunk::render(Shader *shader) {
+void Chunk::render(Shader &shader) {
     glm::mat4 model = glm::mat4();
-    shader->uniform("model", glm::translate(model, glm::vec3(chunk_x * 64, (chunk_y * 64), chunk_z * 64)));
-    this->mesh->render();
+    shader.uniform("model", glm::translate(model, glm::vec3(chunk_x * CHUNK_SIZE, (chunk_y * CHUNK_SIZE), chunk_z * CHUNK_SIZE)));
+    mesh.render();
 }
