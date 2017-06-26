@@ -7,6 +7,8 @@
 #include <imgui.h>
 
 const float cascadeDistances[4] = {10.0f, 40.0f, 100.0f, 500.0f};
+const vec3 sunDirection = normalize(vec3(0.4f, 0.7f, 1.0f));
+const vec3 sunColor = vec3(1.4f, 1.3f, 1.0f);
 
 std::vector<RenderCall> renderQueue;
 
@@ -40,7 +42,7 @@ static void renderShadow(Framebuffer &fbuffer, mat4 lightSpaceMatrix) {
 }
 
 static mat4 shadowMatrix(float radius, Camera &cam) {
-    return orthographic(-radius, radius, -radius, radius, -radius * 8, radius * 8) * LookAt(cam.getPosition() + vec3(0.9, 1.1, 1.0), cam.getPosition(), vec3( 0.0f, 1.0f,  0.0f));
+    return orthographic(-radius, radius, -radius, radius, -radius * 8, radius * 8) * LookAt(cam.getPosition() + sunDirection, cam.getPosition(), vec3( 0.0f, 1.0f,  0.0f));
 }
 
 void Renderer::init() {
@@ -146,6 +148,8 @@ void Renderer::flush(Camera cam) {
             s.uniformMat4("view", cam.getView());
             s.uniformMat4("projection", cam.getProjection());
             s.uniformVec3("cameraPos", cam.getPosition());
+            s.uniformVec3("sunDirection", sunDirection);
+            s.uniformVec3("sunColor", sunColor);
 
             mat4 model;
             model = translate(model, call.transform.position);

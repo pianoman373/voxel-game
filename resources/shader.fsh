@@ -7,6 +7,8 @@ uniform sampler2D tex3;
 uniform sampler2D tex4;
 uniform float cascadeDistances[4];
 uniform vec3 cameraPos;
+uniform vec3 sunDirection;
+uniform vec3 sunColor;
 
 in vec3 fragNormal;
 in vec4 fragColor;
@@ -69,7 +71,7 @@ void main() {
 
   vec3 blockTex = texture(tex4, uv).rgb;
 
-	vec3 diffuse = max(dot(fragNormal, vec3(0.9, 1.1, 1.0)), 0.0) * vec3(0.9, 0.8, 0.5) * shadow;
+	vec3 diffuse = max(dot(fragNormal, sunDirection), 0.0) * sunColor * shadow;
 	vec3 diffuse2 = max(dot(fragNormal, normalize(vec3(-1.1, -0.9, -1.0))), 0.0) * vec3(1.0, 1.0, 1.0);
 	diffuse2 += max(dot(fragNormal, normalize(vec3(1.1, 0.9, 1.0))), 0.0) * vec3(1.0, 1.0, 1.0);
 
@@ -77,7 +79,7 @@ void main() {
 	vec3 fog = clamp((1.0/1000.0) * distance * distance, 0.0, 1.0) * vec3(0.6, 0.8, 1.0);
 
     vec3 finalColor = blockTex * fragColor.a * (diffuse + diffuse2);
-    finalColor = applyFog(finalColor, distance, normalize(cameraPos - fragPosition), normalize(-vec3(0.9, 1.1, 1.0)));
+    finalColor = applyFog(finalColor, distance, normalize(cameraPos - fragPosition), -sunDirection);
     //finalColor = applyGroundFog(finalColor, distance, cameraPos, fragPosition - cameraPos);
 
 	color = vec4(finalColor, 1.0);
