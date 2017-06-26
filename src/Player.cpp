@@ -43,7 +43,7 @@ void Player::update(Camera &cam, float delta) {
     }
 
     //apply gravity
-    velocity.y -= 0.45f * delta;
+    velocity.y -= 28.0f * delta * delta;
 
     //apply movement
     if (Input::isKeyDown(GLFW_KEY_W)) {
@@ -75,7 +75,7 @@ void Player::update(Camera &cam, float delta) {
         velocity = velocity + dir;
     }
     if (Input::isKeyDown(GLFW_KEY_SPACE) && onGround) {
-        velocity.y = 0.14f;
+        velocity.y = 8.4f * delta;
     }
 
     //the actual player collider (set to null for now)
