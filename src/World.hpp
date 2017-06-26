@@ -45,7 +45,7 @@ public:
 
     void rebuild();
 
-    void render(Shader shader, Texture tex);
+    void render(Camera &cam, Shader shader, Texture tex);
 
     int getBlock(int x, int y, int z);
 

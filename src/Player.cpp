@@ -77,6 +77,9 @@ void Player::update(Camera &cam, float delta) {
     if (Input::isKeyDown(GLFW_KEY_SPACE) && onGround) {
         velocity.y = 8.4f * delta;
     }
+    if (Input::isKeyDown(GLFW_KEY_R)) {
+        velocity.y = 8.4f * delta;
+    }
 
     //the actual player collider (set to null for now)
     AABB playerBoundingBox = AABB(vec3(), vec3());

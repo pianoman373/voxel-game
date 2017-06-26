@@ -5,6 +5,7 @@
 #include "AABB.hpp"
 #include "Input.hpp"
 #include "GLFW/glfw3.h"
+#include "Settings.hpp"
 
 World::~World() {
     for (auto const &ref: chunks) {
@@ -38,7 +39,7 @@ void World::rebuild() {
     }
 }
 
-void World::render(Shader shader, Texture tex) {
+void World::render(Camera &cam, Shader shader, Texture tex) {
     for (auto const &ref: chunks) {
         Chunk *c = ref.second;
 
@@ -49,7 +50,9 @@ void World::render(Shader shader, Texture tex) {
 
             vec3 chunkPos = vec3(c->chunk_x * CHUNK_SIZE, (c->chunk_y * CHUNK_SIZE), c->chunk_z * CHUNK_SIZE);
 
-            Renderer::render(&c->mesh, mat, Transform(chunkPos, vec3(), vec3()));
+            if (lengthSquared(cam.getPosition() - (chunkPos + (CHUNK_SIZE / 2.0f))) < (Settings::render_distance * Settings::render_distance)) {
+                Renderer::render(&c->mesh, mat, Transform(chunkPos, vec3(), vec3()));
+            }
         }
     }
 }

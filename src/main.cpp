@@ -24,7 +24,7 @@
 #include "Settings.hpp"
 #include "json.hpp"
 
-#define WORLD_SIZE 8
+#define WORLD_SIZE 16
 #define WORLD_HEIGHT 2
 
 Window window;
@@ -93,10 +93,7 @@ static void placeBlocks(Chunk *chunk) {
 
 static void init() {
     json j = Util::loadJsonFile("settings.json");
-
     Settings::load(j);
-
-    std::cout << j << std::endl;
 
     Renderer::init();
 
@@ -138,7 +135,7 @@ static void update(float deltaTime) {
     //<---===rendering===--->//
     world.rebuild();
 
-    world.render(shader, texture);
+    world.render(camera, shader, texture);
 
     ImGui::SetNextWindowPos(ImVec2(10,10));
     bool *p_open;
