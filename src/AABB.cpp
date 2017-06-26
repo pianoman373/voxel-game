@@ -1,5 +1,7 @@
 #include "AABB.hpp"
 
+#include <algorithm>
+
 AABB::AABB(vec3 min, vec3 max) {
     this->min.x = std::min(min.x, max.x);
     this->min.y = std::min(min.y, max.y);
