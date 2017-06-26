@@ -12,6 +12,9 @@ private:
     vec3 direction = vec3(0.0f, 0.0f, 1.0f);
     vec3 up = vec3(0.0f, 1.0f, 0.0f);
 
+    float xRot = 0.0f;
+    float yRot = 0.0f;
+
 public:
     vec3 getPosition();
 
@@ -35,8 +38,4 @@ public:
     mat4 getView();
 
     mat4 getProjection();
-
-    void update(GLFWwindow *window, float delta);
-
-    void updateMouse();
 };

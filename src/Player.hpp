@@ -12,6 +12,9 @@ public:
     vec3 velocity;
     bool onGround;
 
+    float xRot;
+    float yRot;
+
     World &world;
 
     Player(World &world);

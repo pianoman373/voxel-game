@@ -126,10 +126,6 @@ static void init() {
 }
 
 static void update(float deltaTime) {
-
-
-    camera.update(window.window, deltaTime);
-
     world.update(camera, deltaTime);
 
     //<---===rendering===--->//

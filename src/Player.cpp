@@ -6,6 +6,7 @@
 #include "World.hpp"
 
 static const float movementSpeed = 6.0f;
+static const float mouseSensitivity = 8.0f;
 
 //TODO: maybe this should be a pointer rather than a reference
 Player::Player(World &world): world(world) {
@@ -13,6 +14,32 @@ Player::Player(World &world): world(world) {
 }
 
 void Player::update(Camera &cam, float delta) {
+
+    //mouse movement input
+    static vec2 lastpos;
+
+    vec2 offset = Input::getCursorPos() - lastpos;
+    float xOffset = -offset.x / mouseSensitivity;
+    float yOffset = offset.y / mouseSensitivity;
+
+    yRot += (yOffset);
+    xRot += (xOffset);
+
+    if (yRot > 89.9f)
+        yRot = 89.9f;
+    if (yRot < -89.9f)
+        yRot = -89.9f;
+
+    mat4 mat;
+    mat = rotate(mat, vec3(0.0f, 1.0f, 0.0f), xRot);
+    mat = rotate(mat, vec3(1.0f, 0.0f, 0.0f), yRot);
+
+    vec4 vec = mat * vec4(vec3(0.0f, 0.0f, 1.0f), 1.0f);
+
+    cam.setDirection(vec3(vec));
+
+    lastpos = Input::getCursorPos();
+
     //get mouse input for breaking and placing
     static bool leftMouse = false;
     bool breakBlock = false;
