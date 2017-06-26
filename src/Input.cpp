@@ -1,13 +1,16 @@
 #include "Input.hpp"
 #include <iostream>
 
-bool keys[1024];
+static bool keys[1024];
+static bool mouse[4];
 
-double xpos = 0;
-double ypos = 0;
+static double xpos = 0;
+static double ypos = 0;
 
-double last_xpos = 0;
-double last_ypos = 0;
+static double last_xpos = 0;
+static double last_ypos = 0;
+
+static GLFWwindow* window;
 
 namespace Input {
 	void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode) {
@@ -30,7 +33,15 @@ namespace Input {
     }
 
     void mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
-
+        if (action != GLFW_REPEAT) {
+            if (button >= 0 && button < 3)
+            {
+                if (action == GLFW_PRESS)
+                    mouse[button] = true;
+                else if (action == GLFW_RELEASE)
+                    mouse[button] = false;
+            }
+        }
     }
 
     void cursor_callback(GLFWwindow* window, double x, double y) {
@@ -49,11 +60,23 @@ namespace Input {
         return keys[key];
     }
 
-    glm::vec2 getCursorPos() {
-        return glm::vec2(xpos, ypos);
+    bool isMouseButtonDown(int button) {
+        return mouse[button];
     }
 
-    glm::vec2 getLastCursorPos() {
-        return glm::vec2(last_xpos, last_ypos);
+    vec2 getCursorPos() {
+        return vec2(xpos, ypos);
+    }
+
+    vec2 getLastCursorPos() {
+        return vec2(last_xpos, last_ypos);
+    }
+
+    void setWindowInstance(GLFWwindow* windowInstance) {
+        window = windowInstance;
+    }
+
+    float getTime() {
+        return glfwGetTime();
     }
 }

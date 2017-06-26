@@ -1,32 +1,42 @@
 #pragma once
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include "Math.hpp"
+#include "GLFW/glfw3.h"
 
 const float MOVEMENT_SPEED = 0.5f;
 const float ROTATION_SPEED = 0.01f;
 
 class Camera {
 private:
-    glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
-    glm::vec3 direction = glm::vec3(0.0f, 0.0f, 1.0f);
-    glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f);
+    vec3 position = vec3(0.0f, 0.0f, 0.0f);
+    vec3 direction = vec3(0.0f, 0.0f, 1.0f);
+    vec3 up = vec3(0.0f, 1.0f, 0.0f);
 
 public:
-    glm::vec3 getPosition();
+    vec3 getPosition();
 
-    glm::vec3 getDirection();
+    /**
+     * Returns the forward "look" vector of the camera.
+     */
+    vec3 getDirection();
 
-    void setPosition(const glm::vec3 &position);
+    /**
+     * Returns the vector that is perpendicular to the look vector and the up vector (a.k.a "right").
+     */
+    vec3 getRight();
 
-    void setDirection(const glm::vec3 &direction);
+    void setPosition(const vec3 &position);
 
-    glm::mat4 getView();
+    /**
+     * Sets the forward "look" vector of the camera.
+     */
+    void setDirection(const vec3 &direction);
 
-    glm::mat4 getProjection();
+    mat4 getView();
 
-    void update();
+    mat4 getProjection();
+
+    void update(GLFWwindow *window, float delta);
 
     void updateMouse();
 };

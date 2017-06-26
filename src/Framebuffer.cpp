@@ -1,5 +1,7 @@
 #include "Framebuffer.hpp"
 
+//TODO: Adding this line makes windows compiler happy, need to figure out why.
+#define GLEW_STATIC
 #include <GL/glew.h>
 
 void Framebuffer::setupShadow(int width, int height) {
@@ -10,7 +12,7 @@ void Framebuffer::setupShadow(int width, int height) {
     glGenTextures(1, &depthMap);
     glBindTexture(GL_TEXTURE_2D, depthMap);
 
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -37,11 +39,20 @@ void Framebuffer::setupShadow(int width, int height) {
     this->texture = depthMap;
 }
 
+int Framebuffer::getWidth() {
+    return width;
+}
+
+int Framebuffer::getHeight() {
+    return height;
+}
+
 void Framebuffer::bind() {
     glBindFramebuffer(GL_FRAMEBUFFER, fbo);
 }
 
-void Framebuffer::bindTexture() {
+void Framebuffer::bindTexture(int unit) {
+    glActiveTexture(GL_TEXTURE0 + unit);
     glBindTexture(GL_TEXTURE_2D, texture);
 }
 

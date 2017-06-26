@@ -14,7 +14,9 @@ private:
 public:
    ~Mesh();
 
+    Mesh();
+
     void initialize(float *vertices, int size, MeshMode mode);
 
-    void render();
+    void render(int mode=0x0004);
 };

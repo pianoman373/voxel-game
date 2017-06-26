@@ -9,37 +9,21 @@ Shader::Shader() {
 
 }
 
-void Shader::load(const char* vertexPath, const char* fragmentPath) {
+void Shader::load(const std::string vertexPath, const std::string fragmentPath) {
     // 1. Retrieve the vertex/fragment source code from filePath
-    std::string vertexCode;
-    std::string fragmentCode;
-    std::ifstream vShaderFile;
-    std::ifstream fShaderFile;
 
-    // ensures ifstream objects can throw exceptions:
-    vShaderFile.exceptions(std::ifstream::badbit);
-    fShaderFile.exceptions(std::ifstream::badbit);
-    try {
-        // Open files
-        vShaderFile.open(vertexPath);
-        fShaderFile.open(fragmentPath);
-        std::stringstream vShaderStream, fShaderStream;
+    std::cout << "loading shaders: " << vertexPath << " and " << fragmentPath << std::endl;
 
-        // Read file's buffer contents into streams
-        vShaderStream << vShaderFile.rdbuf();
-        fShaderStream << fShaderFile.rdbuf();
+    std::string directory = vertexPath.substr(0, vertexPath.find_last_of("/\\"));
 
-        // close file handlers
-        vShaderFile.close();
-        fShaderFile.close();
+    std::ifstream vertexStream(vertexPath);
+    std::ifstream fragmentStream(fragmentPath);
 
-        // Convert stream into GLchar array
-        vertexCode = vShaderStream.str();
-        fragmentCode = fShaderStream.str();
-    }
-    catch(std::ifstream::failure e) {
-        std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ" << std::endl;
-    }
+    std::string vertexCode = readShader(vertexStream, directory);
+    std::string fragmentCode = readShader(fragmentStream, directory);
+
+    vertexStream.close();
+    fragmentStream.close();
 
     const char* vShaderCode = vertexCode.c_str();
     const char* fShaderCode = fragmentCode.c_str();
@@ -89,16 +73,65 @@ void Shader::load(const char* vertexPath, const char* fragmentPath) {
     glDeleteShader(fragmentShader);
 }
 
+std::string Shader::readShader(std::ifstream &file, std::string directory) {
+    std::string source, line;
+    while (std::getline(file, line))
+    {
+        std::string prefix = "#include \"";
+        if(line.substr(0, prefix.size()) == prefix) {
+            //::cout << "found include" << std::endl;
+
+            if (line.substr(line.size() - 1) == "\"") {
+                //std::cout << line.substr(prefix.size(), (line.size() - 1) - prefix.size()) << std::endl;
+
+                std::string includePath = directory + "/" + line.substr(prefix.size(), (line.size() - 1) - prefix.size());
+                std::ifstream includeFile(includePath);
+                if (includeFile.is_open())
+                {
+                    source += readShader(includeFile, directory);
+                }
+                includeFile.close();
+            }
+        }
+        else {
+            source += line + "\n";
+        }
+    }
+    return source;
+}
+
 void Shader::bind() {
     glUseProgram(this->id);
 }
 
-void Shader::uniform(const std::string location, const glm::mat4 &mat) {
+void Shader::uniformMat4(const std::string location, const mat4 &mat) {
     unsigned int transformLoc = glGetUniformLocation(this->id, location.c_str());
-    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(mat));
+
+    float matrixArray[] = {
+        mat.m00, mat.m10, mat.m20, mat.m30,
+        mat.m01, mat.m11, mat.m21, mat.m31,
+        mat.m02, mat.m12, mat.m22, mat.m32,
+        mat.m03, mat.m13, mat.m23, mat.m33
+    };
+    glUniformMatrix4fv(transformLoc, 1, GL_FALSE, matrixArray);
 }
 
-void Shader::uniform(const std::string location, const glm::vec3 &vec) {
+void Shader::uniformVec3(const std::string location, const vec3 &vec) {
     unsigned int transformLoc = glGetUniformLocation(this->id, location.c_str());
     glUniform3f(transformLoc, vec.x, vec.y, vec.z);
+}
+
+void Shader::uniformInt(const std::string location, int value) {
+    unsigned int transformLoc = glGetUniformLocation(this->id, location.c_str());
+    glUniform1i(transformLoc,value);
+}
+
+void Shader::uniformFloat(const std::string location, float value) {
+    unsigned int transformLoc = glGetUniformLocation(this->id, location.c_str());
+    glUniform1f(transformLoc,value);
+}
+
+void Shader::uniformBool(const std::string location, bool value) {
+    unsigned int transformLoc = glGetUniformLocation(this->id, location.c_str());
+    glUniform1i(transformLoc,value);
 }

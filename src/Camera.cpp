@@ -5,92 +5,87 @@
 
 #include <GLFW/glfw3.h>
 
-glm::vec3 Camera::getPosition() {
+vec3 Camera::getPosition() {
     return this->position;
 }
 
-glm::vec3 Camera::getDirection() {
+vec3 Camera::getDirection() {
     return this->direction;
 }
 
-void Camera::setPosition(const glm::vec3 &position) {
+vec3 Camera::getRight() {
+    return cross(this->direction, this->up);
+}
+
+void Camera::setPosition(const vec3 &position) {
     this->position = position;
 }
 
-void Camera::setDirection(const glm::vec3 &direction) {
+void Camera::setDirection(const vec3 &direction) {
     this->direction = direction;
 }
 
-glm::mat4 Camera::getView() {
-    return glm::lookAt(this->position, this->position + glm::normalize(direction), this->up);
+mat4 Camera::getView() {
+    return LookAt(this->position, this->position + normalize(direction), this->up);
 }
 
-glm::mat4 Camera::getProjection() {
-    return glm::perspective(70.0f, 1500.0f / 900.0f, 0.1f, 10000.0f);
+mat4 Camera::getProjection() {
+    //TODO: get rid of magic resolution numbers
+    return perspective(70.0f, 1400.0f / 800.0f, 0.1f, 10000.0f);
 }
 
-glm::vec2 lastpos = glm::vec2();
+vec2 lastpos;
 bool first = true;
 
-void Camera::update() {
-    glm::vec3 right = glm::cross(this->up, this->direction);
+//TODO This is just for debug purposes, should be removed.
+void Camera::update(GLFWwindow *window, float delta) {
+    glfwSetInputMode(window, GLFW_CURSOR, true ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
 
-    if (Input::isKeyDown(GLFW_KEY_A))
-        this->position += right * MOVEMENT_SPEED;
+    if (true) {
+        vec3 right = cross(this->up, this->direction);
+        //float speed = 8.0f * delta;
 
-    if (Input::isKeyDown(GLFW_KEY_D))
-        this->position -= right * MOVEMENT_SPEED;
+//        if (Input::isKeyDown(GLFW_KEY_A))
+//            this->position = this->position + right * speed;
 
-    if (Input::isKeyDown(GLFW_KEY_W))
-        this->position += this->direction * MOVEMENT_SPEED;
+//        if (Input::isKeyDown(GLFW_KEY_D))
+//            this->position = this->position - right * speed;
 
-    if (Input::isKeyDown(GLFW_KEY_S))
-        this->position -= this->direction * MOVEMENT_SPEED;
+//        if (Input::isKeyDown(GLFW_KEY_W))
+//            this->position = this->position + this->direction * speed;
 
-    if (Input::isKeyDown(GLFW_KEY_R))
-        this->position += this->up * MOVEMENT_SPEED;
+//        if (Input::isKeyDown(GLFW_KEY_S))
+//            this->position = this->position - this->direction * speed;
 
-    if (Input::isKeyDown(GLFW_KEY_F))
-        this->position -= this->up * MOVEMENT_SPEED;
+//        if (Input::isKeyDown(GLFW_KEY_R))
+//            this->position = this->position + this->up * speed;
+
+//        if (Input::isKeyDown(GLFW_KEY_F))
+//            this->position = this->position - this->up * speed;
+
+        //rotation
+        vec2 offset = Input::getCursorPos() - lastpos;
+        float xOffset = -offset.x / 10;
+        float yOffset = offset.y / 10;
+
+        //vertical
+        mat4 mat;
+        mat = rotate(mat, right, yOffset);
+
+        vec4 vec = mat * vec4(this->direction, 1.0f);
+
+        this->direction = normalize(vec3(vec));
+
+        //horizontal
+        mat4 mat2 = mat4();
+        mat2 = rotate(mat2, this->up, xOffset);
+        vec4 vecj = mat2 * vec4(this->direction, 1.0f);
+        this->direction = normalize(vec3(vecj));
+    }
+
+    lastpos = Input::getCursorPos();
 }
 
 void Camera::updateMouse() {
-    glm::vec3 right = glm::cross(this->up, this->direction);
-    glm::vec2 offset = Input::getCursorPos() - lastpos;
 
-    float xOffset = -offset.x / 10;
-    float yOffset = offset.y / 10;
-
-    if (Input::isKeyDown(GLFW_KEY_UP)) {
-        yOffset = -ROTATION_SPEED;
-    }
-    if (Input::isKeyDown(GLFW_KEY_DOWN)) {
-        yOffset = ROTATION_SPEED;
-    }
-    if (Input::isKeyDown(GLFW_KEY_RIGHT)) {
-        xOffset = -ROTATION_SPEED;
-    }
-    if (Input::isKeyDown(GLFW_KEY_LEFT)) {
-        xOffset = ROTATION_SPEED;
-    }
-
-    //vertical
-    glm::mat4 mat = glm::mat4();
-    mat = glm::rotate(mat, glm::radians(yOffset), right);
-
-    glm::vec4 vec = mat * glm::vec4(this->direction, 1.0f);
-
-    this->direction = glm::normalize(glm::vec3(vec));
-
-    glm::vec4 vec2 = mat * glm::vec4(this->up, 1.0f);
-
-    //this->up = glm::normalize(position);
-
-    //horizontal
-    glm::mat4 mat2 = glm::mat4();
-    mat2 = glm::rotate(mat2, glm::radians(xOffset), this->up);
-    glm::vec4 vec3 = mat2 * glm::vec4(this->direction, 1.0f);
-    this->direction = glm::normalize(glm::vec3(vec3));
-
-    lastpos = Input::getCursorPos();
 }

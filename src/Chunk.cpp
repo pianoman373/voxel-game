@@ -1,7 +1,13 @@
 #include "Chunk.hpp"
 #include "MeshFactory.hpp"
+#include "World.hpp"
+#include "Renderer.hpp"
 
-Chunk::Chunk(int x, int y, int z) {
+#include "Math.hpp"
+
+#include <math.h>
+
+Chunk::Chunk(int x, int y, int z, World* world) {
     chunk_x = x;
     chunk_y = y;
     chunk_z = z;
@@ -13,6 +19,8 @@ Chunk::Chunk(int x, int y, int z) {
             }
         }
     }
+
+    this->world = world;
 }
 
 Chunk::~Chunk() {
@@ -26,166 +34,221 @@ char Chunk::getBlock(int x, int y, int z) {
     return 0;
 }
 
+//WIP
+int Chunk::getBlockFromWorld(int x, int y, int z) {
+    //return world->getBlock((this->chunk_x * CHUNK_SIZE) + x, (this->chunk_y * CHUNK_SIZE) + y, (this->chunk_z * CHUNK_SIZE) + z);
+    return getBlock(x, y, z);
+}
+
 void Chunk::setBlock(int x, int y, int z, char block) {
+    if (this->empty) this->empty = false;
+
     if (x < CHUNK_SIZE && x >= 0 && y < CHUNK_SIZE && y >= 0 && z < CHUNK_SIZE && z >= 0) {
         blocks[x][y][z] = block;
     }
 }
 
+//float random helper, should be moved to Util
+float frand() {
+    return (float)std::rand() / (float)RAND_MAX;
+}
+
 void Chunk::generateMesh() {
-    MeshFactory ms = MeshFactory();
+    if (!empty) {
+        MeshFactory ms = MeshFactory();
 
-    for (int x = 0; x < CHUNK_SIZE; x++) {
-        for (int z = 0; z < CHUNK_SIZE; z++) {
-            for (int y = 0; y < CHUNK_SIZE; y++) {
-                if (getBlock(x + 1, y, z) == 0 && getBlock(x, y, z) != 0) { //+x face
-                    glm::vec3 col1 = glm::vec3(1.0f); //neg y pos z
-                    glm::vec3 col2 = glm::vec3(1.0f); //pos y pos z
-                    glm::vec3 col3 = glm::vec3(1.0f); //neg y neg z
-                    glm::vec3 col4 = glm::vec3(1.0f); //pos y neg z
+        //float textureSize = 64;
 
-                    if (getBlock(x + 1, y - 1, z) != 0 || getBlock(x + 1, y - 1, z + 1) != 0 || getBlock(x + 1, y, z + 1) != 0)
-                        col1 = glm::vec3(0.8f);
-                    if (getBlock(x + 1, y + 1, z) != 0 || getBlock(x + 1, y + 1, z + 1) != 0 || getBlock(x + 1, y, z + 1) != 0)
-                        col2 = glm::vec3(0.8f);
-                    if (getBlock(x + 1, y - 1, z) != 0 || getBlock(x + 1, y - 1, z - 1) != 0 || getBlock(x + 1, y, z - 1) != 0)
-                        col3 = glm::vec3(0.8f);
-                    if (getBlock(x + 1, y + 1, z) != 0 || getBlock(x + 1, y + 1, z - 1) != 0 || getBlock(x + 1, y, z - 1) != 0)
-                        col4 = glm::vec3(0.8f);
+        for (int x = 0; x < CHUNK_SIZE; x++) {
+            for (int z = 0; z < CHUNK_SIZE; z++) {
+                for (int y = 0; y < CHUNK_SIZE; y++) {
+                    vec3 blockColor = vec3(0.4f * (1+(frand()*0.1f-0.05f)), 0.6f * (1+(frand()*0.1f-0.05f)), 0.3f * (1+(frand()*0.1f-0.05f)));
 
-                    ms.vertex(1.0f+x,  0.0f+y,  0.0f+z,  1.0f, 0.0f, 0.0f,  col3.x, col3.y, col3.z,  0.0f, 1.0f);
-                    ms.vertex(1.0f+x,  1.0f+y,  0.0f+z,  1.0f, 0.0f, 0.0f,  col4.x, col4.y, col4.z,  1.0f, 1.0f);
-                    ms.vertex(1.0f+x,  1.0f+y,  1.0f+z,  1.0f, 0.0f, 0.0f,  col2.x, col2.y, col2.z,  1.0f, 0.0f);
+                    vec2 uv1 = vec2((1.0f / 8.0f), (0.0f / 8.0f));
+                    vec2 uv2 = vec2((2.0f / 8.0f), (1.0f / 8.0f));
 
-                    ms.vertex(1.0f+x,  1.0f+y,  1.0f+z,  1.0f, 0.0f, 0.0f,  col2.x, col2.y, col2.z,  1.0f, 0.0f);
-                    ms.vertex(1.0f+x,  0.0f+y,  1.0f+z,  1.0f, 0.0f, 0.0f,  col1.x, col1.y, col1.z,  0.0f, 0.0f);
-                    ms.vertex(1.0f+x,  0.0f+y,  0.0f+z,  1.0f, 0.0f, 0.0f,  col3.x, col3.y, col3.z,  0.0f, 1.0f);
-                }
-                if (getBlock(x - 1, y, z) == 0 && getBlock(x, y, z) != 0) { //-x face
-                    glm::vec3 col1 = glm::vec3(1.0f); //neg y pos z
-                    glm::vec3 col2 = glm::vec3(1.0f); //pos y pos z
-                    glm::vec3 col3 = glm::vec3(1.0f); //neg y neg z
-                    glm::vec3 col4 = glm::vec3(1.0f); //pos y neg z
+                    int block_X_Y_Z = getBlockFromWorld(x, y, z);
+//                    int block_X_posY_Z = getBlockFromWorld(x, y + 1, z);
+//                    int block_X_negY_Z = getBlockFromWorld(x, y - 1, z);
 
-                    if (getBlock(x - 1, y - 1, z) != 0 || getBlock(x - 1, y - 1, z + 1) != 0 || getBlock(x - 1, y, z + 1) != 0)
-                        col1 = glm::vec3(0.8f);
-                    if (getBlock(x - 1, y + 1, z) != 0 || getBlock(x - 1, y + 1, z + 1) != 0 || getBlock(x - 1, y, z + 1) != 0)
-                        col2 = glm::vec3(0.8f);
-                    if (getBlock(x - 1, y - 1, z) != 0 || getBlock(x - 1, y - 1, z - 1) != 0 || getBlock(x - 1, y, z - 1) != 0)
-                        col3 = glm::vec3(0.8f);
-                    if (getBlock(x - 1, y + 1, z) != 0 || getBlock(x - 1, y + 1, z - 1) != 0 || getBlock(x - 1, y, z - 1) != 0)
-                        col4 = glm::vec3(0.8f);
+//                    int block_X_Y_negZ = getBlockFromWorld(x, y, z - 1);
+//                    int block_X_posY_negZ = getBlockFromWorld(x, y + 1, z - 1);
+//                    int block_X_negY_negZ = getBlockFromWorld(x, y - 1, z - 1);
 
-                    ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  -1.0f, 0.0f, 0.0f,  col2.x, col2.y, col2.z,  1.0f, 0.0f);
-                    ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  -1.0f, 0.0f, 0.0f,  col4.x, col4.y, col4.z,  1.0f, 1.0f);
-                    ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  -1.0f, 0.0f, 0.0f,  col3.x, col3.y, col3.z,  0.0f, 1.0f);
+//                    int block_X_Y_posZ = getBlockFromWorld(x, y, z + 1);
+//                    int block_X_posY_posZ = getBlockFromWorld(x, y + 1, z + 1);
+//                    int block_X_negY_posZ = getBlockFromWorld(x, y - 1, z + 1);
 
-                    ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  -1.0f, 0.0f, 0.0f,  col3.x, col3.y, col3.z,  0.0f, 1.0f);
-                    ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  -1.0f, 0.0f, 0.0f,  col1.x, col1.y, col1.z,  0.0f, 0.0f);
-                    ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  -1.0f, 0.0f, 0.0f,  col2.x, col2.y, col2.z,  1.0f, 0.0f);
-                }
 
-                if (getBlock(x, y + 1, z) == 0 && getBlock(x, y, z) != 0) { //top face
-                    glm::vec3 col1 = glm::vec3(1.0f); //neg x pos z
-                    glm::vec3 col2 = glm::vec3(1.0f); //pos x pos z
-                    glm::vec3 col3 = glm::vec3(1.0f); //neg x neg z
-                    glm::vec3 col4 = glm::vec3(1.0f); //pos x neg z
+//                    int block_posX_Y_Z = getBlockFromWorld(x + 1, y, z);
+//                    int block_posX_posY_Z = getBlockFromWorld(x + 1, y + 1, z);
+//                    int block_posX_negY_Z = getBlockFromWorld(x + 1, y - 1, z);
 
-                    if (getBlock(x - 1, y + 1, z) != 0 || getBlock(x - 1, y + 1, z + 1) != 0 || getBlock(x, y + 1, z + 1) != 0)
-                        col1 = glm::vec3(0.8f);
-                    if (getBlock(x + 1, y + 1, z) != 0 || getBlock(x + 1, y + 1, z + 1) != 0 || getBlock(x, y + 1, z + 1) != 0)
-                        col2 = glm::vec3(0.8f);
-                    if (getBlock(x - 1, y + 1, z) != 0 || getBlock(x - 1, y + 1, z - 1) != 0 || getBlock(x, y + 1, z - 1) != 0)
-                        col3 = glm::vec3(0.8f);
-                    if (getBlock(x + 1, y + 1, z) != 0 || getBlock(x + 1, y + 1, z - 1) != 0 || getBlock(x, y + 1, z - 1) != 0)
-                        col4 = glm::vec3(0.8f);
+//                    int block_posX_Y_negZ = getBlockFromWorld(x + 1, y, z - 1);
+//                    int block_posX_posY_negZ = getBlockFromWorld(x + 1, y + 1, z - 1);
+//                    int block_posX_negY_negZ = getBlockFromWorld(x + 1, y - 1, z - 1);
 
-                    ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 1.0f, 0.0f,  col2.x, col2.y, col2.z,  1.0f, 0.0f);
-                    ms.vertex( 1.0f+x,  1.0f+y,  0.0f+z,  0.0f, 1.0f, 0.0f,  col4.x, col4.y, col4.z,  1.0f, 1.0f);
-                    ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  0.0f, 1.0f, 0.0f,  col3.x, col3.y, col3.z,  0.0f, 1.0f);
+//                    int block_posX_Y_posZ = getBlockFromWorld(x + 1, y, z + 1);
+//                    int block_posX_posY_posZ = getBlockFromWorld(x + 1, y + 1, z + 1);
+//                    int block_posX_negY_posZ = getBlockFromWorld(x + 1, y - 1, z + 1);
 
-                    ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  0.0f, 1.0f, 0.0f,  col3.x, col3.y, col3.z,  0.0f, 1.0f);
-                    ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  0.0f, 1.0f, 0.0f,  col1.x, col1.y, col1.z,  0.0f, 0.0f);
-                    ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 1.0f, 0.0f,  col2.x, col2.y, col2.z,  1.0f, 0.0f);
-                }
-                if (getBlock(x, y - 1, z) == 0 && getBlock(x, y, z) != 0) { //bottom face
-                    glm::vec3 col1 = glm::vec3(1.0f); //neg x pos z
-                    glm::vec3 col2 = glm::vec3(1.0f); //pos x pos z
-                    glm::vec3 col3 = glm::vec3(1.0f); //neg x neg z
-                    glm::vec3 col4 = glm::vec3(1.0f); //pos x neg z
 
-                    if (getBlock(x - 1, y - 1, z) != 0 || getBlock(x - 1, y - 1, z + 1) != 0 || getBlock(x, y - 1, z + 1) != 0)
-                        col1 = glm::vec3(0.8f);
-                    if (getBlock(x + 1, y - 1, z) != 0 || getBlock(x + 1, y - 1, z + 1) != 0 || getBlock(x, y - 1, z + 1) != 0)
-                        col2 = glm::vec3(0.8f);
-                    if (getBlock(x - 1, y - 1, z) != 0 || getBlock(x - 1, y - 1, z - 1) != 0 || getBlock(x, y - 1, z - 1) != 0)
-                        col3 = glm::vec3(0.8f);
-                    if (getBlock(x + 1, y - 1, z) != 0 || getBlock(x + 1, y - 1, z - 1) != 0 || getBlock(x, y - 1, z - 1) != 0)
-                        col4 = glm::vec3(0.8f);
+//                    int block_negX_Y_Z = getBlockFromWorld(x - 1, y, z);
+//                    int block_negX_posY_Z = getBlockFromWorld(x - 1, y + 1, z);
+//                    int block_negX_negY_Z = getBlockFromWorld(x - 1, y - 1, z);
 
-                    ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, -1.0f, 0.0f,  col3.x, col3.y, col3.z,  0.0f, 1.0f);
-                    ms.vertex( 1.0f+x,  0.0f+y,  0.0f+z,  0.0f, -1.0f, 0.0f,  col4.x, col4.y, col4.z,  1.0f, 1.0f);
-                    ms.vertex( 1.0f+x,  0.0f+y,  1.0f+z,  0.0f, -1.0f, 0.0f,  col2.x, col2.y, col2.z,  1.0f, 0.0f);
+//                    int block_negX_Y_negZ = getBlockFromWorld(x - 1, y, z - 1);
+//                    int block_negX_posY_negZ = getBlockFromWorld(x - 1, y + 1, z - 1);
+//                    int block_negX_negY_negZ = getBlockFromWorld(x - 1, y - 1, z - 1);
 
-                    ms.vertex( 1.0f+x,  0.0f+y,  1.0f+z,  0.0f, -1.0f, 0.0f,  col2.x, col2.y, col2.z,  1.0f, 0.0f);
-                    ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  0.0f, -1.0f, 0.0f,  col1.x, col1.y, col1.z,  0.0f, 0.0f);
-                    ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, -1.0f, 0.0f,  col3.x, col3.y, col3.z,  0.0f, 1.0f);
-                }
+//                    int block_negX_Y_posZ = getBlockFromWorld(x - 1, y, z + 1);
+//                    int block_negX_posY_posZ = getBlockFromWorld(x - 1, y + 1, z + 1);
+//                    int block_negX_negY_posZ = getBlockFromWorld(x - 1, y - 1, z + 1);
 
-                if (getBlock(x, y, z - 1) == 0 && getBlock(x, y, z) != 0) { //-z face
-                    glm::vec3 col1 = glm::vec3(1.0f); //neg x pos y
-                    glm::vec3 col2 = glm::vec3(1.0f); //pos x pos y
-                    glm::vec3 col3 = glm::vec3(1.0f); //neg x neg y
-                    glm::vec3 col4 = glm::vec3(1.0f); //pos x neg y
+                    if (getBlockFromWorld(x + 1, y, z) == 0 && block_X_Y_Z != 0) { //+x face
+                        float ao1 = 1.0f; //neg y pos z
+                        float ao2 = 1.0f; //pos y pos z
+                        float ao3 = 1.0f; //neg y neg z
+                        float ao4 = 1.0f; //pos y neg z
 
-                    if (getBlock(x - 1, y, z - 1) != 0 || getBlock(x - 1, y + 1, z - 1) != 0 || getBlock(x, y + 1, z - 1) != 0)
-                        col1 = glm::vec3(0.8f);
-                    if (getBlock(x + 1, y, z - 1) != 0 || getBlock(x + 1, y + 1, z - 1) != 0 || getBlock(x, y + 1, z - 1) != 0)
-                        col2 = glm::vec3(0.8f);
-                    if (getBlock(x - 1, y, z - 1) != 0 || getBlock(x - 1, y - 1, z - 1) != 0 || getBlock(x, y - 1, z - 1) != 0)
-                        col3 = glm::vec3(0.8f);
-                    if (getBlock(x + 1, y, z - 1) != 0 || getBlock(x + 1, y - 1, z - 1) != 0 || getBlock(x, y - 1, z - 1) != 0)
-                        col4 = glm::vec3(0.8f);
+                        if (getBlockFromWorld(x + 1, y - 1, z) != 0 || getBlockFromWorld(x + 1, y - 1, z + 1) != 0 || getBlockFromWorld(x + 1, y, z + 1) != 0)
+                            ao1 = 0.8f;
+                        if (getBlockFromWorld(x + 1, y + 1, z) != 0 || getBlockFromWorld(x + 1, y + 1, z + 1) != 0 || getBlockFromWorld(x + 1, y, z + 1) != 0)
+                            ao2 = 0.8f;
+                        if (getBlockFromWorld(x + 1, y - 1, z) != 0 || getBlockFromWorld(x + 1, y - 1, z - 1) != 0 || getBlockFromWorld(x + 1, y, z - 1) != 0)
+                            ao3 = 0.8f;
+                        if (getBlockFromWorld(x + 1, y + 1, z) != 0 || getBlockFromWorld(x + 1, y + 1, z - 1) != 0 || getBlockFromWorld(x + 1, y, z - 1) != 0)
+                            ao4 = 0.8f;
 
-                    ms.vertex( 1.0f+x,  1.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  col2.x, col2.y, col2.z,  1.0f, 1.0f);
-                    ms.vertex( 1.0f+x,  0.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  col4.x, col4.y, col4.z,  1.0f, 0.0f);
-                    ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  col3.x, col3.y, col3.z,  0.0f, 0.0f);
+                        ms.vertex(1.0f+x,  0.0f+y,  0.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao3,  uv1.x, uv2.y);
+                        ms.vertex(1.0f+x,  1.0f+y,  0.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao4,  uv2.x, uv2.y);
+                        ms.vertex(1.0f+x,  1.0f+y,  1.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao2,  uv2.x, uv1.y);
 
-                    ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  col3.x, col3.y, col3.z,  0.0f, 0.0f);
-                    ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  col1.x, col1.y, col1.z,  0.0f, 1.0f);
-                    ms.vertex( 1.0f+x,  1.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  col2.x, col2.y, col2.z,  1.0f, 1.0f);
-                }
-                if (getBlock(x, y, z + 1) == 0 && getBlock(x, y, z) != 0) { //+z face
-                    glm::vec3 col1 = glm::vec3(1.0f); //neg x pos y
-                    glm::vec3 col2 = glm::vec3(1.0f); //pos x pos y
-                    glm::vec3 col3 = glm::vec3(1.0f); //neg x neg y
-                    glm::vec3 col4 = glm::vec3(1.0f); //pos x neg y
+                        ms.vertex(1.0f+x,  1.0f+y,  1.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao2,  uv2.x, uv1.y);
+                        ms.vertex(1.0f+x,  0.0f+y,  1.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao1,  uv1.x, uv1.y);
+                        ms.vertex(1.0f+x,  0.0f+y,  0.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao3,  uv1.x, uv2.y);
+                    }
+                    if (getBlockFromWorld(x - 1, y, z) == 0 && block_X_Y_Z != 0) { //-x face
+                        float ao1 = 1.0f; //neg y pos z
+                        float ao2 = 1.0f; //pos y pos z
+                        float ao3 = 1.0f; //neg y neg z
+                        float ao4 = 1.0f; //pos y neg z
 
-                    if (getBlock(x - 1, y, z + 1) != 0 || getBlock(x - 1, y + 1, z + 1) != 0 || getBlock(x, y + 1, z + 1) != 0)
-                        col1 = glm::vec3(0.8f);
-                    if (getBlock(x + 1, y, z + 1) != 0 || getBlock(x + 1, y + 1, z + 1) != 0 || getBlock(x, y + 1, z + 1) != 0)
-                        col2 = glm::vec3(0.8f);
-                    if (getBlock(x - 1, y, z + 1) != 0 || getBlock(x - 1, y - 1, z + 1) != 0 || getBlock(x, y - 1, z + 1) != 0)
-                        col3 = glm::vec3(0.8f);
-                    if (getBlock(x + 1, y, z + 1) != 0 || getBlock(x + 1, y - 1, z + 1) != 0 || getBlock(x, y - 1, z + 1) != 0)
-                        col4 = glm::vec3(0.8f);
+                        if (getBlockFromWorld(x - 1, y - 1, z) != 0 || getBlockFromWorld(x - 1, y - 1, z + 1) != 0 || getBlockFromWorld(x - 1, y, z + 1) != 0)
+                            ao1 = 0.8f;
+                        if (getBlockFromWorld(x - 1, y + 1, z) != 0 || getBlockFromWorld(x - 1, y + 1, z + 1) != 0 || getBlockFromWorld(x - 1, y, z + 1) != 0)
+                            ao2 = 0.8f;
+                        if (getBlockFromWorld(x - 1, y - 1, z) != 0 || getBlockFromWorld(x - 1, y - 1, z - 1) != 0 || getBlockFromWorld(x - 1, y, z - 1) != 0)
+                            ao3 = 0.8f;
+                        if (getBlockFromWorld(x - 1, y + 1, z) != 0 || getBlockFromWorld(x - 1, y + 1, z - 1) != 0 || getBlockFromWorld(x - 1, y, z - 1) != 0)
+                            ao4 = 0.8f;
 
-                    ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  col3.x, col3.y, col3.z,  0.0f, 0.0f);
-                    ms.vertex( 1.0f+x,  0.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  col4.x, col4.y, col4.z,  1.0f, 0.0f);
-                    ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  col2.x, col2.y, col2.z,  1.0f, 1.0f);
+                        ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao2,  uv2.x, uv1.y);
+                        ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao4,  uv2.x, uv2.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao3,  uv1.x, uv2.y);
 
-                    ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  col2.x, col2.y, col2.z,  1.0f, 1.0f);
-                    ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  col1.x, col1.y, col1.z,  0.0f, 1.0f);
-                    ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  col3.x, col3.y, col3.z,  0.0f, 0.0f);
+                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao3,  uv1.x, uv2.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao1,  uv1.x, uv1.y);
+                        ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao2,  uv2.x, uv1.y);
+                    }
+
+                    if (getBlockFromWorld(x, y + 1, z) == 0 && block_X_Y_Z != 0) { //top face
+                        float ao1 = 1.0f; //neg x pos z
+                        float ao2 = 1.0f; //pos x pos z
+                        float ao3 = 1.0f; //neg x neg z
+                        float ao4 = 1.0f; //pos x neg z
+
+                        if (getBlockFromWorld(x - 1, y + 1, z) != 0 || getBlockFromWorld(x - 1, y + 1, z + 1) != 0 || getBlockFromWorld(x, y + 1, z + 1) != 0)
+                            ao1 = 0.8f;
+                        if (getBlockFromWorld(x + 1, y + 1, z) != 0 || getBlockFromWorld(x + 1, y + 1, z + 1) != 0 || getBlockFromWorld(x, y + 1, z + 1) != 0)
+                            ao2 = 0.8f;
+                        if (getBlockFromWorld(x - 1, y + 1, z) != 0 || getBlockFromWorld(x - 1, y + 1, z - 1) != 0 || getBlockFromWorld(x, y + 1, z - 1) != 0)
+                            ao3 = 0.8f;
+                        if (getBlockFromWorld(x + 1, y + 1, z) != 0 || getBlockFromWorld(x + 1, y + 1, z - 1) != 0 || getBlockFromWorld(x, y + 1, z - 1) != 0)
+                            ao4 = 0.8f;
+
+                        ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao2,  uv2.x, uv1.y);
+                        ms.vertex( 1.0f+x,  1.0f+y,  0.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao4,  uv2.x, uv2.y);
+                        ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao3,  uv1.x, uv2.y);
+
+                        ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao3,  uv1.x, uv2.y);
+                        ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao1,  uv1.x, uv1.y);
+                        ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao2,  uv2.x, uv1.y);
+                    }
+                    if (getBlockFromWorld(x, y - 1, z) == 0 && block_X_Y_Z != 0) { //bottom face
+                        float ao1 = 1.0f; //neg x pos z
+                        float ao2 = 1.0f; //pos x pos z
+                        float ao3 = 1.0f; //neg x neg z
+                        float ao4 = 1.0f; //pos x neg z
+
+                        if (getBlockFromWorld(x - 1, y - 1, z) != 0 || getBlockFromWorld(x - 1, y - 1, z + 1) != 0 || getBlockFromWorld(x, y - 1, z + 1) != 0)
+                            ao1 = 0.8f;
+                        if (getBlockFromWorld(x + 1, y - 1, z) != 0 || getBlockFromWorld(x + 1, y - 1, z + 1) != 0 || getBlockFromWorld(x, y - 1, z + 1) != 0)
+                            ao2 = 0.8f;
+                        if (getBlockFromWorld(x - 1, y - 1, z) != 0 || getBlockFromWorld(x - 1, y - 1, z - 1) != 0 || getBlockFromWorld(x, y - 1, z - 1) != 0)
+                            ao3 = 0.8f;
+                        if (getBlockFromWorld(x + 1, y - 1, z) != 0 || getBlockFromWorld(x + 1, y - 1, z - 1) != 0 || getBlockFromWorld(x, y - 1, z - 1) != 0)
+                            ao4 = 0.8f;
+
+                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao3,  uv1.x, uv2.y);
+                        ms.vertex( 1.0f+x,  0.0f+y,  0.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao4,  uv2.x, uv2.y);
+                        ms.vertex( 1.0f+x,  0.0f+y,  1.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao2,  uv2.x, uv1.y);
+
+                        ms.vertex( 1.0f+x,  0.0f+y,  1.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao2,  uv2.x, uv1.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao1,  uv1.x, uv1.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao3,  uv1.x, uv2.y);
+                    }
+
+                    if (getBlockFromWorld(x, y, z - 1) == 0 && block_X_Y_Z != 0) { //-z face
+                        float ao1 = 1.0f; //neg x pos y
+                        float ao2 = 1.0f; //pos x pos y
+                        float ao3 = 1.0f; //neg x neg y
+                        float ao4 = 1.0f; //pos x neg y
+
+                        if (getBlockFromWorld(x - 1, y, z - 1) != 0 || getBlockFromWorld(x - 1, y + 1, z - 1) != 0 || getBlockFromWorld(x, y + 1, z - 1) != 0)
+                            ao1 = 0.8f;
+                        if (getBlockFromWorld(x + 1, y, z - 1) != 0 || getBlockFromWorld(x + 1, y + 1, z - 1) != 0 || getBlockFromWorld(x, y + 1, z - 1) != 0)
+                            ao2 = 0.8f;
+                        if (getBlockFromWorld(x - 1, y, z - 1) != 0 || getBlockFromWorld(x - 1, y - 1, z - 1) != 0 || getBlockFromWorld(x, y - 1, z - 1) != 0)
+                            ao3 = 0.8f;
+                        if (getBlockFromWorld(x + 1, y, z - 1) != 0 || getBlockFromWorld(x + 1, y - 1, z - 1) != 0 || getBlockFromWorld(x, y - 1, z - 1) != 0)
+                            ao4 = 0.8f;
+
+                        ms.vertex( 1.0f+x,  1.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, ao2,  uv2.x, uv2.y);
+                        ms.vertex( 1.0f+x,  0.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, ao4,  uv2.x, uv1.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, ao3,  uv1.x, uv1.y);
+
+                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, ao3,  uv1.x, uv1.y);
+                        ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, ao1,  uv1.x, uv2.y);
+                        ms.vertex( 1.0f+x,  1.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, ao2,  uv2.x, uv2.y);
+                    }
+                    if (getBlockFromWorld(x, y, z + 1) == 0 && block_X_Y_Z != 0) { //+z face
+                        float ao1 = 1.0f; //neg x pos y
+                        float ao2 = 1.0f; //pos x pos y
+                        float ao3 = 1.0f; //neg x neg y
+                        float ao4 = 1.0f; //pos x neg y
+
+                        if (getBlockFromWorld(x - 1, y, z + 1) != 0 || getBlockFromWorld(x - 1, y + 1, z + 1) != 0 || getBlockFromWorld(x, y + 1, z + 1) != 0)
+                            ao1 = 0.8f;
+                        if (getBlockFromWorld(x + 1, y, z + 1) != 0 || getBlockFromWorld(x + 1, y + 1, z + 1) != 0 || getBlockFromWorld(x, y + 1, z + 1) != 0)
+                            ao2 = 0.8f;
+                        if (getBlockFromWorld(x - 1, y, z + 1) != 0 || getBlockFromWorld(x - 1, y - 1, z + 1) != 0 || getBlockFromWorld(x, y - 1, z + 1) != 0)
+                            ao3 = 0.8f;
+                        if (getBlockFromWorld(x + 1, y, z + 1) != 0 || getBlockFromWorld(x + 1, y - 1, z + 1) != 0 || getBlockFromWorld(x, y - 1, z + 1) != 0)
+                            ao4 = 0.8f;
+
+                        ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, ao3,  uv1.x, uv1.y);
+                        ms.vertex( 1.0f+x,  0.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, ao4,  uv2.x, uv1.y);
+                        ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, ao2,  uv2.x, uv2.y);
+
+                        ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, ao2,  uv2.x, uv2.y);
+                        ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, ao1,  uv1.x, uv2.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, ao3,  uv1.x, uv1.y);
+                    }
                 }
             }
         }
+        ms.toMesh(this->mesh);
+		ms.clear();
     }
-    ms.toMesh(this->mesh);
-}
-
-void Chunk::render(Shader &shader) {
-    glm::mat4 model = glm::mat4();
-    shader.uniform("model", glm::translate(model, glm::vec3(chunk_x * CHUNK_SIZE, (chunk_y * CHUNK_SIZE), chunk_z * CHUNK_SIZE)));
-    mesh.render();
 }

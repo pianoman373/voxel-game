@@ -1,12 +1,12 @@
 #pragma once
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
+#include "Math.hpp"
 
 #include <GLFW/glfw3.h>
 
 namespace Input {
+
+    //private callback functions
 	void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode);
 
     void char_callback(GLFWwindow* window, unsigned int codepoint);
@@ -19,7 +19,13 @@ namespace Input {
 
     bool isKeyDown(int key);
 
-    glm::vec2 getCursorPos();
+    bool isMouseButtonDown(int button);
 
-    glm::vec2 getLastCursorPos();
+    vec2 getCursorPos();
+
+    vec2 getLastCursorPos();
+
+    void setWindowInstance(GLFWwindow* windowInstance);
+
+    float getTime();
 }

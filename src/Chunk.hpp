@@ -3,19 +3,29 @@
 #define CHUNK_SIZE 32
 
 #include "Mesh.hpp"
-#include "Shader.hpp"
+
+class World;
+
 
 class Chunk {
 private:
     char blocks[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
-    Mesh mesh;
+    World *world;
+
+    int getBlockFromWorld(int x, int y, int z);
 
 public:
+    Mesh mesh;
+    bool empty = true;
+
+    //TODO: should be a vec3i
     int chunk_x;
     int chunk_y;
     int chunk_z;
 
-    Chunk(int x, int y, int z);
+    bool rebuild = false;
+
+    Chunk(int x, int y, int z, World* world);
 
     ~Chunk();
 
@@ -23,7 +33,9 @@ public:
 
     void setBlock(int x, int y, int z, char block);
 
+    /**
+     * Regenerates what should actually be rendered. Required for block
+     * changes to appear.
+     */
     void generateMesh();
-
-    void render(Shader &shader);
 };
