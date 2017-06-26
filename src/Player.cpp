@@ -206,7 +206,9 @@ void Player::update(Camera &cam, float delta) {
             world.setBlock(blockpos.x, blockpos.y, blockpos.z, 0);
         }
         if (placeBlock) {
-            world.setBlock(blockpos.x + blocknormal.x, blockpos.y + blocknormal.y, blockpos.z + blocknormal.z, 4);
+            if (!playerBoundingBox.intersectsWith(AABB(vec3(blockpos.x + blocknormal.x, blockpos.y + blocknormal.y, blockpos.z + blocknormal.z), vec3(blockpos.x  + blocknormal.x + 1, blockpos.y  + blocknormal.y + 1, blockpos.z  + blocknormal.z + 1)))) {
+                world.setBlock(blockpos.x + blocknormal.x, blockpos.y + blocknormal.y, blockpos.z + blocknormal.z, 4);
+            }
         }
     }
 
