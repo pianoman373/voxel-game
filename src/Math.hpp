@@ -21,6 +21,15 @@ inline float Rad2Deg(float radians)
     return radians / PI * 180.0f;
 }
 
+enum class EnumDirection {
+    POSITIVE_X,
+    NEGATIVE_X,
+    POSITIVE_Y,
+    NEGATIVE_Y,
+    POSITIVE_Z,
+    NEGATIVE_Z
+};
+
 template <class T>
 struct matrix4 {
     T m00, m01, m02, m03;
@@ -500,6 +509,11 @@ inline vector3<T> cross(vector3<T> lhs, vector3<T> rhs) {
     float y = lhs.z * rhs.x - lhs.x * rhs.z;
     float z = lhs.x * rhs.y - lhs.y * rhs.x;
     return vec3(x, y, z);
+}
+
+template <typename T>
+inline T dot(vector3<T> lhs, vector3<T> rhs) {
+    return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z;
 }
 
 

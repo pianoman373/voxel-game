@@ -206,7 +206,7 @@ void Player::update(Camera &cam, float delta) {
             world.setBlock(blockpos.x, blockpos.y, blockpos.z, 0);
         }
         if (placeBlock) {
-            world.setBlock(blockpos.x + blocknormal.x, blockpos.y + blocknormal.y, blockpos.z + blocknormal.z, 1);
+            world.setBlock(blockpos.x + blocknormal.x, blockpos.y + blocknormal.y, blockpos.z + blocknormal.z, 4);
         }
     }
 

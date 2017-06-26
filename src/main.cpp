@@ -19,6 +19,7 @@
 #include "Material.hpp"
 #include "Renderer.hpp"
 #include "AABB.hpp"
+#include "Block.hpp"
 
 #define WORLD_SIZE 8
 #define WORLD_HEIGHT 2
@@ -30,20 +31,57 @@ World world;
 Texture texture;
 Camera camera;
 
+static float heightAt(vec3 pos) {
+    return Util::ridgedNoise(vec2(pos.x, pos.z), 5, 0.003f, 0.5f) * 30.0f + 20.0f;
+}
+
 static void placeBlocks(Chunk *chunk) {
     //std::cout << "generating chunk" << std::endl;
 
     //double time1 = glfwGetTime();
-    for (int x = 0; x < 32; x++) {
-        for (int y = 0; y < WORLD_HEIGHT; y++) {
-            for (int z = 0; z < 32; z++) {
-                float height = Util::ridgedNoise(vec2(x + (chunk->chunk_x * 32), z + (chunk->chunk_z * 32)), 5, 0.003f, 0.5f) * 20.0f + 20.0f;
-                height -= (y + chunk->chunk_y * 32);
-                for (int y = 0; y < height; y++) {
-                    chunk->setBlock(x, y, z, 1);
+    for (int x = 0; x < CHUNK_SIZE; x++) {
+        //for (int y = 0; y < CHUNK_SIZE; y++) {
+            for (int z = 0; z < CHUNK_SIZE; z++) {
+                float height = heightAt(vec3(x + (chunk->chunk_x * CHUNK_SIZE), 0.0f, z + (chunk->chunk_z * CHUNK_SIZE)));
+
+                //create vectors which begin at this block and extend to the next block over
+                vec3 lineNegX =  normalize(vec3(x - 1, heightAt(vec3(x + (chunk->chunk_x * CHUNK_SIZE) - 1, 0.0f, z + (chunk->chunk_z * CHUNK_SIZE))), z) - vec3(x, height, z));
+                vec3 linePosX =  normalize(vec3(x + 1, heightAt(vec3(x + (chunk->chunk_x * CHUNK_SIZE) + 1, 0.0f, z + (chunk->chunk_z * CHUNK_SIZE))), z) - vec3(x, height, z));
+
+                vec3 lineNegY =  normalize(vec3(x, heightAt(vec3(x + (chunk->chunk_x * CHUNK_SIZE), 0.0f, z + (chunk->chunk_z * CHUNK_SIZE) - 1)), z - 1) - vec3(x, height, z));
+                vec3 linePosY =  normalize(vec3(x, heightAt(vec3(x + (chunk->chunk_x * CHUNK_SIZE), 0.0f, z + (chunk->chunk_z * CHUNK_SIZE) + 1)), z + 1) - vec3(x, height, z));
+
+                //cross those vectors to get upwards pointing lines
+                vec3 norm1 = cross(lineNegY, lineNegX);
+                vec3 norm2 = cross(linePosX, lineNegY);
+
+                vec3 norm3 = cross(linePosY, linePosX);
+                vec3 norm4 = cross(lineNegX, linePosY);
+
+
+                //average them together to get what is effectively a surface normal if this terrain were to be smoothed out
+                vec3 finalNorm = (norm1 + norm2 + norm3 + norm4) / 4.0f;
+
+
+                //std::cout << lineNegX << std::endl;
+
+                height -= (chunk->chunk_y * 32);
+                for (int i = 0; i < height; i++) {
+                    if (dot(finalNorm, vec3(0.0f, 1.0f, 0.0f)) < 0.7f) {
+                        chunk->setBlock(x, i, z, 4);
+                    }
+                    else {
+                        chunk->setBlock(x, i, z, 2);
+                    }
+                }
+                if (dot(finalNorm, vec3(0.0f, 1.0f, 0.0f)) < 0.7f) {
+                    chunk->setBlock(x, floor(height), z, 4);
+                }
+                else {
+                    chunk->setBlock(x, floor(height), z, 3);
                 }
             }
-        }
+        //}
     }
     //std::cout << "generated chunk in: " << glfwGetTime() - time1 << std::endl;
     chunk->rebuild = true;
@@ -52,6 +90,12 @@ static void placeBlocks(Chunk *chunk) {
 
 static void init() {
     Renderer::init();
+
+    BlockRegistry::registerBlock(0, new BlockAir());
+    BlockRegistry::registerBlock(1, new SimpleBlock(vec2i(1, 0)));
+    BlockRegistry::registerBlock(2, new SimpleBlock(vec2i(4, 0)));
+    BlockRegistry::registerBlock(3, new BlockGrass());
+    BlockRegistry::registerBlock(4, new SimpleBlock(vec2i(2, 0)));
 
     shader.load("resources/shader.vsh", "resources/shader.fsh");
     texture.load("resources/blocks.png");
