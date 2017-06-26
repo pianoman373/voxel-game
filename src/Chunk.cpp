@@ -57,6 +57,8 @@ void Chunk::generateMesh() {
     if (!empty) {
         MeshFactory ms = MeshFactory();
 
+        float bias = 0.0001f;
+
         //float textureSize = 64;
 
         for (int x = 0; x < CHUNK_SIZE; x++) {
@@ -109,8 +111,8 @@ void Chunk::generateMesh() {
                     if (getBlockFromWorld(x + 1, y, z) == 0 && block_X_Y_Z != 0) { //+x face
                         vec2i textureCoord = block->getTextureCoord(EnumDirection::POSITIVE_X);
 
-                        vec2 uv1 = vec2((textureCoord.x / 8.0f), (textureCoord.y / 8.0f));
-                        vec2 uv2 = vec2(((textureCoord.x + 1) / 8.0f), ((textureCoord.y + 1) / 8.0f));
+                        vec2 uv1 = vec2((textureCoord.x / 8.0f), (textureCoord.y / 8.0f)) + bias;
+                        vec2 uv2 = vec2(((textureCoord.x + 1) / 8.0f), ((textureCoord.y + 1) / 8.0f)) - bias;
 
                         float ao1 = 1.0f; //neg y pos z
                         float ao2 = 1.0f; //pos y pos z
@@ -137,8 +139,8 @@ void Chunk::generateMesh() {
                     if (getBlockFromWorld(x - 1, y, z) == 0 && block_X_Y_Z != 0) { //-x face
                         vec2i textureCoord = block->getTextureCoord(EnumDirection::NEGATIVE_X);
 
-                        vec2 uv1 = vec2((textureCoord.x / 8.0f), (textureCoord.y / 8.0f));
-                        vec2 uv2 = vec2(((textureCoord.x + 1) / 8.0f), ((textureCoord.y + 1) / 8.0f));
+                        vec2 uv1 = vec2((textureCoord.x / 8.0f), (textureCoord.y / 8.0f)) + bias;
+                        vec2 uv2 = vec2(((textureCoord.x + 1) / 8.0f), ((textureCoord.y + 1) / 8.0f)) - bias;
 
                         float ao1 = 1.0f; //neg y pos z
                         float ao2 = 1.0f; //pos y pos z
@@ -166,8 +168,8 @@ void Chunk::generateMesh() {
                     if (getBlockFromWorld(x, y + 1, z) == 0 && block_X_Y_Z != 0) { //top face
                         vec2i textureCoord = block->getTextureCoord(EnumDirection::POSITIVE_Y);
 
-                        vec2 uv1 = vec2((textureCoord.x / 8.0f), (textureCoord.y / 8.0f));
-                        vec2 uv2 = vec2(((textureCoord.x + 1) / 8.0f), ((textureCoord.y + 1) / 8.0f));
+                        vec2 uv1 = vec2((textureCoord.x / 8.0f), (textureCoord.y / 8.0f)) + bias;
+                        vec2 uv2 = vec2(((textureCoord.x + 1) / 8.0f), ((textureCoord.y + 1) / 8.0f)) - bias;
 
                         float ao1 = 1.0f; //neg x pos z
                         float ao2 = 1.0f; //pos x pos z
@@ -194,8 +196,8 @@ void Chunk::generateMesh() {
                     if (getBlockFromWorld(x, y - 1, z) == 0 && block_X_Y_Z != 0) { //bottom face
                         vec2i textureCoord = block->getTextureCoord(EnumDirection::NEGATIVE_Y);
 
-                        vec2 uv1 = vec2((textureCoord.x / 8.0f), (textureCoord.y / 8.0f));
-                        vec2 uv2 = vec2(((textureCoord.x + 1) / 8.0f), ((textureCoord.y + 1) / 8.0f));
+                        vec2 uv1 = vec2((textureCoord.x / 8.0f), (textureCoord.y / 8.0f)) + bias;
+                        vec2 uv2 = vec2(((textureCoord.x + 1) / 8.0f), ((textureCoord.y + 1) / 8.0f)) - bias;
 
                         float ao1 = 1.0f; //neg x pos z
                         float ao2 = 1.0f; //pos x pos z
@@ -223,8 +225,8 @@ void Chunk::generateMesh() {
                     if (getBlockFromWorld(x, y, z - 1) == 0 && block_X_Y_Z != 0) { //-z face
                         vec2i textureCoord = block->getTextureCoord(EnumDirection::NEGATIVE_Z);
 
-                        vec2 uv1 = vec2((textureCoord.x / 8.0f), (textureCoord.y / 8.0f));
-                        vec2 uv2 = vec2(((textureCoord.x + 1) / 8.0f), ((textureCoord.y + 1) / 8.0f));
+                        vec2 uv1 = vec2((textureCoord.x / 8.0f), (textureCoord.y / 8.0f)) + bias;
+                        vec2 uv2 = vec2(((textureCoord.x + 1) / 8.0f), ((textureCoord.y + 1) / 8.0f)) - bias;
 
                         float ao1 = 1.0f; //neg x pos y
                         float ao2 = 1.0f; //pos x pos y
@@ -251,8 +253,8 @@ void Chunk::generateMesh() {
                     if (getBlockFromWorld(x, y, z + 1) == 0 && block_X_Y_Z != 0) { //+z face
                         vec2i textureCoord = block->getTextureCoord(EnumDirection::POSITIVE_Z);
 
-                        vec2 uv1 = vec2((textureCoord.x / 8.0f), (textureCoord.y / 8.0f));
-                        vec2 uv2 = vec2(((textureCoord.x + 1) / 8.0f), ((textureCoord.y + 1) / 8.0f));
+                        vec2 uv1 = vec2((textureCoord.x / 8.0f), (textureCoord.y / 8.0f)) + bias;
+                        vec2 uv2 = vec2(((textureCoord.x + 1) / 8.0f), ((textureCoord.y + 1) / 8.0f)) - bias;
 
                         float ao1 = 1.0f; //neg x pos y
                         float ao2 = 1.0f; //pos x pos y
