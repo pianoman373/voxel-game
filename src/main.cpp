@@ -2,6 +2,7 @@
 #include <GL/glew.h>
 
 #include <iostream>
+#include <fstream>
 #include <imgui.h>
 
 #ifdef __linux__
@@ -20,6 +21,8 @@
 #include "Renderer.hpp"
 #include "AABB.hpp"
 #include "Block.hpp"
+#include "Settings.hpp"
+#include "json.hpp"
 
 #define WORLD_SIZE 8
 #define WORLD_HEIGHT 2
@@ -89,6 +92,12 @@ static void placeBlocks(Chunk *chunk) {
 }
 
 static void init() {
+    json j = Util::loadJsonFile("settings.json");
+
+    Settings::load(j);
+
+    std::cout << j << std::endl;
+
     Renderer::init();
 
     BlockRegistry::registerBlock(0, new BlockAir());

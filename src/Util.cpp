@@ -1,6 +1,7 @@
 #include "Util.hpp"
 
 #include <gtc/noise.hpp>
+#include <fstream>
 #include "MeshFactory.hpp"
 
 
@@ -29,4 +30,16 @@ float Util::ridgedNoise(vec2 position, int octaves, float frequency, float persi
     }
 
     return total / maxAmplitude;
+}
+
+json Util::loadJsonFile(std::string file) {
+    // read a JSON file
+    std::ifstream i(file);
+    json j;
+
+    if (i) {
+        i >> j;
+    }
+
+    return j;
 }

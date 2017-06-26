@@ -2,10 +2,9 @@
 #include "Framebuffer.hpp"
 #include "GL/glew.h"
 #include "MeshFactory.hpp"
+#include "Settings.hpp"
 
 #include <imgui.h>
-
-#define SHADOW_RESOLUTION 2048
 
 const float cascadeDistances[4] = {10.0f, 40.0f, 100.0f, 500.0f};
 
@@ -45,12 +44,14 @@ static mat4 shadowMatrix(float radius, Camera &cam) {
 }
 
 void Renderer::init() {
-    shadowBuffer0.setupShadow(SHADOW_RESOLUTION, SHADOW_RESOLUTION);
-    shadowBuffer1.setupShadow(SHADOW_RESOLUTION, SHADOW_RESOLUTION);
-    shadowBuffer2.setupShadow(SHADOW_RESOLUTION, SHADOW_RESOLUTION);
-    shadowBuffer3.setupShadow(SHADOW_RESOLUTION, SHADOW_RESOLUTION);
+    if (Settings::shadows) {
+        shadowBuffer0.setupShadow(Settings::shadow_resolution, Settings::shadow_resolution);
+        shadowBuffer1.setupShadow(Settings::shadow_resolution, Settings::shadow_resolution);
+        shadowBuffer2.setupShadow(Settings::shadow_resolution, Settings::shadow_resolution);
+        shadowBuffer3.setupShadow(Settings::shadow_resolution, Settings::shadow_resolution);
+        ShadowShader.load("resources/shadow.vsh", "resources/shadow.fsh");
+    }
 
-    ShadowShader.load("resources/shadow.vsh", "resources/shadow.fsh");
     debugShader.load("resources/debug.vsh", "resources/debug.fsh");
 
 }
@@ -101,10 +102,12 @@ void Renderer::flush(Camera cam) {
     mat4 lightSpaceMatrix3 = shadowMatrix(cascadeDistances[3], cam);
 
     //shadow buffer
-    renderShadow(shadowBuffer0, lightSpaceMatrix0);
-    renderShadow(shadowBuffer1, lightSpaceMatrix1);
-    renderShadow(shadowBuffer2, lightSpaceMatrix2);
-    renderShadow(shadowBuffer3, lightSpaceMatrix3);
+    if (Settings::shadows) {
+        renderShadow(shadowBuffer0, lightSpaceMatrix0);
+        renderShadow(shadowBuffer1, lightSpaceMatrix1);
+        renderShadow(shadowBuffer2, lightSpaceMatrix2);
+        renderShadow(shadowBuffer3, lightSpaceMatrix3);
+    }
 
     //normal rendering
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -118,28 +121,27 @@ void Renderer::flush(Camera cam) {
             s.bind();
             call.material.bindUniforms();
 
-            shadowBuffer0.bindTexture(0);
-            shadowBuffer1.bindTexture(1);
-            shadowBuffer2.bindTexture(2);
-            shadowBuffer3.bindTexture(3);
+            if (Settings::shadows) {
+                shadowBuffer0.bindTexture(0);
+                shadowBuffer1.bindTexture(1);
+                shadowBuffer2.bindTexture(2);
+                shadowBuffer3.bindTexture(3);
 
+                s.uniformInt("tex0", 0);
+                s.uniformInt("tex1", 1);
+                s.uniformInt("tex2", 2);
+                s.uniformInt("tex3", 3);
 
+                s.uniformMat4("lightSpaceMatrix[0]", lightSpaceMatrix0);
+                s.uniformMat4("lightSpaceMatrix[1]", lightSpaceMatrix1);
+                s.uniformMat4("lightSpaceMatrix[2]", lightSpaceMatrix2);
+                s.uniformMat4("lightSpaceMatrix[3]", lightSpaceMatrix3);
 
-
-            s.uniformInt("tex0", 0);
-            s.uniformInt("tex1", 1);
-            s.uniformInt("tex2", 2);
-            s.uniformInt("tex3", 3);
-
-            s.uniformMat4("lightSpaceMatrix[0]", lightSpaceMatrix0);
-            s.uniformMat4("lightSpaceMatrix[1]", lightSpaceMatrix1);
-            s.uniformMat4("lightSpaceMatrix[2]", lightSpaceMatrix2);
-            s.uniformMat4("lightSpaceMatrix[3]", lightSpaceMatrix3);
-
-            s.uniformFloat("cascadeDistances[0]", cascadeDistances[0]);
-            s.uniformFloat("cascadeDistances[1]", cascadeDistances[1]);
-            s.uniformFloat("cascadeDistances[2]", cascadeDistances[2]);
-            s.uniformFloat("cascadeDistances[3]", cascadeDistances[3]);
+                s.uniformFloat("cascadeDistances[0]", cascadeDistances[0]);
+                s.uniformFloat("cascadeDistances[1]", cascadeDistances[1]);
+                s.uniformFloat("cascadeDistances[2]", cascadeDistances[2]);
+                s.uniformFloat("cascadeDistances[3]", cascadeDistances[3]);
+            }
 
             s.uniformMat4("view", cam.getView());
             s.uniformMat4("projection", cam.getProjection());

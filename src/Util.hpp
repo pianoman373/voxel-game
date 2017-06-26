@@ -2,6 +2,9 @@
 
 #include "Math.hpp"
 #include "Mesh.hpp"
+#include "json.hpp"
+
+#include <string>
 
 class Util {
 public:
@@ -24,4 +27,6 @@ public:
      * persistence is how much each octave mutates the terrain
      */
     static float ridgedNoise(vec2 position, int octaves, float frequency, float persistence);
+
+    static json loadJsonFile(std::string file);
 };
