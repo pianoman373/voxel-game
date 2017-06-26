@@ -71,14 +71,14 @@ static void placeBlocks(Chunk *chunk) {
                 height -= (chunk->chunk_y * 32);
                 for (int i = 0; i < height; i++) {
                     if (dot(finalNorm, vec3(0.0f, 1.0f, 0.0f)) < 0.7f) {
-                        chunk->setBlock(x, i, z, 4);
+                        chunk->setBlock(x, i, z, 1);
                     }
                     else {
                         chunk->setBlock(x, i, z, 2);
                     }
                 }
                 if (dot(finalNorm, vec3(0.0f, 1.0f, 0.0f)) < 0.7f) {
-                    chunk->setBlock(x, floor(height), z, 4);
+                    chunk->setBlock(x, floor(height), z, 1);
                 }
                 else {
                     chunk->setBlock(x, floor(height), z, 3);
@@ -101,7 +101,7 @@ static void init() {
     Renderer::init();
 
     BlockRegistry::registerBlock(0, new BlockAir());
-    BlockRegistry::registerBlock(1, new SimpleBlock(vec2i(1, 0)));
+    BlockRegistry::registerBlock(1, new SimpleBlock(vec2i(0, 0)));
     BlockRegistry::registerBlock(2, new SimpleBlock(vec2i(4, 0)));
     BlockRegistry::registerBlock(3, new BlockGrass());
     BlockRegistry::registerBlock(4, new SimpleBlock(vec2i(2, 0)));
