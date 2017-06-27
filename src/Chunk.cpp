@@ -46,6 +46,8 @@ void Chunk::setBlock(int x, int y, int z, char block) {
     if (x < CHUNK_SIZE && x >= 0 && y < CHUNK_SIZE && y >= 0 && z < CHUNK_SIZE && z >= 0) {
         blocks[x][y][z] = block;
     }
+
+    this->rebuild = true;
 }
 
 //float random helper, should be moved to Util
@@ -284,4 +286,6 @@ void Chunk::generateMesh() {
         ms.toMesh(this->mesh);
 		ms.clear();
     }
+
+    this->rebuild = false;
 }

@@ -10,11 +10,14 @@ include_directories(lib/glew)
 link_libraries(${GLEW_LIBRARIES})
 add_library (glew lib/glew/src/glew.c)
 
+link_directories(lib/sfml/lib)
+
 include_directories(lib/glfw/include/
                     lib/stb/
                     lib/glew/include
                     lib/imgui/
                     lib/glm/glm/
+                    lib/sfml/include
                     )
 
 file(GLOB PROJECT_SOURCES src/*.cpp
@@ -37,7 +40,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 if(WIN32)
 	target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES} glew opengl32)
 elseif(UNIX AND NOT APPLE)
-	target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES} glew GL)
+    target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES} glew GL sfml-network sfml-graphics sfml-window sfml-system)
 endif(WIN32)
 
 if(MSVC)
