@@ -106,7 +106,7 @@ static void init() {
     blockShader.load("resources/blockShader.vsh", "resources/blockShader.fsh");
     texture.load("resources/blocks.png");
 
-    //glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
