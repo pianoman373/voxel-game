@@ -13,6 +13,9 @@
 #include "AABB.hpp"
 #include "Shader.hpp"
 
+#define WORLD_SIZE 16
+#define WORLD_HEIGHT 2
+
 struct chunk_position {
     int x;
     int y;
@@ -30,14 +33,16 @@ class World {
 private:
     void updatePlayerActions(Camera &cam, float delta);
 
+    bool isDedicatedServer;
+
 public:
     std::map<chunk_position, Chunk*> chunks;
-
-    Player player;
 
     ~World();
 
     World();
+
+    void generate();
 
     void addChunk(int x, int y, int z, Chunk *c);
 

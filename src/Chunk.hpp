@@ -23,7 +23,7 @@ public:
     int chunk_y;
     int chunk_z;
 
-    bool rebuild = false;
+    bool rebuild = true;
 
     Chunk(int x, int y, int z, World* world);
 
