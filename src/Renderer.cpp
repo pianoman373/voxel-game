@@ -19,6 +19,9 @@ Framebuffer shadowBuffer3;
 
 Shader ShadowShader;
 Shader debugShader;
+Shader skyboxShader;
+
+Mesh skyboxMesh;
 
 MeshFactory ms;
 
@@ -55,7 +58,64 @@ void Renderer::init() {
     }
 
     debugShader.load("resources/debug.vsh", "resources/debug.fsh");
+    skyboxShader.load("resources/skybox.vsh", "resources/skybox.fsh");
 
+
+    MeshFactory m;
+    m.vertex(1.0f,  -1.0f,  -1.0f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex(1.0f,  1.0f,  -1.0f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex(1.0f,  1.0f,  1.0f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+
+    m.vertex(1.0f,  1.0f,  1.0f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex(1.0f,  -1.0f,  1.0f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex(1.0f,  -1.0f,  -1.0f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+
+
+    m.vertex( -1.0f,  1.0f,  1.0f,  -1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex( -1.0f,  1.0f,  -1.0f,  -1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex( -1.0f,  -1.0f,  -1.0f,  -1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+
+    m.vertex( -1.0f,  -1.0f,  -1.0f,  -1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex( -1.0f,  -1.0f,  1.0f,  -1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex( -1.0f,  1.0f,  1.0f,  -1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+
+
+    m.vertex( 1.0f,  1.0f,  1.0f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex( 1.0f,  1.0f,  -1.0f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex( -1.0f,  1.0f,  -1.0f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+
+    m.vertex( -1.0f,  1.0f,  -1.0f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex( -1.0f,  1.0f,  1.0f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex( 1.0f,  1.0f,  1.0f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+
+
+    m.vertex( -1.0f, -1.0f,  -1.0f,  0.0f, -1.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex( 1.0f,  -1.0f,  -1.0f,  0.0f, -1.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex( 1.0f,  -1.0f,  1.0f,  0.0f, -1.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+
+    m.vertex( 1.0f,  -1.0f,  1.0f,  0.0f, -1.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex( -1.0f,  -1.0f,  1.0f,  0.0f, -1.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex( -1.0f,  -1.0f,  -1.0f,  0.0f, -1.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+
+
+    m.vertex( 1.0f,  1.0f,  -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex( 1.0f,  -1.0f,  -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex( -1.0f,  -1.0f,  -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+
+    m.vertex( -1.0f,  -1.0f,  -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex( -1.0f,  1.0f,  -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex( 1.0f,  1.0f,  -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+
+
+    m.vertex( -1.0f,  -1.0f,  1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex( 1.0f,  -1.0f,  1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex( 1.0f,  1.0f,  1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+
+    m.vertex( 1.0f,  1.0f,  1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex( -1.0f,  1.0f,  1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex( -1.0f,  -1.0f,  1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+
+    m.toMesh(skyboxMesh);
 }
 
 void Renderer::render(Mesh *mesh, Material material, Transform transform) {
@@ -115,6 +175,21 @@ void Renderer::flush(Camera cam) {
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
     glViewport(0, 0, 1400, 800);
 
+    glDepthMask(false);
+    skyboxShader.bind();
+
+    mat4 skyboxModel;
+    skyboxModel = translate(skyboxModel, cam.getPosition());
+    skyboxShader.uniformMat4("model", skyboxModel);
+    skyboxShader.uniformMat4("view", cam.getView());
+    skyboxShader.uniformMat4("projection", cam.getProjection());
+    skyboxShader.uniformVec3("sunDirection", sunDirection);
+    skyboxShader.uniformVec3("sunColor", sunColor);
+
+    skyboxMesh.render();
+    glDepthMask(true);
+
+
 
     for (unsigned int i = 0; i < renderQueue.size(); i++) {
             RenderCall call = renderQueue[i];
@@ -169,6 +244,7 @@ void Renderer::flush(Camera cam) {
     mesh.render(GL_LINES);
 
     ms.clear();
+
 
 //    ImGui::Image(ImTextureID(shadowBuffer0.getTextureID()), ImVec2(128, 128), ImVec2(0,1), ImVec2(1,0), ImColor(255,255,255,255), ImColor(255,255,255,128));
 //    ImGui::Image(ImTextureID(shadowBuffer1.getTextureID()), ImVec2(128, 128), ImVec2(0,1), ImVec2(1,0), ImColor(255,255,255,255), ImColor(255,255,255,128));
