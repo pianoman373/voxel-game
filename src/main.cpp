@@ -28,7 +28,7 @@
 #define WORLD_HEIGHT 2
 
 Window window;
-Shader shader;
+Shader blockShader;
 Shader GuiShader;
 World world;
 Texture texture;
@@ -103,7 +103,7 @@ static void init() {
     BlockRegistry::registerBlock(3, new BlockGrass());
     BlockRegistry::registerBlock(4, new SimpleBlock(vec2i(2, 0)));
 
-    shader.load("resources/shader.vsh", "resources/shader.fsh");
+    blockShader.load("resources/blockShader.vsh", "resources/blockShader.fsh");
     texture.load("resources/blocks.png");
 
     //glEnable(GL_CULL_FACE);
@@ -131,7 +131,7 @@ static void update(float deltaTime) {
     //<---===rendering===--->//
     world.rebuild();
 
-    world.render(camera, shader, texture);
+    world.render(camera, blockShader, texture);
 
     ImGui::SetNextWindowPos(ImVec2(10,10));
     bool *p_open;

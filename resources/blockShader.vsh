@@ -32,10 +32,17 @@ void main() {
 	vec3 FragPos = vec3(model * vec4(position, 1.0));
 	fragPosition = FragPos;
 
-	fragLightSpace[0] = lightSpaceMatrix[0] * vec4(FragPos, 1.0);
-	fragLightSpace[1] = lightSpaceMatrix[1] * vec4(FragPos, 1.0);
-	fragLightSpace[2] = lightSpaceMatrix[2] * vec4(FragPos, 1.0);
-	fragLightSpace[3] = lightSpaceMatrix[3] * vec4(FragPos, 1.0);
+	mat4 biasMatrix = mat4(
+			0.5, 0.0, 0.0, 0.0,
+			0.0, 0.5, 0.0, 0.0,
+			0.0, 0.0, 0.5, 0.0,
+			0.5, 0.5, 0.5, 1.0
+	);
+
+	fragLightSpace[0] = biasMatrix * lightSpaceMatrix[0] * vec4(FragPos, 1.0);
+	fragLightSpace[1] = biasMatrix * lightSpaceMatrix[1] * vec4(FragPos, 1.0);
+	fragLightSpace[2] = biasMatrix * lightSpaceMatrix[2] * vec4(FragPos, 1.0);
+	fragLightSpace[3] = biasMatrix * lightSpaceMatrix[3] * vec4(FragPos, 1.0);
 
 	//gl_Position = projection * view * vec4(newpos, 1.0);
 	gl_Position = projection * view * model * vec4(position, 1.0);
