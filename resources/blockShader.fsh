@@ -45,7 +45,7 @@ vec3 applyFog( in vec3  rgb,      // original color of the pixel
                in vec3  rayDir,   // camera to point vector
                in vec3  sunDir )  // sun light direction
 {
-    float fogAmount = 1.0 - exp( -distance*0.001 );
+    float fogAmount = 1.0 - exp( -distance*0.005 );
     float sunAmount = max( dot( rayDir, sunDir ), 0.0 );
     vec3  fogColor  = mix( vec3(0.5,0.6,1.0), // bluish
                            vec3(1.2,0.9,0.7), // yellowish
