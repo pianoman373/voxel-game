@@ -30,3 +30,6 @@
 
 # Cmake files
 *.txt.user*
+
+# Imgui files
+imgui.ini
