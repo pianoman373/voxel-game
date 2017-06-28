@@ -27,3 +27,6 @@
 *.exe
 *.out
 *.app
+
+# Cmake files
+*.txt.user*
