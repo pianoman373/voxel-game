@@ -6,11 +6,11 @@ option(GLFW_BUILD_EXAMPLES OFF)
 option(GLFW_BUILD_TESTS OFF)
 add_subdirectory(lib/glfw)
 
+add_subdirectory(lib/sfml)
+
 include_directories(lib/glew)
 link_libraries(${GLEW_LIBRARIES})
 add_library (glew lib/glew/src/glew.c)
-
-link_directories(lib/sfml/lib)
 
 include_directories(lib/glfw/include/
                     lib/stb/
@@ -39,9 +39,9 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 if(WIN32)
-	target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES} glew opengl32 sfml-network-s-d sfml-system-s-d winmm ws2_32)
+    target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES} glew opengl32 sfml-network sfml-graphics sfml-window sfml-system)
 elseif(UNIX AND NOT APPLE)
-    target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES} glew GL sfml-network-s sfml-graphics-s sfml-window-s sfml-system-s)
+    target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES} glew GL sfml-network sfml-graphics sfml-window sfml-system)
 endif(WIN32)
 
 if(MSVC)
