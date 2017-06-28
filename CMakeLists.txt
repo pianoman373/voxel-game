@@ -49,8 +49,3 @@ if(MSVC)
 else()
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -std=c++11")
 endif()
-
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-                               COMMAND ${CMAKE_COMMAND} -E copy_directory
-                               ${CMAKE_SOURCE_DIR}/resources/
-                               $<TARGET_FILE_DIR:${PROJECT_NAME}>/resources/)
