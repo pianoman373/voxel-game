@@ -44,6 +44,8 @@ void Client::init() {
     Common::world.rebuild();
 }
 
+static bool p_open = false;
+
 void Client::run() {
     init();
 
@@ -66,8 +68,8 @@ void Client::run() {
         Common::world.render(camera, blockShader, texture);
 
         ImGui::SetNextWindowPos(ImVec2(10,10));
-        bool *p_open;
-        if (!ImGui::Begin("Example: Fixed Overlay", p_open, ImVec2(0,0), 0.3f, ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoSavedSettings))
+		
+        if (!ImGui::Begin("Example: Fixed Overlay", &p_open, ImVec2(0,0), 0.3f, ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoSavedSettings))
         {
             ImGui::End();
             return;

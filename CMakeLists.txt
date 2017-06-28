@@ -30,7 +30,8 @@ file(GLOB PROJECT_HEADERS src/*.h
                           )
 
 add_definitions(-DGLFW_INCLUDE_NONE
-                -DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\")
+                -DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\"
+                -DSFML_STATIC)
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES}
                                ${PROJECT_HEADERS})
 
@@ -38,7 +39,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 if(WIN32)
-	target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES} glew opengl32)
+	target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES} glew opengl32 sfml-network-s-d sfml-system-s-d winmm ws2_32)
 elseif(UNIX AND NOT APPLE)
     target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES} glew GL sfml-network sfml-graphics sfml-window sfml-system)
 endif(WIN32)
