@@ -41,7 +41,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 if(WIN32)
 	target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES} glew opengl32 sfml-network-s-d sfml-system-s-d winmm ws2_32)
 elseif(UNIX AND NOT APPLE)
-    target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES} glew GL sfml-network sfml-graphics sfml-window sfml-system)
+    target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES} glew GL sfml-network-s sfml-graphics-s sfml-window-s sfml-system-s)
 endif(WIN32)
 
 if(MSVC)
