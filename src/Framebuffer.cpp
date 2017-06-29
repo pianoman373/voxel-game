@@ -1,6 +1,7 @@
 #include "Framebuffer.hpp"
 
 //TODO: Adding this line makes windows compiler happy, need to figure out why.
+
 #define GLEW_STATIC
 #include <GL/glew.h>
 

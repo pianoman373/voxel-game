@@ -28,4 +28,6 @@ namespace Input {
     void setWindowInstance(GLFWwindow* windowInstance);
 
     float getTime();
+
+    bool isMouseGrabbed();
 }

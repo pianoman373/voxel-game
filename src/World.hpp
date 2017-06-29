@@ -13,7 +13,7 @@
 #include "AABB.hpp"
 #include "Shader.hpp"
 
-#define WORLD_SIZE 16
+#define WORLD_SIZE 8
 #define WORLD_HEIGHT 2
 
 struct chunk_position {

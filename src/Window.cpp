@@ -6,6 +6,8 @@
 #include <imgui.h>
 #include "imgui_impl_glfw_gl3.h"
 
+#include <iostream>
+
 Window::Window() {
 
 }
@@ -25,6 +27,7 @@ void Window::create(vec2i resolution, std::string title) {
     }
     glfwMakeContextCurrent(window);
     glewExperimental = GL_TRUE;
+
     if (glewInit() != GLEW_OK)
     {
         std::cout << "Failed to initialize GLEW" << std::endl;

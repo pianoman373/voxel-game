@@ -3,6 +3,10 @@
 
 #include <iostream>
 #include <SFML/Network.hpp>
+#include <vector>
+
+std::vector<sf::IpAddress> users;
+std::vector<unsigned short> userPorts;
 
 void Server::run() {
     Common::init();
@@ -15,18 +19,45 @@ void Server::run() {
         // error...
     }
 
-    std::cout << "bound server to port 5400" << std::endl;
+    std::cout << "bound server to port 54000" << std::endl;
 
     while (true) {
-        char data[100];
-        std::size_t received;
+        sf::Packet packet;
 
         sf::IpAddress sender;
         unsigned short port;
-        if (socket.receive(data, 100, received, sender, port) != sf::Socket::Done)
+        if (socket.receive(packet, sender, port) != sf::Socket::Done)
         {
             // error...
         }
-        std::cout << "Received " << received << " bytes from " << sender << " on port " << port << std::endl;
+        //std::cout << "Received " << received << " bytes from " << sender << " on port " << port << std::endl;
+
+        int id;
+
+        packet >> id;
+
+        if (id == 0) {
+            std::cout << "connected to " << sender << ":" << port << std::endl;
+            users.push_back(sender);
+            userPorts.push_back(port);
+        }
+        if (id == 1) {
+            int x, y, z, blockID;
+
+            packet >> x >> y >> z >> blockID;
+
+
+            std::cout << "PlaceBlock(" << x << ", " << y << ", " << z << ", " << blockID << ")" << std::endl;
+
+            sf::Packet replyPacket;
+            replyPacket << x << y << z << blockID;
+
+
+            for (unsigned int i = 0; i < users.size(); i++) {
+                sf::IpAddress currentUser = users[i];
+                unsigned short currentPort = userPorts[i];
+                socket.send(replyPacket, currentUser, currentPort);
+            }
+        }
     }
 }

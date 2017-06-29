@@ -4,6 +4,7 @@
 #include "AABB.hpp"
 #include "Renderer.hpp"
 #include "World.hpp"
+#include "Client.hpp"
 
 static const float movementSpeed = 6.0f;
 static const float mouseSensitivity = 8.0f;
@@ -18,25 +19,27 @@ void Player::update(Camera &cam, float delta) {
     //mouse movement input
     static vec2 lastpos;
 
-    vec2 offset = Input::getCursorPos() - lastpos;
-    float xOffset = -offset.x / mouseSensitivity;
-    float yOffset = offset.y / mouseSensitivity;
+    if (Input::isMouseGrabbed()) {
+        vec2 offset = Input::getCursorPos() - lastpos;
+        float xOffset = -offset.x / mouseSensitivity;
+        float yOffset = offset.y / mouseSensitivity;
 
-    yRot += (yOffset);
-    xRot += (xOffset);
+        yRot += (yOffset);
+        xRot += (xOffset);
 
-    if (yRot > 89.9f)
-        yRot = 89.9f;
-    if (yRot < -89.9f)
-        yRot = -89.9f;
+        if (yRot > 89.9f)
+            yRot = 89.9f;
+        if (yRot < -89.9f)
+            yRot = -89.9f;
 
-    mat4 mat;
-    mat = rotate(mat, vec3(0.0f, 1.0f, 0.0f), xRot);
-    mat = rotate(mat, vec3(1.0f, 0.0f, 0.0f), yRot);
+        mat4 mat;
+        mat = rotate(mat, vec3(0.0f, 1.0f, 0.0f), xRot);
+        mat = rotate(mat, vec3(1.0f, 0.0f, 0.0f), yRot);
 
-    vec4 vec = mat * vec4(vec3(0.0f, 0.0f, 1.0f), 1.0f);
+        vec4 vec = mat * vec4(vec3(0.0f, 0.0f, 1.0f), 1.0f);
 
-    cam.setDirection(vec3(vec));
+        cam.setDirection(vec3(vec));
+    }
 
     lastpos = Input::getCursorPos();
 
@@ -233,11 +236,31 @@ void Player::update(Camera &cam, float delta) {
         Renderer::renderDebugAABB(vec3(blockpos.x, blockpos.y, blockpos.z) - bias, vec3(blockpos.x + 1, blockpos.y + 1, blockpos.z + 1) + bias, vec3());
 
         if (breakBlock) {
-            world.setBlock(blockpos.x, blockpos.y, blockpos.z, 0);
+            int x = blockpos.x;
+            int y = blockpos.y;
+            int z = blockpos.z;
+            int blockID = 0;
+            int id = 1;
+
+            sf::Packet packet;
+            packet << id;
+            packet << x << y << z << blockID;
+
+            Client::socket.send(packet, Client::connectedServer, 54000);
         }
         if (placeBlock) {
-            if (!playerBoundingBox.intersectsWith(AABB(vec3(blockpos.x + blocknormal.x, blockpos.y + blocknormal.y, blockpos.z + blocknormal.z), vec3(blockpos.x  + blocknormal.x + 1, blockpos.y  + blocknormal.y + 1, blockpos.z  + blocknormal.z + 1)))) {
-                world.setBlock(blockpos.x + blocknormal.x, blockpos.y + blocknormal.y, blockpos.z + blocknormal.z, 4);
+            if (true || !playerBoundingBox.intersectsWith(AABB(vec3(blockpos.x + blocknormal.x, blockpos.y + blocknormal.y, blockpos.z + blocknormal.z), vec3(blockpos.x  + blocknormal.x + 1, blockpos.y  + blocknormal.y + 1, blockpos.z  + blocknormal.z + 1)))) {
+                int x = blockpos.x + blocknormal.x;
+                int y = blockpos.y + blocknormal.y;
+                int z = blockpos.z + blocknormal.z;
+                int blockID = 4;
+                int id = 1;
+
+                sf::Packet packet;
+                packet << id;
+                packet << x << y << z << blockID;
+
+                Client::socket.send(packet, Client::connectedServer, 54000);
             }
         }
     }

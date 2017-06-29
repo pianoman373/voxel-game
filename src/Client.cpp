@@ -13,16 +13,62 @@
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <imgui.h>
+#include <thread>
+#include <vector>
+
+
+sf::UdpSocket Client::socket;
+sf::IpAddress Client::connectedServer;
+
+struct Message {
+    sf::Packet packet;
+    sf::IpAddress sender;
+    unsigned short port;
+};
+
+std::vector<Message> messageStack;
 
 
 static Shader blockShader;
 static Texture texture;
-static Window window;
 static Camera camera;
 static Player *player;
 
+void Client::handleIncomingPackets() {
+    while (true) {
+        sf::Packet packet;
+
+        sf::IpAddress sender;
+        unsigned short port;
+
+        if (socket.receive(packet, sender, port) != sf::Socket::Done)
+        {
+            // error...
+        }
+
+        std::cout << "Received message from " << sender << " on port " << port << std::endl;
+
+        Message message = {packet, sender, port};
+        messageStack.push_back(message);
+    }
+}
+
 void Client::init() {
-    window.create(vec2i(1400, 800), "Voxel Game");
+    // bind the socket to a port
+    if (socket.bind(socket.AnyPort) != sf::Socket::Done)
+    {
+        // error...
+    }
+
+    //send connection packet
+    //we don't need a confirmation packet (yet)
+    sf::Packet packet;
+    int id = 0;
+    packet << id;
+    socket.send(packet, connectedServer, 54000);
+
+    std::thread thread(handleIncomingPackets);
+    thread.detach();
 
     Common::init();
 
@@ -46,8 +92,14 @@ void Client::init() {
 
 static bool p_open = false;
 
-void Client::run() {
+void Client::run(std::string ip) {
+    Window window;
+    window.create({1400, 800}, "Voxel Game");
+
+    connectedServer = ip;
     init();
+
+
 
     while(window.isOpen())
     {
@@ -57,11 +109,21 @@ void Client::run() {
         float currentFrameTime = window.getTime();
         deltaTime = currentFrameTime - lastFrameTime;
         lastFrameTime = currentFrameTime;
+        deltaTime = 0.01f;
 
         window.begin();
         window.pollEvents();
 
         player->update(camera, deltaTime);
+
+        for (int i = 0; i < messageStack.size(); i++) {
+            sf::Packet p = messageStack[i].packet;
+
+            int x, y, z, blockID;
+            p >> x >> y >> z >> blockID;
+            Common::world.setBlock(x, y, z, blockID);
+        }
+        messageStack.clear();
 
         //<---===rendering===--->//
         Common::world.rebuild();

@@ -126,19 +126,24 @@ void World::render(Camera &cam, Shader shader, Texture tex) {
 }
 
 int World::getBlock(int x, int y, int z) {
-    chunk_position pos = {x / CHUNK_SIZE, y / CHUNK_SIZE, z / CHUNK_SIZE};
 
-    Chunk *c;
+    if (x > 0 && y > 0 && z > 0) {
 
-    try {
-        c = chunks.at(pos);
+        chunk_position pos = {x / CHUNK_SIZE, y / CHUNK_SIZE, z / CHUNK_SIZE};
+
+        Chunk *c;
+
+        try {
+            c = chunks.at(pos);
+        }
+        catch (std::out_of_range exception) {
+            //std::cout << "caught exception" << std::endl;
+            return 0;
+        }
+
+        return c->getBlock(x % CHUNK_SIZE, y % CHUNK_SIZE, z % CHUNK_SIZE);
     }
-    catch (std::out_of_range exception) {
-        //std::cout << "caught exception" << std::endl;
-        return 0;
-    }
-
-    return c->getBlock(x % CHUNK_SIZE, y % CHUNK_SIZE, z % CHUNK_SIZE);
+    return 1;
 }
 
 void World::setBlock(int x, int y, int z, int block) {
@@ -147,9 +152,10 @@ void World::setBlock(int x, int y, int z, int block) {
     Chunk *c;
 
     try {
-        c = chunks.at(pos);
+        c = chunks[pos];
     }
     catch (std::out_of_range exception) {
+		return;
         //std::cout << "caught exception" << std::endl;
     }
 

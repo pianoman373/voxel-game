@@ -11,12 +11,16 @@ static double last_xpos = 0;
 static double last_ypos = 0;
 
 static GLFWwindow* window;
+static bool cursor = false;
 
 namespace Input {
 	void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode) {
         if (action != GLFW_REPEAT) {
-            if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-                glfwSetWindowShouldClose(window, true);
+            if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
+                cursor = !cursor;
+                glfwSetInputMode(window, GLFW_CURSOR, cursor ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+                //glfwSetWindowShouldClose(window, true);
+            }
 
             if (key >= 0 && key < 1024)
             {
@@ -78,5 +82,9 @@ namespace Input {
 
     float getTime() {
         return glfwGetTime();
+    }
+
+    bool isMouseGrabbed() {
+        return !cursor;
     }
 }
