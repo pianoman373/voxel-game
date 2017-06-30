@@ -9,8 +9,6 @@
 class Client {
 private:
     static void init();
-
-    static void handleIncomingPackets();
 public:
     static sf::UdpSocket socket;
     static sf::IpAddress connectedServer;

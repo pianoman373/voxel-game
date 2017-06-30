@@ -8,6 +8,7 @@
 #include "Settings.hpp"
 #include "Common.hpp"
 #include "Player.hpp"
+#include "NetworkManagerClient.hpp"
 
 
 #define GLEW_STATIC
@@ -16,47 +17,12 @@
 #include <thread>
 #include <vector>
 
-
-sf::UdpSocket Client::socket;
-sf::IpAddress Client::connectedServer;
-
-struct Message {
-    sf::Packet packet;
-    sf::IpAddress sender;
-    unsigned short port;
-};
-
-std::vector<Message> messageStack;
-
-
 static Shader blockShader;
 static Texture texture;
 static Camera camera;
 static Player *player;
 
-void Client::handleIncomingPackets() {
-    while (true) {
-        sf::Packet packet;
-
-        sf::IpAddress sender;
-        unsigned short port;
-
-        if (socket.receive(packet, sender, port) != sf::Socket::Done)
-        {
-            // error...
-        }
-
-        std::cout << "Received message from " << sender << " on port " << port << std::endl;
-
-        Message message = {packet, sender, port};
-        messageStack.push_back(message);
-    }
-}
-
 void Client::init() {
-    std::thread thread(handleIncomingPackets);
-    thread.detach();
-
     Common::init();
 
     Renderer::init();
@@ -83,37 +49,7 @@ void Client::run(std::string ip) {
     Window window;
     window.create({1400, 800}, "Voxel Game");
 
-    connectedServer = ip;
-
-    // bind the socket to a port
-    if (socket.bind(socket.AnyPort) != sf::Socket::Done)
-    {
-        // error...
-    }
-
-    //send connection packet
-    sf::Packet connectionPacket;
-    int id = 0;
-    connectionPacket << id;
-    socket.send(connectionPacket, connectedServer, 54000);
-
-    while (true) {
-        sf::Packet packet;
-        sf::IpAddress sender;
-        unsigned short port;
-        //wait for response handshake packet
-        if (socket.receive(packet, sender, port) != sf::Socket::Done)
-        {
-            // error...
-        }
-
-        packet >> id;
-
-        if (id == 0) {
-            break;
-        }
-    }
-
+    NetworkManagerClient::connectToServer(ip);
 
     init();
 
@@ -127,15 +63,14 @@ void Client::run(std::string ip) {
         float currentFrameTime = window.getTime();
         deltaTime = currentFrameTime - lastFrameTime;
         lastFrameTime = currentFrameTime;
-        deltaTime = 0.01f;
 
         window.begin();
         window.pollEvents();
 
         player->update(camera, deltaTime);
 
-        for (int i = 0; i < messageStack.size(); i++) {
-            sf::Packet p = messageStack[i].packet;
+        for (int i = 0; i < NetworkManagerClient::serverToClient.size(); i++) {
+            sf::Packet p = NetworkManagerClient::serverToClient[i];
 
             int id;
             p >> id;
@@ -146,7 +81,7 @@ void Client::run(std::string ip) {
                 Common::world.setBlock(x, y, z, blockID);
             }
         }
-        messageStack.clear();
+        NetworkManagerClient::serverToClient.clear();
 
         //<---===rendering===--->//
         Common::world.rebuild();

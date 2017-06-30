@@ -5,6 +5,7 @@
 #include "Renderer.hpp"
 #include "World.hpp"
 #include "Client.hpp"
+#include "NetworkManagerClient.hpp"
 
 static const float movementSpeed = 6.0f;
 static const float mouseSensitivity = 8.0f;
@@ -246,7 +247,7 @@ void Player::update(Camera &cam, float delta) {
             packet << id;
             packet << x << y << z << blockID;
 
-            Client::socket.send(packet, Client::connectedServer, 54000);
+            NetworkManagerClient::send(packet);
         }
         if (placeBlock) {
             if (true || !playerBoundingBox.intersectsWith(AABB(vec3(blockpos.x + blocknormal.x, blockpos.y + blocknormal.y, blockpos.z + blocknormal.z), vec3(blockpos.x  + blocknormal.x + 1, blockpos.y  + blocknormal.y + 1, blockpos.z  + blocknormal.z + 1)))) {
@@ -260,7 +261,7 @@ void Player::update(Camera &cam, float delta) {
                 packet << id;
                 packet << x << y << z << blockID;
 
-                Client::socket.send(packet, Client::connectedServer, 54000);
+                NetworkManagerClient::send(packet);
             }
         }
     }

@@ -2,11 +2,12 @@
 #include "Common.hpp"
 
 #include <iostream>
-#include <SFML/Network.hpp>
 #include <vector>
 
 std::vector<sf::IpAddress> users;
 std::vector<unsigned short> userPorts;
+
+sf::UdpSocket Server::socket;
 
 int generateID() {
     static int userID = 0;
@@ -17,7 +18,6 @@ int generateID() {
 void Server::run() {
     Common::init();
 
-    sf::UdpSocket socket;
 
     // bind the socket to a port
     if (socket.bind(54000) != sf::Socket::Done)

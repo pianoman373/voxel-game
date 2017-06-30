@@ -12,8 +12,8 @@ public:
     vec3 velocity;
     bool onGround;
 
-    float xRot;
-    float yRot;
+    float xRot = 0;
+    float yRot = 0;
 
     World &world;
 

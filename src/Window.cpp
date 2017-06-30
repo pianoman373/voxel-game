@@ -50,7 +50,7 @@ void Window::create(vec2i resolution, std::string title) {
 
     Input::setWindowInstance(window);
 
-    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    //glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 }
 
 bool Window::isOpen() {
