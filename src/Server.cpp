@@ -8,6 +8,12 @@
 std::vector<sf::IpAddress> users;
 std::vector<unsigned short> userPorts;
 
+int generateID() {
+    static int userID = 0;
+    userID++;
+    return userID;;
+}
+
 void Server::run() {
     Common::init();
 
@@ -23,7 +29,6 @@ void Server::run() {
 
     while (true) {
         sf::Packet packet;
-
         sf::IpAddress sender;
         unsigned short port;
         if (socket.receive(packet, sender, port) != sf::Socket::Done)
@@ -33,13 +38,19 @@ void Server::run() {
         //std::cout << "Received " << received << " bytes from " << sender << " on port " << port << std::endl;
 
         int id;
-
         packet >> id;
 
         if (id == 0) {
             std::cout << "connected to " << sender << ":" << port << std::endl;
             users.push_back(sender);
             userPorts.push_back(port);
+
+            int userID = generateID();
+            sf::Packet replyPacket;
+            replyPacket << id;
+            replyPacket << userID;
+
+            socket.send(replyPacket, sender, port);
         }
         if (id == 1) {
             int x, y, z, blockID;
@@ -50,6 +61,7 @@ void Server::run() {
             std::cout << "PlaceBlock(" << x << ", " << y << ", " << z << ", " << blockID << ")" << std::endl;
 
             sf::Packet replyPacket;
+            replyPacket << id;
             replyPacket << x << y << z << blockID;
 
 

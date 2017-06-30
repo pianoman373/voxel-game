@@ -54,19 +54,6 @@ void Client::handleIncomingPackets() {
 }
 
 void Client::init() {
-    // bind the socket to a port
-    if (socket.bind(socket.AnyPort) != sf::Socket::Done)
-    {
-        // error...
-    }
-
-    //send connection packet
-    //we don't need a confirmation packet (yet)
-    sf::Packet packet;
-    int id = 0;
-    packet << id;
-    socket.send(packet, connectedServer, 54000);
-
     std::thread thread(handleIncomingPackets);
     thread.detach();
 
@@ -97,6 +84,37 @@ void Client::run(std::string ip) {
     window.create({1400, 800}, "Voxel Game");
 
     connectedServer = ip;
+
+    // bind the socket to a port
+    if (socket.bind(socket.AnyPort) != sf::Socket::Done)
+    {
+        // error...
+    }
+
+    //send connection packet
+    sf::Packet connectionPacket;
+    int id = 0;
+    connectionPacket << id;
+    socket.send(connectionPacket, connectedServer, 54000);
+
+    while (true) {
+        sf::Packet packet;
+        sf::IpAddress sender;
+        unsigned short port;
+        //wait for response handshake packet
+        if (socket.receive(packet, sender, port) != sf::Socket::Done)
+        {
+            // error...
+        }
+
+        packet >> id;
+
+        if (id == 0) {
+            break;
+        }
+    }
+
+
     init();
 
 
@@ -119,9 +137,14 @@ void Client::run(std::string ip) {
         for (int i = 0; i < messageStack.size(); i++) {
             sf::Packet p = messageStack[i].packet;
 
-            int x, y, z, blockID;
-            p >> x >> y >> z >> blockID;
-            Common::world.setBlock(x, y, z, blockID);
+            int id;
+            p >> id;
+
+            if (id == 1) {
+                int x, y, z, blockID;
+                p >> x >> y >> z >> blockID;
+                Common::world.setBlock(x, y, z, blockID);
+            }
         }
         messageStack.clear();
 
