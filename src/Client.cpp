@@ -95,6 +95,7 @@ void Client::run(std::string ip) {
             return;
         }
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+        ImGui::Text("Delta %.3f", deltaTime);
         ImGui::End();
 
         Renderer::flush(camera);

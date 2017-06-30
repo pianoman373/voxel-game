@@ -9,6 +9,8 @@
 
 static const float movementSpeed = 6.0f;
 static const float mouseSensitivity = 8.0f;
+static const float gravity = 22.8f;
+static const float jumpPower = 7.3f;
 
 //TODO: maybe this should be a pointer rather than a reference
 Player::Player(World &world): world(world) {
@@ -74,43 +76,47 @@ void Player::update(Camera &cam, float delta) {
     }
 
     //apply gravity
-    velocity.y -= 28.0f * delta * delta;
+    velocity.y -= gravity * delta;
 
     //apply movement
     if (Input::isKeyDown(GLFW_KEY_W)) {
         vec3 dir = cam.getDirection();
         dir.y = 0.0f;
         dir = normalize(dir);
-        dir = dir * movementSpeed * delta;
+        dir = dir * movementSpeed;
         velocity = velocity + dir;
     }
     if (Input::isKeyDown(GLFW_KEY_S)) {
         vec3 dir = cam.getDirection();
         dir.y = 0.0f;
         dir = normalize(dir);
-        dir = dir * movementSpeed * delta;
+        dir = dir * movementSpeed;
         velocity = velocity - dir;
     }
     if (Input::isKeyDown(GLFW_KEY_A)) {
         vec3 dir = cam.getRight();
         dir.y = 0.0f;
         dir = normalize(dir);
-        dir = dir * movementSpeed * delta;
+        dir = dir * movementSpeed;
         velocity = velocity - dir;
     }
     if (Input::isKeyDown(GLFW_KEY_D)) {
         vec3 dir = cam.getRight();
         dir.y = 0.0f;
         dir = normalize(dir);
-        dir = dir * movementSpeed * delta;
+        dir = dir * movementSpeed;
         velocity = velocity + dir;
     }
     if (Input::isKeyDown(GLFW_KEY_SPACE) && onGround) {
-        velocity.y = 8.4f * delta;
+        std::cout << "jumping" << std::endl;
+        velocity.y = jumpPower;
     }
     if (Input::isKeyDown(GLFW_KEY_R)) {
-        velocity.y = 8.4f * delta;
+        velocity.y = 8.4f;
     }
+
+    vec3 velocityDistance = (velocity * delta);
+    //position = position + velocityDistance;
 
     //the actual player collider (set to null for now)
     AABB playerBoundingBox = AABB(vec3(), vec3());
@@ -131,33 +137,35 @@ void Player::update(Camera &cam, float delta) {
         if (blockAbb.max.x > playerBoundingBox.min.x && blockAbb.min.x < playerBoundingBox.max.x && blockAbb.max.z > playerBoundingBox.min.z && blockAbb.min.z < playerBoundingBox.max.z)
         {
             //for moving -y
-            if (velocity.y < 0.0f && playerBoundingBox.min.y > blockAbb.max.y) {
+            if (velocityDistance.y < 0.0f && playerBoundingBox.min.y > blockAbb.max.y) {
 
                 //distance between the nearest cube sides               V bias needed
                 float dist = playerBoundingBox.min.y - (blockAbb.max.y + 0.0001f);
 
                 //if distance to block is closer than distance about to be traveled, truncate that distance to meet the block
-                if (dist < -velocity.y) {
-                    velocity.y = -dist;
+                if (dist < -velocityDistance.y) {
+                    velocityDistance.y = -dist;
                     onGround = true;
+                    velocity.y = 0;
                 }
             }
             //for moving +y
-            if (velocity.y > 0.0f && playerBoundingBox.max.y < blockAbb.min.y) {
+            if (velocityDistance.y > 0.0f && playerBoundingBox.max.y < blockAbb.min.y) {
 
                 //distance between the nearest cube sides
                 //                             V bias needed
                 float dist = (blockAbb.min.y - 0.0001f) - playerBoundingBox.max.y;
 
                 //if distance to block is closer than distance about to be traveled, truncate that distance to meet the block
-                if (dist < velocity.y) {
-                    velocity.y = dist;
+                if (dist < velocityDistance.y) {
+                    velocityDistance.y = dist;
+                    velocity.y = 0;
                 }
             }
         }
     }
 
-    position.y += velocity.y;
+    position.y += velocityDistance.y;
 
     //X axis collision
     playerBoundingBox = AABB(position - vec3(0.3f, 0.9f, 0.3f), position + vec3(0.3f, 0.9f, 0.3f));
@@ -166,31 +174,31 @@ void Player::update(Camera &cam, float delta) {
         if (blockAbb.max.y > playerBoundingBox.min.y && blockAbb.min.y < playerBoundingBox.max.y && blockAbb.max.z > playerBoundingBox.min.z && blockAbb.min.z < playerBoundingBox.max.z)
         {
             //for moving -x
-            if (velocity.x < 0.0f && playerBoundingBox.min.x > blockAbb.max.x) {
+            if (velocityDistance.x < 0.0f && playerBoundingBox.min.x > blockAbb.max.x) {
 
                 //distance between the nearest cube sides               V bias needed
                 float dist = playerBoundingBox.min.x - (blockAbb.max.x + 0.0001f);
 
                 //if distance to block is closer than distance about to be traveled, truncate that distance to meet the block
-                if (dist < -velocity.x) {
-                    velocity.x = -dist;
+                if (dist < -velocityDistance.x) {
+                    velocityDistance.x = -dist;
                 }
             }
             //for moving +x
-            if (velocity.x > 0.0f && playerBoundingBox.max.x < blockAbb.min.x) {
+            if (velocityDistance.x > 0.0f && playerBoundingBox.max.x < blockAbb.min.x) {
 
                 //distance between the nearest cube sides
                 //                             V bias needed
                 float dist = (blockAbb.min.x - 0.0001f) - playerBoundingBox.max.x;
 
                 //if distance to block is closer than distance about to be traveled, truncate that distance to meet the block
-                if (dist < velocity.x) {
-                    velocity.x = dist;
+                if (dist < velocityDistance.x) {
+                    velocityDistance.x = dist;
                 }
             }
         }
     }
-    position.x += velocity.x;
+    position.x += velocityDistance.x;
 
 
     //Z axis collision
@@ -200,31 +208,31 @@ void Player::update(Camera &cam, float delta) {
         if (blockAbb.max.x > playerBoundingBox.min.x && blockAbb.min.x < playerBoundingBox.max.x && blockAbb.max.y > playerBoundingBox.min.y && blockAbb.min.y < playerBoundingBox.max.y)
         {
             //for moving -z
-            if (velocity.z < 0.0f && playerBoundingBox.min.z > blockAbb.max.z) {
+            if (velocityDistance.z < 0.0f && playerBoundingBox.min.z > blockAbb.max.z) {
 
                 //distance between the nearest cube sides               V bias needed
                 float dist = playerBoundingBox.min.z - (blockAbb.max.z + 0.0001f);
 
                 //if distance to block is closer than distance about to be traveled, truncate that distance to meet the block
-                if (dist < -velocity.z) {
-                    velocity.z = -dist;
+                if (dist < -velocityDistance.z) {
+                    velocityDistance.z = -dist;
                 }
             }
             //for moving +z
-            if (velocity.z > 0.0f && playerBoundingBox.max.z < blockAbb.min.z) {
+            if (velocityDistance.z > 0.0f && playerBoundingBox.max.z < blockAbb.min.z) {
 
                 //distance between the nearest cube sides
                 //                             V bias needed
                 float dist = (blockAbb.min.z - 0.0001f) - playerBoundingBox.max.z;
 
                 //if distance to block is closer than distance about to be traveled, truncate that distance to meet the block
-                if (dist < velocity.z) {
-                    velocity.z = dist;
+                if (dist < velocityDistance.z) {
+                    velocityDistance.z = dist;
                 }
             }
         }
     }
-    position.z += velocity.z;
+    position.z += velocityDistance.z;
 
     cam.setPosition(position + vec3(0.0f, 0.8f, 0.0f));
 
