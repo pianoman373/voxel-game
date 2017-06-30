@@ -82,3 +82,9 @@ void Window::terminate() {
 float Window::getTime() {
     return glfwGetTime();
 }
+
+vec2i Window::getWindowSize() {
+    int width, height;
+    glfwGetFramebufferSize(window, &width, &height);
+    return vec2i(width, height);
+}

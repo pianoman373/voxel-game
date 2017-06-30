@@ -1,6 +1,5 @@
 #include "Client.hpp"
 #include "Renderer.hpp"
-#include "Window.hpp"
 #include "Camera.hpp"
 #include "World.hpp"
 #include "json.hpp"
@@ -21,6 +20,8 @@ static Shader blockShader;
 static Texture texture;
 static Camera camera;
 static Player *player;
+
+Window Client::window;
 
 void Client::init() {
     Common::init();
@@ -46,7 +47,6 @@ void Client::init() {
 static bool p_open = false;
 
 void Client::run(std::string ip) {
-    Window window;
     window.create({1400, 800}, "Voxel Game");
 
     NetworkManagerClient::connectToServer(ip);

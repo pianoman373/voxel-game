@@ -1,5 +1,6 @@
 #include "Camera.hpp"
 #include "Input.hpp"
+#include "Client.hpp"
 
 #include <iostream>
 
@@ -30,6 +31,7 @@ mat4 Camera::getView() {
 }
 
 mat4 Camera::getProjection() {
-    //TODO: get rid of magic resolution numbers
-    return perspective(70.0f, 1400.0f / 800.0f, 0.1f, 10000.0f);
+    vec2i size = Client::window.getWindowSize();
+    std::cout << size.x << ", " << size.y << std::endl;
+    return perspective(70.0f, (float)size.x / (float)size.y, 0.1f, 10000.0f);
 }

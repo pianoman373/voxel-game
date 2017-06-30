@@ -31,4 +31,9 @@ public:
      * Returns the time in seconds that the window has been open.
      */
     float getTime();
+
+    /**
+     * Returns the window size in pixels.
+     */
+    vec2i getWindowSize();
 };

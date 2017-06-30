@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Window.hpp"
+
 #include <SFML/Network.hpp>
 #include <string>
 
@@ -12,6 +14,7 @@ private:
 public:
     static sf::UdpSocket socket;
     static sf::IpAddress connectedServer;
+    static Window window;
 
     static void run(std::string ip);
 };

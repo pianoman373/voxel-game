@@ -3,6 +3,7 @@
 #include "GL/glew.h"
 #include "MeshFactory.hpp"
 #include "Settings.hpp"
+#include "Client.hpp"
 
 #include <imgui.h>
 
@@ -173,7 +174,9 @@ void Renderer::flush(Camera cam) {
 
     //normal rendering
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
-    glViewport(0, 0, 1400, 800);
+    vec2i size = Client::window.getWindowSize();
+    std::cout << size.x << ", " << size.y << std::endl;
+    glViewport(0, 0, size.x, size.y);
 
     glDepthMask(false);
     skyboxShader.bind();
