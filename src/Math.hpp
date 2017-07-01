@@ -603,7 +603,7 @@ inline matrix4<T> transpose(matrix4<T> mat) {
 inline mat4 perspective(float fov, float aspect, float near, float far) {
     mat4 result;
 
-    float top    =  near * tan(fov / 2.0);
+    float top    =  near * tan(Deg2Rad(fov) / 2.0);
     float bottom = -top;
     float right  =  top * aspect;
     float left   = -top * aspect;

@@ -1,6 +1,7 @@
 #include "Camera.hpp"
 #include "Input.hpp"
 #include "Client.hpp"
+#include "Settings.hpp"
 
 #include <iostream>
 
@@ -32,5 +33,5 @@ mat4 Camera::getView() {
 
 mat4 Camera::getProjection() {
     vec2i size = Client::window.getWindowSize();
-    return perspective(70.0f, (float)size.x / (float)size.y, 0.1f, 10000.0f);
+    return perspective(Settings::fov, (float)size.x / (float)size.y, 0.1f, 10000.0f);
 }

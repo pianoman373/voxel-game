@@ -24,6 +24,9 @@ static Player *player;
 Window Client::window;
 
 void Client::init() {
+    json j = Util::loadJsonFile("settings.json");
+    Settings::load(j);
+
     Common::init();
 
     Renderer::init();
@@ -34,9 +37,6 @@ void Client::init() {
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-    json j = Util::loadJsonFile("settings.json");
-    Settings::load(j);
 
     player = new Player(Common::world);
     player->position = vec3(WORLD_SIZE * CHUNK_SIZE / 2.0f, 50.0f, WORLD_SIZE * CHUNK_SIZE / 2.0f);
