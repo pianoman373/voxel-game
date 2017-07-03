@@ -9,6 +9,7 @@
 #include "Player.hpp"
 #include "NetworkManagerClient.hpp"
 #include "Block.hpp"
+#include "Console.hpp"
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -24,6 +25,8 @@ static Shader blockShader;
 static Texture texture;
 static Camera camera;
 static Player *player;
+
+static bool p_open = false;
 
 static std::map<std::string, vec3> playerPositions;
 
@@ -50,14 +53,14 @@ void Client::init() {
     Common::world.rebuild();
 }
 
-static bool p_open = false;
-
 void Client::run(std::string ip) {
     window.create({1400, 800}, "Voxel Game");
 
     NetworkManagerClient::connectToServer(ip);
 
     init();
+
+    static Console console;
 
     while(window.isOpen())
     {
@@ -92,6 +95,12 @@ void Client::run(std::string ip) {
 
                 playerPositions[userID] = vec3(x, y, z);
             }
+            if (id == 3) {
+                std::string message;
+                p >> message;
+
+                console.AddLog("<Player> %s", message.c_str());
+            }
         }
         NetworkManagerClient::serverToClient.clear();
 
@@ -106,6 +115,7 @@ void Client::run(std::string ip) {
         }
 
         ImGui::SetNextWindowPos(ImVec2(10,10));
+        ImGui::SetNextWindowSize(ImVec2(400, 600));
 		
         if (!ImGui::Begin("Example: Fixed Overlay", &p_open, ImVec2(0,0), 0.3f, ImGuiWindowFlags_NoTitleBar|ImGuiWindowFlags_NoResize|ImGuiWindowFlags_NoMove|ImGuiWindowFlags_NoSavedSettings))
         {
@@ -116,7 +126,13 @@ void Client::run(std::string ip) {
         ImGui::Text("Delta %.3f", deltaTime);
         std::string s = "Held block: " + BlockRegistry::getBlock(player->heldBlock)->name;
         ImGui::Text(s.c_str());
+
+        console.Draw();
+
         ImGui::End();
+
+
+        //console.Draw("Console", &p_open);
 
         Renderer::flush(camera);
 

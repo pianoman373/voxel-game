@@ -23,6 +23,8 @@ Player::Player(World &world): world(world) {
 
 void Player::update(Camera &cam, float delta) {
     vec3 oldPosition = position;
+    bool breakBlock = false;
+    bool placeBlock = false;
 
     //mouse movement input
     static vec2 lastpos;
@@ -47,78 +49,76 @@ void Player::update(Camera &cam, float delta) {
         vec4 vec = mat * vec4(vec3(0.0f, 0.0f, 1.0f), 1.0f);
 
         cam.setDirection(vec3(vec));
-    }
 
-    lastpos = Input::getCursorPos();
+        lastpos = Input::getCursorPos();
 
-    //get mouse input for breaking and placing
-    static bool leftMouse = false;
-    bool breakBlock = false;
+        //get mouse input for breaking and placing
+        static bool leftMouse = false;
 
-    if (!leftMouse && Input::isMouseButtonDown(0)) {
-        breakBlock = true;
-        leftMouse = true;
-    }
-    else if (leftMouse && Input::isMouseButtonDown(0)) {
-        breakBlock = false;
-    }
-    else if (leftMouse && !Input::isMouseButtonDown(0)) {
-        leftMouse = false;
-    }
+        if (!leftMouse && Input::isMouseButtonDown(0)) {
+            breakBlock = true;
+            leftMouse = true;
+        }
+        else if (leftMouse && Input::isMouseButtonDown(0)) {
+            breakBlock = false;
+        }
+        else if (leftMouse && !Input::isMouseButtonDown(0)) {
+            leftMouse = false;
+        }
 
-    static bool rightMouse = false;
-    bool placeBlock = false;
+        static bool rightMouse = false;
 
-    if (!rightMouse && Input::isMouseButtonDown(1)) {
-        placeBlock = true;
-        rightMouse = true;
-    }
-    else if (rightMouse && Input::isMouseButtonDown(1)) {
-        placeBlock = false;
-    }
-    else if (rightMouse && !Input::isMouseButtonDown(1)) {
-        rightMouse = false;
+        if (!rightMouse && Input::isMouseButtonDown(1)) {
+            placeBlock = true;
+            rightMouse = true;
+        }
+        else if (rightMouse && Input::isMouseButtonDown(1)) {
+            placeBlock = false;
+        }
+        else if (rightMouse && !Input::isMouseButtonDown(1)) {
+            rightMouse = false;
+        }
+
+        //apply movement
+        if (Input::isKeyDown(GLFW_KEY_W)) {
+            vec3 dir = cam.getDirection();
+            dir.y = 0.0f;
+            dir = normalize(dir);
+            dir = dir * movementSpeed;
+            velocity = velocity + dir;
+        }
+        if (Input::isKeyDown(GLFW_KEY_S)) {
+            vec3 dir = cam.getDirection();
+            dir.y = 0.0f;
+            dir = normalize(dir);
+            dir = dir * movementSpeed;
+            velocity = velocity - dir;
+        }
+        if (Input::isKeyDown(GLFW_KEY_A)) {
+            vec3 dir = cam.getRight();
+            dir.y = 0.0f;
+            dir = normalize(dir);
+            dir = dir * movementSpeed;
+            velocity = velocity - dir;
+        }
+        if (Input::isKeyDown(GLFW_KEY_D)) {
+            vec3 dir = cam.getRight();
+            dir.y = 0.0f;
+            dir = normalize(dir);
+            dir = dir * movementSpeed;
+            velocity = velocity + dir;
+        }
+        if (Input::isKeyDown(GLFW_KEY_SPACE) && onGround) {
+            std::cout << "jumping" << std::endl;
+            velocity.y = jumpPower;
+        }
+        if (Input::isKeyDown(GLFW_KEY_R)) {
+            velocity.y = 8.4f;
+        }
     }
 
     //apply gravity
     velocity.y -= gravity * delta;
-
-    //apply movement
-    if (Input::isKeyDown(GLFW_KEY_W)) {
-        vec3 dir = cam.getDirection();
-        dir.y = 0.0f;
-        dir = normalize(dir);
-        dir = dir * movementSpeed;
-        velocity = velocity + dir;
-    }
-    if (Input::isKeyDown(GLFW_KEY_S)) {
-        vec3 dir = cam.getDirection();
-        dir.y = 0.0f;
-        dir = normalize(dir);
-        dir = dir * movementSpeed;
-        velocity = velocity - dir;
-    }
-    if (Input::isKeyDown(GLFW_KEY_A)) {
-        vec3 dir = cam.getRight();
-        dir.y = 0.0f;
-        dir = normalize(dir);
-        dir = dir * movementSpeed;
-        velocity = velocity - dir;
-    }
-    if (Input::isKeyDown(GLFW_KEY_D)) {
-        vec3 dir = cam.getRight();
-        dir.y = 0.0f;
-        dir = normalize(dir);
-        dir = dir * movementSpeed;
-        velocity = velocity + dir;
-    }
-    if (Input::isKeyDown(GLFW_KEY_SPACE) && onGround) {
-        std::cout << "jumping" << std::endl;
-        velocity.y = jumpPower;
-    }
-    if (Input::isKeyDown(GLFW_KEY_R)) {
-        velocity.y = 8.4f;
-    }
 
     vec3 velocityDistance = (velocity * delta);
     //position = position + velocityDistance;

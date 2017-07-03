@@ -92,5 +92,19 @@ void Server::run() {
                 socket.send(replyPacket, currentUser, currentPort);
             }
         }
+        if (id == 3) {
+            std::string message;
+            packet >> message;
+
+            sf::Packet replyPacket;
+            replyPacket << id;
+            replyPacket << message;
+
+            for (unsigned int i = 0; i < users.size(); i++) {
+                sf::IpAddress currentUser = users[i];
+                unsigned short currentPort = userPorts[i];
+                socket.send(replyPacket, currentUser, currentPort);
+            }
+        }
     }
 }

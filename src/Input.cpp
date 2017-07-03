@@ -1,5 +1,9 @@
 #include "Input.hpp"
 #include "Client.hpp"
+#include <imgui.h>
+#include "imgui_impl_glfw_gl3.h"
+
+
 #include <iostream>
 
 static bool keys[1024];
@@ -32,10 +36,14 @@ namespace Input {
                     keys[key] = false;
             }
         }
+
+        if (cursor)
+            ImGui_ImplGlfwGL3_KeyCallback(window, key, scancode, action, mode);
 	}
 
     void char_callback(GLFWwindow *window, unsigned int codepoint) {
-
+        if (cursor)
+            ImGui_ImplGlfwGL3_CharCallback(window, codepoint);
     }
 
     void mouse_button_callback(GLFWwindow *window, int button, int action, int mods) {
@@ -48,6 +56,9 @@ namespace Input {
                     mouse[button] = false;
             }
         }
+
+        if (cursor)
+            ImGui_ImplGlfwGL3_MouseButtonCallback(window, button, action, mods);
     }
 
     void cursor_callback(GLFWwindow* window, double x, double y) {
@@ -60,6 +71,9 @@ namespace Input {
 
     void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
         Client::scrollBlocks((int)yoffset);
+
+        if (cursor)
+            ImGui_ImplGlfwGL3_ScrollCallback(window, xoffset, yoffset);
     }
 
     bool isKeyDown(int key) {
