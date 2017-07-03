@@ -2,8 +2,8 @@
 
 [![GitHub license](https://img.shields.io/badge/license-GPL-blue.svg)](https://raw.githubusercontent.com/pianoman373/voxel-game/master/LICENSE)
 [![GitHub issues](https://img.shields.io/github/issues/pianoman373/voxel-game.svg)](https://github.com/pianoman373/voxel-game/issues)
-[![GitHub (pre-)release](https://img.shields.io/github/release/pianoman373/voxel-game/all.svg)]()
-[![Github All Releases](https://img.shields.io/github/downloads/pianoman373/voxel-game/total.svg)]()
+[![GitHub (pre-)release](https://img.shields.io/github/release/pianoman373/voxel-game/all.svg)](https://github.com/pianoman373/voxel-game/releases)
+[![Github All Releases](https://img.shields.io/github/downloads/pianoman373/voxel-game/total.svg)](https://github.com/pianoman373/voxel-game/releases)
 
 A yet unnamed project which aims to be a fully open source and moddable voxel game written in modern C++11 inspired by Minecraft and Minetest.
 
