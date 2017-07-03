@@ -43,3 +43,11 @@ json Util::loadJsonFile(std::string file) {
 
     return j;
 }
+
+std::string Util::loadFile(std::string file) {
+    std::ifstream i(file);
+    std::string s;
+    i >> s;
+
+    return s;
+}

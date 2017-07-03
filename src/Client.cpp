@@ -8,18 +8,24 @@
 #include "Common.hpp"
 #include "Player.hpp"
 #include "NetworkManagerClient.hpp"
-
+#include "Block.hpp"
 
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <imgui.h>
 #include <thread>
 #include <vector>
+#include <map>
+#include <string>
+#include <lua.hpp>
+#include <stdio.h>
 
 static Shader blockShader;
 static Texture texture;
 static Camera camera;
 static Player *player;
+
+static std::map<std::string, vec3> playerPositions;
 
 Window Client::window;
 
@@ -53,8 +59,6 @@ void Client::run(std::string ip) {
 
     init();
 
-
-
     while(window.isOpen())
     {
         static float deltaTime;
@@ -80,12 +84,26 @@ void Client::run(std::string ip) {
                 p >> x >> y >> z >> blockID;
                 Common::world.setBlock(x, y, z, blockID);
             }
+            if (id == 2) {
+                float x, y, z;
+                std::string userID;
+
+                p >> x >> y >> z >> userID;
+
+                playerPositions[userID] = vec3(x, y, z);
+            }
         }
         NetworkManagerClient::serverToClient.clear();
 
         //<---===rendering===--->//
         Common::world.rebuild();
         Common::world.render(camera, blockShader, texture);
+
+        for (auto const &ref: playerPositions) {
+            vec3 v = ref.second;
+
+            Renderer::renderDebugAABB(v - vec3(0.3f, 0.9f, 0.3f), v + vec3(0.3f, 0.9f, 0.3f), vec3(1.0f, 0.0f, 0.0f));
+        }
 
         ImGui::SetNextWindowPos(ImVec2(10,10));
 		
@@ -96,6 +114,8 @@ void Client::run(std::string ip) {
         }
         ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
         ImGui::Text("Delta %.3f", deltaTime);
+        std::string s = "Held block: " + BlockRegistry::getBlock(player->heldBlock)->name;
+        ImGui::Text(s.c_str());
         ImGui::End();
 
         Renderer::flush(camera);
@@ -105,4 +125,16 @@ void Client::run(std::string ip) {
 
     delete player;
     window.terminate();
+}
+
+void Client::scrollBlocks(int direction) {
+    player->heldBlock += direction;
+
+    if (player->heldBlock >= BlockRegistry::registeredBlocks()) {
+        player->heldBlock = 1;
+    }
+    else if (player->heldBlock < 1) {
+        player->heldBlock = BlockRegistry::registeredBlocks() - 1;
+    }
+    std::cout << player->heldBlock << std::endl;
 }

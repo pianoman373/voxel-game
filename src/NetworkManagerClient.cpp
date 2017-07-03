@@ -24,8 +24,6 @@ void NetworkManagerClient::handleIncomingPackets() {
             // error...
         }
 
-        std::cout << "Received message from " << sender << " on port " << port << std::endl;
-
 //        Message message = {packet, sender, port};
 //        messageStack.push_back(message);
         serverToClient.push_back(packet);

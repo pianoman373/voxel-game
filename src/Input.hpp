@@ -21,6 +21,8 @@ namespace Input {
 
     bool isMouseButtonDown(int button);
 
+    float getScroll();
+
     vec2 getCursorPos();
 
     vec2 getLastCursorPos();

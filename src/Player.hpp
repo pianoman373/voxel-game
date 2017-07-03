@@ -11,6 +11,7 @@ public:
     vec3 position;
     vec3 velocity;
     bool onGround;
+    int heldBlock = 4;
 
     float xRot = 0;
     float yRot = 0;

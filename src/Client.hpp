@@ -17,4 +17,6 @@ public:
     static Window window;
 
     static void run(std::string ip);
+
+    static void scrollBlocks(int direction);
 };

@@ -7,10 +7,14 @@
 #include "Client.hpp"
 #include "NetworkManagerClient.hpp"
 
+#include <imgui.h>
+
 static const float movementSpeed = 6.0f;
 static const float mouseSensitivity = 8.0f;
 static const float gravity = 22.8f;
 static const float jumpPower = 7.3f;
+
+static bool p_open = false;
 
 //TODO: maybe this should be a pointer rather than a reference
 Player::Player(World &world): world(world) {
@@ -18,6 +22,7 @@ Player::Player(World &world): world(world) {
 }
 
 void Player::update(Camera &cam, float delta) {
+    vec3 oldPosition = position;
 
     //mouse movement input
     static vec2 lastpos;
@@ -234,7 +239,7 @@ void Player::update(Camera &cam, float delta) {
     }
     position.z += velocityDistance.z;
 
-    cam.setPosition(position + vec3(0.0f, 0.8f, 0.0f));
+    cam.setPosition(position + vec3(0.0f, 0.7f, 0.0f));
 
     //block placing
     vec3i blockpos;
@@ -258,11 +263,11 @@ void Player::update(Camera &cam, float delta) {
             NetworkManagerClient::send(packet);
         }
         if (placeBlock) {
-            if (true || !playerBoundingBox.intersectsWith(AABB(vec3(blockpos.x + blocknormal.x, blockpos.y + blocknormal.y, blockpos.z + blocknormal.z), vec3(blockpos.x  + blocknormal.x + 1, blockpos.y  + blocknormal.y + 1, blockpos.z  + blocknormal.z + 1)))) {
+            if (!playerBoundingBox.intersectsWith(AABB(vec3(blockpos.x + blocknormal.x, blockpos.y + blocknormal.y, blockpos.z + blocknormal.z), vec3(blockpos.x  + blocknormal.x + 1, blockpos.y  + blocknormal.y + 1, blockpos.z  + blocknormal.z + 1)))) {
                 int x = blockpos.x + blocknormal.x;
                 int y = blockpos.y + blocknormal.y;
                 int z = blockpos.z + blocknormal.z;
-                int blockID = 4;
+                int blockID = heldBlock;
                 int id = 1;
 
                 sf::Packet packet;
@@ -276,4 +281,14 @@ void Player::update(Camera &cam, float delta) {
 
     velocity.x = 0.0f;
     velocity.z = 0.0f;
+
+    if (oldPosition.x != position.x || oldPosition.y != position.y || oldPosition.z != position.z) {
+        int id = 2;
+
+        sf::Packet packet;
+        packet << id;
+        packet << position.x << position.y << position.z;
+
+        NetworkManagerClient::send(packet);
+    }
 }

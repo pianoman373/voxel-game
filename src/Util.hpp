@@ -29,4 +29,6 @@ public:
     static float ridgedNoise(vec2 position, int octaves, float frequency, float persistence);
 
     static json loadJsonFile(std::string file);
+
+    static std::string loadFile(std::string file);
 };

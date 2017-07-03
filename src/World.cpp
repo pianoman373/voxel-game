@@ -45,17 +45,17 @@ static void placeBlocks(Chunk *chunk) {
                 height -= (chunk->chunk_y * 32);
                 for (int i = 0; i < height; i++) {
                     if (dot(finalNorm, vec3(0.0f, 1.0f, 0.0f)) < 0.7f) {
-                        chunk->setBlock(x, i, z, 1);
+                        chunk->setBlock(x, i, z, 2);
                     }
                     else {
-                        chunk->setBlock(x, i, z, 2);
+                        chunk->setBlock(x, i, z, 3);
                     }
                 }
                 if (dot(finalNorm, vec3(0.0f, 1.0f, 0.0f)) < 0.7f) {
-                    chunk->setBlock(x, floor(height), z, 1);
+                    chunk->setBlock(x, floor(height), z, 2);
                 }
                 else {
-                    chunk->setBlock(x, floor(height), z, 3);
+                    chunk->setBlock(x, floor(height), z, 1);
                 }
             }
         //}

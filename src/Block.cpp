@@ -24,9 +24,14 @@ Block *BlockRegistry::getBlock(int id) {
     return registry[id];
 }
 
+int BlockRegistry::registeredBlocks() {
+    return registry.size();
+}
+
 //SimpleBlock
-SimpleBlock::SimpleBlock(vec2i tex) {
+SimpleBlock::SimpleBlock(vec2i tex, std::string name) {
     this->textureCoord = tex;
+    this->name = name;
 }
 
 vec2i SimpleBlock::getTextureCoord(EnumDirection dir) {
@@ -35,7 +40,7 @@ vec2i SimpleBlock::getTextureCoord(EnumDirection dir) {
 
 //BlockAir
 BlockAir::BlockAir() {
-
+    this->name = "Air";
 }
 
 vec2i BlockAir::getTextureCoord(EnumDirection dir) {
@@ -48,7 +53,7 @@ bool BlockAir::isSolid() {
 
 //BlockGrass
 BlockGrass::BlockGrass() {
-
+    this->name = "Grass";
 }
 
 vec2i BlockGrass::getTextureCoord(EnumDirection dir) {

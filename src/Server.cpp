@@ -40,6 +40,8 @@ void Server::run() {
         int id;
         packet >> id;
 
+        std::string senderString = sender.toString() + std::to_string(port);
+
         if (id == 0) {
             std::cout << "connected to " << sender << ":" << port << std::endl;
             users.push_back(sender);
@@ -58,11 +60,30 @@ void Server::run() {
             packet >> x >> y >> z >> blockID;
 
 
-            std::cout << "PlaceBlock(" << x << ", " << y << ", " << z << ", " << blockID << ")" << std::endl;
+            std::cout << senderString << " -> " << "PlaceBlock(" << x << ", " << y << ", " << z << ", " << blockID << ")" << std::endl;
 
             sf::Packet replyPacket;
             replyPacket << id;
             replyPacket << x << y << z << blockID;
+
+
+            for (unsigned int i = 0; i < users.size(); i++) {
+                sf::IpAddress currentUser = users[i];
+                unsigned short currentPort = userPorts[i];
+                socket.send(replyPacket, currentUser, currentPort);
+            }
+        }
+        if (id == 2) {
+            float x, y, z;
+            packet >> x >> y >> z;
+
+            std::cout << senderString << " -> " << "CharacterMove(" << x << ", " << y << ", " << z << ")" << std::endl;
+
+            std::string key = sender.toString() + std::string(":") + std::to_string(port);
+
+            sf::Packet replyPacket;
+            replyPacket << id;
+            replyPacket << x << y << z << key;
 
 
             for (unsigned int i = 0; i < users.size(); i++) {

@@ -1,4 +1,5 @@
 #include "Input.hpp"
+#include "Client.hpp"
 #include <iostream>
 
 static bool keys[1024];
@@ -12,6 +13,7 @@ static double last_ypos = 0;
 
 static GLFWwindow* window;
 static bool cursor = true;
+static float scroll = 0;
 
 namespace Input {
 	void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode) {
@@ -57,7 +59,7 @@ namespace Input {
     }
 
     void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
-
+        Client::scrollBlocks((int)yoffset);
     }
 
     bool isKeyDown(int key) {
@@ -66,6 +68,10 @@ namespace Input {
 
     bool isMouseButtonDown(int button) {
         return mouse[button];
+    }
+
+    float getScroll() {
+        return scroll;
     }
 
     vec2 getCursorPos() {

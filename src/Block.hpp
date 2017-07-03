@@ -3,9 +3,13 @@
 #include "Math.hpp"
 
 #include <map>
+#include <string>
+#include <lua.hpp>
 
 class Block {
 public:
+    std::string name = "";
+
     Block();
 
     virtual vec2i getTextureCoord(EnumDirection dir);
@@ -21,6 +25,8 @@ public:
     static void registerBlock(int id, Block *block);
 
     static Block *getBlock(int id);
+
+    static int registeredBlocks();
 };
 
 class SimpleBlock : public Block {
@@ -28,7 +34,7 @@ private:
     vec2i textureCoord;
 
 public:
-    SimpleBlock(vec2i tex);
+    SimpleBlock(vec2i tex, std::string name);
 
     vec2i getTextureCoord(EnumDirection dir);
 };
