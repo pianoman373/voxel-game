@@ -12,7 +12,8 @@ include_directories(lib/glew)
 link_libraries(${GLEW_LIBRARIES})
 add_library (glew lib/glew/src/glew.c)
 
-link_directories(lib/luajit/lib)
+link_directories(lib/luajit/lib
+                 )
 
 include_directories(lib/glfw/include/
                     lib/stb/
