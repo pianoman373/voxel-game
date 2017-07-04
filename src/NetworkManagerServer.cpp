@@ -1,4 +1,5 @@
 #include "NetworkManagerServer.hpp"
+#include "NetworkManagerClient.hpp"
 
 #include <iostream>
 #include <thread>
@@ -44,34 +45,49 @@ void NetworkManagerServer::handleIncomingPackets() {
 
 void NetworkManagerServer::bind() {
     // bind the socket to a port
-    if (socket.bind(54000) != sf::Socket::Done)
-    {
-        // error...
+    if (isLocal) {
+
     }
+    else {
+        if (socket.bind(54000) != sf::Socket::Done)
+        {
+            // error...
+        }
 
-    std::cout << "bound server to port 54000" << std::endl;
+        std::cout << "bound server to port 54000" << std::endl;
 
-    std::thread thread(handleIncomingPackets);
-    thread.detach();
+        std::thread thread(handleIncomingPackets);
+        thread.detach();
+    }
 }
 
 void NetworkManagerServer::sendToAll(sf::Packet packet) {
-    for (unsigned int i = 0; i < users.size(); i++) {
-        sf::IpAddress currentUser = users[i];
-        unsigned short currentPort = userPorts[i];
-        socket.send(packet, currentUser, currentPort);
+    if (isLocal) {
+        NetworkManagerClient::serverToClient.push_back(packet);
+    }
+    else {
+        for (unsigned int i = 0; i < users.size(); i++) {
+            sf::IpAddress currentUser = users[i];
+            unsigned short currentPort = userPorts[i];
+            socket.send(packet, currentUser, currentPort);
+        }
     }
 }
 
 void NetworkManagerServer::handshake(sf::IpAddress sender, unsigned short port) {
-    users.push_back(sender);
-    userPorts.push_back(port);
+    if (isLocal) {
 
-    int userID = generateID();
-    int id = 0;
-    sf::Packet replyPacket;
-    replyPacket << 0;
-    replyPacket << userID;
+    }
+    else {
+        users.push_back(sender);
+        userPorts.push_back(port);
 
-    socket.send(replyPacket, sender, port);
+        int userID = generateID();
+        int id = 0;
+        sf::Packet replyPacket;
+        replyPacket << 0;
+        replyPacket << userID;
+
+        socket.send(replyPacket, sender, port);
+    }
 }

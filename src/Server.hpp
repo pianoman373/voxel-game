@@ -4,7 +4,5 @@
 
 class Server {
 public:
-    static sf::UdpSocket socket;
-
     static void run();
 };

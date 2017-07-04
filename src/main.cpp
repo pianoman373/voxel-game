@@ -4,6 +4,9 @@
 #include "Server.hpp"
 #include "Client.hpp"
 
+#include "NetworkManagerClient.hpp"
+#include "NetworkManagerServer.hpp"
+
 int main(int argc, char *argv[]) {
     if (argc > 1 && std::string(argv[1]) == "-s") {
         std::cout << "running server" << std::endl;
@@ -15,6 +18,12 @@ int main(int argc, char *argv[]) {
     }
     else {
         std::cout << "running game locally" << std::endl;
+        NetworkManagerClient::isLocal = true;
+        NetworkManagerServer::isLocal = true;
+
+        std::thread thread(Server::run);
+        thread.detach();
+
         Client::run("localhost");
     }
 }

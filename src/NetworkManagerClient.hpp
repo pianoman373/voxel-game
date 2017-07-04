@@ -5,14 +5,14 @@
 
 class NetworkManagerClient {
 private:
-    static std::vector<sf::Packet> clientToServer;
     static sf::UdpSocket socket;
     static sf::IpAddress connectedServer;
-    static bool isLocal;
 
     static void handleIncomingPackets();
 public:
+    static bool isLocal;
     static std::vector<sf::Packet> serverToClient;
+    static std::vector<sf::Packet> clientToServer;
 
     static void connectToServer(sf::IpAddress remoteAddress);
 

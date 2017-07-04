@@ -12,7 +12,6 @@ struct ClientMessage {
 class NetworkManagerServer {
 private:
     static sf::UdpSocket socket;
-    static bool isLocal;
 
     static std::vector<sf::IpAddress> users;
     static std::vector<unsigned short> userPorts;
@@ -20,6 +19,7 @@ private:
     static void handleIncomingPackets();
 
 public:
+    static bool isLocal;
     static std::vector<ClientMessage> clientToServer;
 
     static void bind();

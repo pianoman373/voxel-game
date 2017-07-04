@@ -1,4 +1,5 @@
 #include "NetworkManagerClient.hpp"
+#include "NetworkManagerServer.hpp"
 #include "Client.hpp"
 #include "Server.hpp"
 
@@ -72,7 +73,8 @@ void NetworkManagerClient::connectToServer(sf::IpAddress remoteAddress) {
 
 void NetworkManagerClient::send(sf::Packet packet) {
     if (isLocal) {
-        clientToServer.push_back(packet);
+        //clientToServer.push_back(packet);
+        NetworkManagerServer::clientToServer.push_back({packet, sf::IpAddress(), 0});
     }
     else {
         socket.send(packet, connectedServer, 54000);
