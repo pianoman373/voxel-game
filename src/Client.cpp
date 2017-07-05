@@ -43,22 +43,36 @@ void Client::init() {
     blockShader.load("resources/blockShader.vsh", "resources/blockShader.fsh");
     texture.load("resources/blocks.png");
 
-    glEnable(GL_CULL_FACE);
+    //glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     player = new Player(Common::world);
     player->position = vec3(WORLD_SIZE * CHUNK_SIZE / 2.0f, 50.0f, WORLD_SIZE * CHUNK_SIZE / 2.0f);
 
-    Common::world.rebuild();
+    //Common::world.rebuild();
 }
 
 void Client::run(std::string ip) {
     window.create({1400, 800}, "Voxel Game");
 
+    init();
+
+    Common::world.generate(false);
+    Common::world.rebuild();
+
     NetworkManagerClient::connectToServer(ip);
 
-    init();
+//    for (int x = 0; x < WORLD_SIZE; x++) {
+//        for (int y = 0; y < WORLD_HEIGHT; y++) {
+//            for (int z = 0; z < WORLD_SIZE; z++) {
+//                sf::Packet p;
+//                int id = 4;
+//                p << id << x << y << z;
+//                NetworkManagerClient::send(p);
+//            }
+//        }
+//    }
 
     static Console console;
 
@@ -101,6 +115,26 @@ void Client::run(std::string ip) {
 
                 console.AddLog("<Player> %s", message.c_str());
             }
+            if (id == 4) {
+                int x, y, z;
+                p >> x >> y >> z;
+
+                std::cout << "received chunk from server" << std::endl;
+
+                Chunk *c = Common::world.getChunk(x, y, z);
+
+                for (int i = 0; i < CHUNK_SIZE; i++) {
+                    for (int j = 0; j < CHUNK_SIZE; j++) {
+                        for (int k = 0; k < CHUNK_SIZE; k++) {
+                            sf::Int8 b;
+                            p >> b;
+
+                            c->setBlock(i, j, k, b);
+                            c->rebuild = true;
+                        }
+                    }
+                }
+            }
         }
         NetworkManagerClient::serverToClient.clear();
 
@@ -130,9 +164,6 @@ void Client::run(std::string ip) {
         console.Draw();
 
         ImGui::End();
-
-
-        //console.Draw("Console", &p_open);
 
         Renderer::flush(camera);
 

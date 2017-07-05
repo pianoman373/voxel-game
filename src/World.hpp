@@ -42,7 +42,7 @@ public:
 
     World();
 
-    void generate();
+    void generate(bool empty);
 
     void addChunk(int x, int y, int z, Chunk *c);
 
@@ -53,6 +53,8 @@ public:
     void render(Camera &cam, Shader shader, Texture tex);
 
     int getBlock(int x, int y, int z);
+
+    Chunk *getChunk(int x, int y, int z);
 
     void setBlock(int x, int y, int z, int block);
 

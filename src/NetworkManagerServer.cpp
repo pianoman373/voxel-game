@@ -74,6 +74,10 @@ void NetworkManagerServer::sendToAll(sf::Packet packet) {
     }
 }
 
+void NetworkManagerServer::send(sf::Packet packet, sf::IpAddress recipient, unsigned short port) {
+    socket.send(packet, recipient, port);
+}
+
 void NetworkManagerServer::handshake(sf::IpAddress sender, unsigned short port) {
     if (isLocal) {
 

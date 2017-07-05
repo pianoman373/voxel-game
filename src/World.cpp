@@ -74,12 +74,13 @@ World::World() {
     //std::cout << "creating world instance" << std::endl;
 }
 
-void World::generate() {
+void World::generate(bool empty) {
     for (int x = 0; x < WORLD_SIZE; x++) {
         for (int y = 0; y < WORLD_HEIGHT; y++) {
             for (int z = 0; z < WORLD_SIZE; z++) {
                 Chunk *c = new Chunk(x, y, z, this);
-                placeBlocks(c);
+                if (!empty)
+                    placeBlocks(c);
                 addChunk(x, y, z, c);
             }
         }
@@ -144,6 +145,10 @@ int World::getBlock(int x, int y, int z) {
         return c->getBlock(x % CHUNK_SIZE, y % CHUNK_SIZE, z % CHUNK_SIZE);
     }
     return 1;
+}
+
+Chunk *World::getChunk(int x, int y, int z) {
+    return chunks.at({x, y, z});
 }
 
 void World::setBlock(int x, int y, int z, int block) {

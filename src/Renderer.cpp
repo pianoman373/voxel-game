@@ -23,6 +23,7 @@ Shader debugShader;
 Shader skyboxShader;
 
 Mesh skyboxMesh;
+Mesh crosshairMesh;
 
 MeshFactory ms;
 
@@ -117,6 +118,25 @@ void Renderer::init() {
     m.vertex( 1.0f,  1.0f,  1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
 
     m.toMesh(skyboxMesh);
+    m.clear();
+
+    m.vertex( 10.0f,  1.0f,  0.0f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex( 10.0f,  -1.0f,  0.0f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex( -10.0f,  -1.0f,  0.0f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+
+    m.vertex( -10.0f,  -1.0f,  0.0f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex( -10.0f,  1.0f,  0.0f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex( 10.0f,  1.0f,  0.0f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+
+    m.vertex( 1.0f,  10.0f,  0.0f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex( 1.0f,  -10.0f,  0.0f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex( -1.0f,  -10.0f,  0.0f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+
+    m.vertex( -1.0f,  -10.0f,  0.0f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex( -1.0f,  10.0f,  0.0f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+    m.vertex( 1.0f,  10.0f,  0.0f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
+
+    m.toMesh(crosshairMesh);
 }
 
 void Renderer::render(Mesh *mesh, Material material, Transform transform) {
@@ -236,6 +256,11 @@ void Renderer::flush(Camera cam) {
     }
 
     renderQueue.clear();
+
+    debugShader.bind();
+    debugShader.uniformMat4("view", mat4());
+    debugShader.uniformMat4("projection", orthographic(-(size.x/2), (size.x/2), (size.y/2), -(size.y/2), -1.0f, 1.0f));
+    crosshairMesh.render();
 
     Mesh mesh;
     ms.toMesh(mesh);

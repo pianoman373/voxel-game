@@ -1,4 +1,7 @@
 #include "Block.hpp"
+#include "Common.hpp"
+
+#include <lua.hpp>
 
 //Block
 Block::Block() {
@@ -11,6 +14,50 @@ vec2i Block::getTextureCoord(EnumDirection dir) {
 
 bool Block::isSolid() {
     return true;
+}
+
+//LuaBlock
+LuaBlock::LuaBlock(int blockID) {
+    this->blockID = blockID;
+
+    lua_pushstring(Common::lua, "BLOCK_REGISTRY");
+    lua_gettable(Common::lua, LUA_REGISTRYINDEX);
+    lua_pushinteger(Common::lua, blockID);
+    lua_gettable(Common::lua, -2);
+    lua_pushstring(Common::lua, "name");
+    lua_gettable(Common::lua, -2);
+    this->name = std::string(lua_tostring(Common::lua, -1));
+}
+
+vec2i LuaBlock::getTextureCoord(EnumDirection dir) {
+    lua_pushstring(Common::lua, "BLOCK_REGISTRY");
+    lua_gettable(Common::lua, LUA_REGISTRYINDEX);
+    lua_pushinteger(Common::lua, blockID);
+    lua_gettable(Common::lua, -2);
+    lua_pushstring(Common::lua, "getTextureCoord");
+    lua_gettable(Common::lua, -2);
+    lua_pushinteger(Common::lua, static_cast<int>(dir));
+    lua_call(Common::lua, 1, 2);
+
+    vec2i coord = vec2i(lua_tointeger(Common::lua, -2), lua_tointeger(Common::lua, -1));
+    lua_settop(Common::lua, 1);
+
+    return coord;
+}
+
+bool LuaBlock::isSolid() {
+    lua_pushstring(Common::lua, "BLOCK_REGISTRY");
+    lua_gettable(Common::lua, LUA_REGISTRYINDEX);
+    lua_pushinteger(Common::lua, blockID);
+    lua_gettable(Common::lua, -2);
+    lua_pushstring(Common::lua, "isSolid");
+    lua_gettable(Common::lua, -2);
+    lua_call(Common::lua, 0, 1);
+
+    bool solid =  lua_toboolean(Common::lua, -1);
+    lua_settop(Common::lua, 1);
+
+    return solid;
 }
 
 //BlockRegistry
@@ -26,44 +73,4 @@ Block *BlockRegistry::getBlock(int id) {
 
 int BlockRegistry::registeredBlocks() {
     return registry.size();
-}
-
-//SimpleBlock
-SimpleBlock::SimpleBlock(vec2i tex, std::string name) {
-    this->textureCoord = tex;
-    this->name = name;
-}
-
-vec2i SimpleBlock::getTextureCoord(EnumDirection dir) {
-    return textureCoord;
-}
-
-//BlockAir
-BlockAir::BlockAir() {
-    this->name = "Air";
-}
-
-vec2i BlockAir::getTextureCoord(EnumDirection dir) {
-    return vec2i();
-}
-
-bool BlockAir::isSolid() {
-    return false;
-}
-
-//BlockGrass
-BlockGrass::BlockGrass() {
-    this->name = "Grass";
-}
-
-vec2i BlockGrass::getTextureCoord(EnumDirection dir) {
-    if (dir == EnumDirection::POSITIVE_Y) {
-        return vec2i(3, 0);
-    }
-    else if (dir == EnumDirection::NEGATIVE_Y) {
-        return vec2i(4, 0);
-    }
-    else {
-        return vec2i(5, 0);
-    }
 }
