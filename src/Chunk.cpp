@@ -55,6 +55,9 @@ float frand() {
     return (float)std::rand() / (float)RAND_MAX;
 }
 
+const float textureSize = 16.0f;
+const float AO = 0.7f;
+
 void Chunk::generateMesh() {
     if (!empty) {
         MeshFactory ms = MeshFactory();
@@ -110,11 +113,11 @@ void Chunk::generateMesh() {
 //                    int block_negX_posY_posZ = getBlockFromWorld(x - 1, y + 1, z + 1);
 //                    int block_negX_negY_posZ = getBlockFromWorld(x - 1, y - 1, z + 1);
 
-                    if (getBlockFromWorld(x + 1, y, z) == 0 && block_X_Y_Z != 0) { //+x face
+                    if (!BlockRegistry::getBlock(getBlockFromWorld(x + 1, y, z))->isSolid() && block_X_Y_Z != 0) { //+x face
                         vec2i textureCoord = block->getTextureCoord(EnumDirection::POSITIVE_X);
 
-                        vec2 uv1 = vec2((textureCoord.x / 8.0f), (textureCoord.y / 8.0f)) + bias;
-                        vec2 uv2 = vec2(((textureCoord.x + 1) / 8.0f), ((textureCoord.y + 1) / 8.0f)) - bias;
+                        vec2 uv1 = vec2((textureCoord.x / textureSize), (textureCoord.y / textureSize)) + bias;
+                        vec2 uv2 = vec2(((textureCoord.x + 1) / textureSize), ((textureCoord.y + 1) / textureSize)) - bias;
 
                         float ao1 = 1.0f; //neg y pos z
                         float ao2 = 1.0f; //pos y pos z
@@ -122,13 +125,13 @@ void Chunk::generateMesh() {
                         float ao4 = 1.0f; //pos y neg z
 
                         if (getBlockFromWorld(x + 1, y - 1, z) != 0 || getBlockFromWorld(x + 1, y - 1, z + 1) != 0 || getBlockFromWorld(x + 1, y, z + 1) != 0)
-                            ao1 = 0.8f;
+                            ao1 = AO;
                         if (getBlockFromWorld(x + 1, y + 1, z) != 0 || getBlockFromWorld(x + 1, y + 1, z + 1) != 0 || getBlockFromWorld(x + 1, y, z + 1) != 0)
-                            ao2 = 0.8f;
+                            ao2 = AO;
                         if (getBlockFromWorld(x + 1, y - 1, z) != 0 || getBlockFromWorld(x + 1, y - 1, z - 1) != 0 || getBlockFromWorld(x + 1, y, z - 1) != 0)
-                            ao3 = 0.8f;
+                            ao3 = AO;
                         if (getBlockFromWorld(x + 1, y + 1, z) != 0 || getBlockFromWorld(x + 1, y + 1, z - 1) != 0 || getBlockFromWorld(x + 1, y, z - 1) != 0)
-                            ao4 = 0.8f;
+                            ao4 = AO;
 
                         ms.vertex(1.0f+x,  0.0f+y,  0.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao3,  uv1.x, uv2.y);
                         ms.vertex(1.0f+x,  1.0f+y,  0.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao4,  uv1.x, uv1.y);
@@ -138,11 +141,11 @@ void Chunk::generateMesh() {
                         ms.vertex(1.0f+x,  0.0f+y,  1.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao1,  uv2.x, uv2.y);
                         ms.vertex(1.0f+x,  0.0f+y,  0.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao3,  uv1.x, uv2.y);
                     }
-                    if (getBlockFromWorld(x - 1, y, z) == 0 && block_X_Y_Z != 0) { //-x face
+                    if (!BlockRegistry::getBlock(getBlockFromWorld(x - 1, y, z))->isSolid() && block_X_Y_Z != 0) { //-x face
                         vec2i textureCoord = block->getTextureCoord(EnumDirection::NEGATIVE_X);
 
-                        vec2 uv1 = vec2((textureCoord.x / 8.0f), (textureCoord.y / 8.0f)) + bias;
-                        vec2 uv2 = vec2(((textureCoord.x + 1) / 8.0f), ((textureCoord.y + 1) / 8.0f)) - bias;
+                        vec2 uv1 = vec2((textureCoord.x / textureSize), (textureCoord.y / textureSize)) + bias;
+                        vec2 uv2 = vec2(((textureCoord.x + 1) / textureSize), ((textureCoord.y + 1) / textureSize)) - bias;
 
                         float ao1 = 1.0f; //neg y pos z
                         float ao2 = 1.0f; //pos y pos z
@@ -150,13 +153,13 @@ void Chunk::generateMesh() {
                         float ao4 = 1.0f; //pos y neg z
 
                         if (getBlockFromWorld(x - 1, y - 1, z) != 0 || getBlockFromWorld(x - 1, y - 1, z + 1) != 0 || getBlockFromWorld(x - 1, y, z + 1) != 0)
-                            ao1 = 0.8f;
+                            ao1 = AO;
                         if (getBlockFromWorld(x - 1, y + 1, z) != 0 || getBlockFromWorld(x - 1, y + 1, z + 1) != 0 || getBlockFromWorld(x - 1, y, z + 1) != 0)
-                            ao2 = 0.8f;
+                            ao2 = AO;
                         if (getBlockFromWorld(x - 1, y - 1, z) != 0 || getBlockFromWorld(x - 1, y - 1, z - 1) != 0 || getBlockFromWorld(x - 1, y, z - 1) != 0)
-                            ao3 = 0.8f;
+                            ao3 = AO;
                         if (getBlockFromWorld(x - 1, y + 1, z) != 0 || getBlockFromWorld(x - 1, y + 1, z - 1) != 0 || getBlockFromWorld(x - 1, y, z - 1) != 0)
-                            ao4 = 0.8f;
+                            ao4 = AO;
 
                         ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao2,  uv1.x, uv1.y);
                         ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao4,  uv2.x, uv1.y);
@@ -167,11 +170,11 @@ void Chunk::generateMesh() {
                         ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao2,  uv1.x, uv1.y);
                     }
 
-                    if (getBlockFromWorld(x, y + 1, z) == 0 && block_X_Y_Z != 0) { //top face
+                    if (!BlockRegistry::getBlock(getBlockFromWorld(x, y + 1, z))->isSolid() && block_X_Y_Z != 0) { //top face
                         vec2i textureCoord = block->getTextureCoord(EnumDirection::POSITIVE_Y);
 
-                        vec2 uv1 = vec2((textureCoord.x / 8.0f), (textureCoord.y / 8.0f)) + bias;
-                        vec2 uv2 = vec2(((textureCoord.x + 1) / 8.0f), ((textureCoord.y + 1) / 8.0f)) - bias;
+                        vec2 uv1 = vec2((textureCoord.x / textureSize), (textureCoord.y / textureSize)) + bias;
+                        vec2 uv2 = vec2(((textureCoord.x + 1) / textureSize), ((textureCoord.y + 1) / textureSize)) - bias;
 
                         float ao1 = 1.0f; //neg x pos z
                         float ao2 = 1.0f; //pos x pos z
@@ -179,13 +182,13 @@ void Chunk::generateMesh() {
                         float ao4 = 1.0f; //pos x neg z
 
                         if (getBlockFromWorld(x - 1, y + 1, z) != 0 || getBlockFromWorld(x - 1, y + 1, z + 1) != 0 || getBlockFromWorld(x, y + 1, z + 1) != 0)
-                            ao1 = 0.8f;
+                            ao1 = AO;
                         if (getBlockFromWorld(x + 1, y + 1, z) != 0 || getBlockFromWorld(x + 1, y + 1, z + 1) != 0 || getBlockFromWorld(x, y + 1, z + 1) != 0)
-                            ao2 = 0.8f;
+                            ao2 = AO;
                         if (getBlockFromWorld(x - 1, y + 1, z) != 0 || getBlockFromWorld(x - 1, y + 1, z - 1) != 0 || getBlockFromWorld(x, y + 1, z - 1) != 0)
-                            ao3 = 0.8f;
+                            ao3 = AO;
                         if (getBlockFromWorld(x + 1, y + 1, z) != 0 || getBlockFromWorld(x + 1, y + 1, z - 1) != 0 || getBlockFromWorld(x, y + 1, z - 1) != 0)
-                            ao4 = 0.8f;
+                            ao4 = AO;
 
                         ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao2,  uv2.x, uv1.y);
                         ms.vertex( 1.0f+x,  1.0f+y,  0.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao4,  uv2.x, uv2.y);
@@ -195,11 +198,11 @@ void Chunk::generateMesh() {
                         ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao1,  uv1.x, uv1.y);
                         ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao2,  uv2.x, uv1.y);
                     }
-                    if (getBlockFromWorld(x, y - 1, z) == 0 && block_X_Y_Z != 0) { //bottom face
+                    if (!BlockRegistry::getBlock(getBlockFromWorld(x, y - 1, z))->isSolid() && block_X_Y_Z != 0) { //bottom face
                         vec2i textureCoord = block->getTextureCoord(EnumDirection::NEGATIVE_Y);
 
-                        vec2 uv1 = vec2((textureCoord.x / 8.0f), (textureCoord.y / 8.0f)) + bias;
-                        vec2 uv2 = vec2(((textureCoord.x + 1) / 8.0f), ((textureCoord.y + 1) / 8.0f)) - bias;
+                        vec2 uv1 = vec2((textureCoord.x / textureSize), (textureCoord.y / textureSize)) + bias;
+                        vec2 uv2 = vec2(((textureCoord.x + 1) / textureSize), ((textureCoord.y + 1) / textureSize)) - bias;
 
                         float ao1 = 1.0f; //neg x pos z
                         float ao2 = 1.0f; //pos x pos z
@@ -207,13 +210,13 @@ void Chunk::generateMesh() {
                         float ao4 = 1.0f; //pos x neg z
 
                         if (getBlockFromWorld(x - 1, y - 1, z) != 0 || getBlockFromWorld(x - 1, y - 1, z + 1) != 0 || getBlockFromWorld(x, y - 1, z + 1) != 0)
-                            ao1 = 0.8f;
+                            ao1 = AO;
                         if (getBlockFromWorld(x + 1, y - 1, z) != 0 || getBlockFromWorld(x + 1, y - 1, z + 1) != 0 || getBlockFromWorld(x, y - 1, z + 1) != 0)
-                            ao2 = 0.8f;
+                            ao2 = AO;
                         if (getBlockFromWorld(x - 1, y - 1, z) != 0 || getBlockFromWorld(x - 1, y - 1, z - 1) != 0 || getBlockFromWorld(x, y - 1, z - 1) != 0)
-                            ao3 = 0.8f;
+                            ao3 = AO;
                         if (getBlockFromWorld(x + 1, y - 1, z) != 0 || getBlockFromWorld(x + 1, y - 1, z - 1) != 0 || getBlockFromWorld(x, y - 1, z - 1) != 0)
-                            ao4 = 0.8f;
+                            ao4 = AO;
 
                         ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao3,  uv1.x, uv2.y);
                         ms.vertex( 1.0f+x,  0.0f+y,  0.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao4,  uv2.x, uv2.y);
@@ -224,11 +227,11 @@ void Chunk::generateMesh() {
                         ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao3,  uv1.x, uv2.y);
                     }
 
-                    if (getBlockFromWorld(x, y, z - 1) == 0 && block_X_Y_Z != 0) { //-z face
+                    if (!BlockRegistry::getBlock(getBlockFromWorld(x, y, z - 1))->isSolid() && block_X_Y_Z != 0) { //-z face
                         vec2i textureCoord = block->getTextureCoord(EnumDirection::NEGATIVE_Z);
 
-                        vec2 uv1 = vec2((textureCoord.x / 8.0f), (textureCoord.y / 8.0f)) + bias;
-                        vec2 uv2 = vec2(((textureCoord.x + 1) / 8.0f), ((textureCoord.y + 1) / 8.0f)) - bias;
+                        vec2 uv1 = vec2((textureCoord.x / textureSize), (textureCoord.y / textureSize)) + bias;
+                        vec2 uv2 = vec2(((textureCoord.x + 1) / textureSize), ((textureCoord.y + 1) / textureSize)) - bias;
 
                         float ao1 = 1.0f; //neg x pos y
                         float ao2 = 1.0f; //pos x pos y
@@ -236,13 +239,13 @@ void Chunk::generateMesh() {
                         float ao4 = 1.0f; //pos x neg y
 
                         if (getBlockFromWorld(x - 1, y, z - 1) != 0 || getBlockFromWorld(x - 1, y + 1, z - 1) != 0 || getBlockFromWorld(x, y + 1, z - 1) != 0)
-                            ao1 = 0.8f;
+                            ao1 = AO;
                         if (getBlockFromWorld(x + 1, y, z - 1) != 0 || getBlockFromWorld(x + 1, y + 1, z - 1) != 0 || getBlockFromWorld(x, y + 1, z - 1) != 0)
-                            ao2 = 0.8f;
+                            ao2 = AO;
                         if (getBlockFromWorld(x - 1, y, z - 1) != 0 || getBlockFromWorld(x - 1, y - 1, z - 1) != 0 || getBlockFromWorld(x, y - 1, z - 1) != 0)
-                            ao3 = 0.8f;
+                            ao3 = AO;
                         if (getBlockFromWorld(x + 1, y, z - 1) != 0 || getBlockFromWorld(x + 1, y - 1, z - 1) != 0 || getBlockFromWorld(x, y - 1, z - 1) != 0)
-                            ao4 = 0.8f;
+                            ao4 = AO;
 
                         ms.vertex( 1.0f+x,  1.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, ao2,  uv2.x, uv1.y);
                         ms.vertex( 1.0f+x,  0.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, ao4,  uv2.x, uv2.y);
@@ -252,11 +255,11 @@ void Chunk::generateMesh() {
                         ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, ao1,  uv1.x, uv1.y);
                         ms.vertex( 1.0f+x,  1.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, ao2,  uv2.x, uv1.y);
                     }
-                    if (getBlockFromWorld(x, y, z + 1) == 0 && block_X_Y_Z != 0) { //+z face
+                    if (!BlockRegistry::getBlock(getBlockFromWorld(x, y, z + 1))->isSolid() && block_X_Y_Z != 0) { //+z face
                         vec2i textureCoord = block->getTextureCoord(EnumDirection::POSITIVE_Z);
 
-                        vec2 uv1 = vec2((textureCoord.x / 8.0f), (textureCoord.y / 8.0f)) + bias;
-                        vec2 uv2 = vec2(((textureCoord.x + 1) / 8.0f), ((textureCoord.y + 1) / 8.0f)) - bias;
+                        vec2 uv1 = vec2((textureCoord.x / textureSize), (textureCoord.y / textureSize)) + bias;
+                        vec2 uv2 = vec2(((textureCoord.x + 1) / textureSize), ((textureCoord.y + 1) / textureSize)) - bias;
 
                         float ao1 = 1.0f; //neg x pos y
                         float ao2 = 1.0f; //pos x pos y
@@ -264,13 +267,13 @@ void Chunk::generateMesh() {
                         float ao4 = 1.0f; //pos x neg y
 
                         if (getBlockFromWorld(x - 1, y, z + 1) != 0 || getBlockFromWorld(x - 1, y + 1, z + 1) != 0 || getBlockFromWorld(x, y + 1, z + 1) != 0)
-                            ao1 = 0.8f;
+                            ao1 = AO;
                         if (getBlockFromWorld(x + 1, y, z + 1) != 0 || getBlockFromWorld(x + 1, y + 1, z + 1) != 0 || getBlockFromWorld(x, y + 1, z + 1) != 0)
-                            ao2 = 0.8f;
+                            ao2 = AO;
                         if (getBlockFromWorld(x - 1, y, z + 1) != 0 || getBlockFromWorld(x - 1, y - 1, z + 1) != 0 || getBlockFromWorld(x, y - 1, z + 1) != 0)
-                            ao3 = 0.8f;
+                            ao3 = AO;
                         if (getBlockFromWorld(x + 1, y, z + 1) != 0 || getBlockFromWorld(x + 1, y - 1, z + 1) != 0 || getBlockFromWorld(x, y - 1, z + 1) != 0)
-                            ao4 = 0.8f;
+                            ao4 = AO;
 
                         ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, ao3,  uv1.x, uv2.y);
                         ms.vertex( 1.0f+x,  0.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, ao4,  uv2.x, uv2.y);

@@ -151,6 +151,16 @@ Chunk *World::getChunk(int x, int y, int z) {
     return chunks.at({x, y, z});
 }
 
+bool World::chunkExists(int x, int y, int z) {
+    try {
+        chunks.at({x, y, z});
+        return true;
+    }
+    catch (std::out_of_range exception) {
+        return false;
+    }
+}
+
 void World::setBlock(int x, int y, int z, int block) {
     chunk_position pos = {x / CHUNK_SIZE, y / CHUNK_SIZE, z / CHUNK_SIZE};
 

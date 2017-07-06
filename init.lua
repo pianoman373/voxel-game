@@ -7,6 +7,18 @@ EnumDirection = {
     NEGATIVE_Z = 5
 }
 
+function simpleBlock(blockName, texX, texY)
+	return {
+		name = blockName,
+		getTextureCoord = function(side)
+			return texX, texY
+		end,
+		isSolid = function()
+			return true
+		end
+	}
+end
+
 registerBlock(0, {
 	name = "Air",
 	getTextureCoord = function(side)
@@ -21,54 +33,48 @@ registerBlock(1, {
 	name = "Grass",
 	getTextureCoord = function(side)
 		if side == EnumDirection.POSITIVE_Y then
-			return 3, 0
+			return 0, 0
 		end
 		if side == EnumDirection.NEGATIVE_Y then
-			return 4, 0
+			return 2, 0
 		end
-		return 5, 0
+		return 3, 0
 	end,
 	isSolid = function()
 		return true
 	end
 })
 
-registerBlock(2, {
-	name = "Stone",
+registerBlock(2, simpleBlock("Stone", 1, 0))
+
+registerBlock(3, simpleBlock("Dirt", 2, 0))
+
+registerBlock(4, simpleBlock("Cobblestone", 0, 1))
+
+registerBlock(5, simpleBlock("Planks", 4, 0))
+
+registerBlock(6, simpleBlock("Wood", 4, 1))
+
+registerBlock(7, {
+	name = "Leaves",
 	getTextureCoord = function(side)
-		return 0, 0
+		return 4, 3
 	end,
 	isSolid = function()
-		return true
+		return false
 	end
 })
 
-registerBlock(3, {
-	name = "Dirt",
-	getTextureCoord = function(side)
-		return 4, 0
-	end,
-	isSolid = function()
-		return true
-	end
-})
+registerBlock(8, simpleBlock("Bricks", 7, 0))
 
-registerBlock(4, {
-	name = "Cobblestone",
-	getTextureCoord = function(side)
-		return 2, 0
-	end,
-	isSolid = function()
-		return true
-	end
-})
+registerBlock(9, simpleBlock("Stone Bricks", 6, 3))
 
-registerBlock(5, {
-	name = "Planks",
+registerBlock(10, {
+	name = "Glass",
 	getTextureCoord = function(side)
-		return 6, 0
+		return 1, 3
 	end,
 	isSolid = function()
-		return true
+		return false
 	end
 })

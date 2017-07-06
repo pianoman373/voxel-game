@@ -21,11 +21,6 @@ Console::Console()
     ClearLog();
     memset(InputBuf, 0, sizeof(InputBuf));
     HistoryPos = -1;
-    Commands.push_back("HELP");
-    Commands.push_back("HISTORY");
-    Commands.push_back("CLEAR");
-    Commands.push_back("CLASSIFY");  // "classify" is here to provide an example of "C"+[tab] completing to "CL" and displaying matches.
-    AddLog("Welcome to ImGui!");
 }
 Console::~Console()
 {

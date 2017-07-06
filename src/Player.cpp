@@ -291,4 +291,19 @@ void Player::update(Camera &cam, float delta) {
 
         NetworkManagerClient::send(packet);
     }
+
+    int x = (int)(position.x / 32.0f);
+    if (position.x < 0) x -= 1;
+    int y = (int)(position.y / 32.0f);
+    if (position.y < 0) y -= 1;
+    int z = (int)(position.z / 32.0f);
+    if (position.z < 0) z -= 1;
+
+    if (!world.chunkExists(x, y, z)) {
+        position = oldPosition;
+        velocity.y = 0.0f;
+    }
+
+    vec3 chunkPos = vec3(x, y, z);
+    Renderer::renderDebugAABB((chunkPos * 32.0f), (chunkPos * 32.0f) + 32.0f, vec3(1.0f, 0.0f, 0.0f));
 }

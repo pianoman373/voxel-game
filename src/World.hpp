@@ -56,6 +56,8 @@ public:
 
     Chunk *getChunk(int x, int y, int z);
 
+    bool chunkExists(int x, int y, int z);
+
     void setBlock(int x, int y, int z, int block);
 
     void update(Camera &cam, float delta);

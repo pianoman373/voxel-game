@@ -3,20 +3,24 @@
 
 #include <iostream>
 #include <thread>
+#include <string>
 
 
 std::vector<ClientMessage> NetworkManagerServer::clientToServer;
 sf::UdpSocket NetworkManagerServer::socket;
 bool NetworkManagerServer::isLocal = false;
 
+std::vector<User> NetworkManagerServer::users;
 
-std::vector<sf::IpAddress> NetworkManagerServer::users;
-std::vector<unsigned short> NetworkManagerServer::userPorts;
-
-static int generateID() {
-    static int userID = 0;
-    userID++;
-    return userID;;
+User NetworkManagerServer::getUserByIp(sf::IpAddress ip, unsigned short port) {
+    unsigned int integerIP = ip.toInteger();
+    for (unsigned int i = 0; i < users.size(); i++) {
+        User u = users[i];
+        if (u.address.toInteger() == integerIP && u.port == port) {
+            return u;
+        }
+    }
+    return {sf::IpAddress(), 0, "null"};
 }
 
 void NetworkManagerServer::handleIncomingPackets() {
@@ -63,13 +67,14 @@ void NetworkManagerServer::bind() {
 
 void NetworkManagerServer::sendToAll(sf::Packet packet) {
     if (isLocal) {
+        NetworkManagerClient::serverToClientMutex.lock();
         NetworkManagerClient::serverToClient.push_back(packet);
+        NetworkManagerClient::serverToClientMutex.unlock();
     }
     else {
         for (unsigned int i = 0; i < users.size(); i++) {
-            sf::IpAddress currentUser = users[i];
-            unsigned short currentPort = userPorts[i];
-            socket.send(packet, currentUser, currentPort);
+            User currentUser = users[i];
+            socket.send(packet, currentUser.address, currentUser.port);
         }
     }
 }
@@ -78,19 +83,16 @@ void NetworkManagerServer::send(sf::Packet packet, sf::IpAddress recipient, unsi
     socket.send(packet, recipient, port);
 }
 
-void NetworkManagerServer::handshake(sf::IpAddress sender, unsigned short port) {
+void NetworkManagerServer::handshake(sf::IpAddress sender, unsigned short port, std::string name) {
     if (isLocal) {
 
     }
     else {
-        users.push_back(sender);
-        userPorts.push_back(port);
+        users.push_back({sender, port, name});
 
-        int userID = generateID();
         int id = 0;
         sf::Packet replyPacket;
-        replyPacket << 0;
-        replyPacket << userID;
+        replyPacket << id;
 
         socket.send(replyPacket, sender, port);
     }

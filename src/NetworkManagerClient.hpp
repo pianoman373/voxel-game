@@ -1,6 +1,7 @@
 #pragma once
 
-#include <vector>
+#include <deque>
+#include <mutex>
 #include <SFML/Network.hpp>
 
 class NetworkManagerClient {
@@ -12,9 +13,9 @@ private:
 public:
     static bool isLocal;
     static std::vector<sf::Packet> serverToClient;
-    static std::vector<sf::Packet> clientToServer;
+    static std::mutex serverToClientMutex;
 
-    static void connectToServer(sf::IpAddress remoteAddress);
+    static void connectToServer(std::string username, sf::IpAddress remoteAddress);
 
     static void send(sf::Packet packet);
 };

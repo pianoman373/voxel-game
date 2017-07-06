@@ -5,9 +5,10 @@
 
 #include <thread>
 #include <iostream>
+#include <string>
 
-std::vector<sf::Packet> NetworkManagerClient::clientToServer;
 std::vector<sf::Packet> NetworkManagerClient::serverToClient;
+std::mutex NetworkManagerClient::serverToClientMutex;
 
 bool NetworkManagerClient::isLocal = false;
 sf::UdpSocket NetworkManagerClient::socket;
@@ -31,7 +32,7 @@ void NetworkManagerClient::handleIncomingPackets() {
     }
 }
 
-void NetworkManagerClient::connectToServer(sf::IpAddress remoteAddress) {
+void NetworkManagerClient::connectToServer(std::string username, sf::IpAddress remoteAddress) {
     if (isLocal) {
 
     }
@@ -45,8 +46,10 @@ void NetworkManagerClient::connectToServer(sf::IpAddress remoteAddress) {
 
         //send connection packet
         sf::Packet connectionPacket;
+
         int id = 0;
         connectionPacket << id;
+        connectionPacket << username;
         NetworkManagerClient::send(connectionPacket);
 
         while (true) {

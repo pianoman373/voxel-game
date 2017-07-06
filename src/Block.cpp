@@ -26,7 +26,10 @@ LuaBlock::LuaBlock(int blockID) {
     lua_gettable(Common::lua, -2);
     lua_pushstring(Common::lua, "name");
     lua_gettable(Common::lua, -2);
-    this->name = std::string(lua_tostring(Common::lua, -1));
+    if (lua_isstring(Common::lua, -1))
+        this->name = std::string(lua_tostring(Common::lua, -1));
+    else
+        this->name = "[Undefined]";
 }
 
 vec2i LuaBlock::getTextureCoord(EnumDirection dir) {
@@ -37,7 +40,7 @@ vec2i LuaBlock::getTextureCoord(EnumDirection dir) {
     lua_pushstring(Common::lua, "getTextureCoord");
     lua_gettable(Common::lua, -2);
     lua_pushinteger(Common::lua, static_cast<int>(dir));
-    lua_call(Common::lua, 1, 2);
+    lua_pcall(Common::lua, 1, 2, 0);
 
     vec2i coord = vec2i(lua_tointeger(Common::lua, -2), lua_tointeger(Common::lua, -1));
     lua_settop(Common::lua, 1);

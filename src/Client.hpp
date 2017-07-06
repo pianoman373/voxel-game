@@ -16,7 +16,7 @@ public:
     static sf::IpAddress connectedServer;
     static Window window;
 
-    static void run(std::string ip);
+    static void run(std::string username, std::string ip);
 
     static void scrollBlocks(int direction);
 };

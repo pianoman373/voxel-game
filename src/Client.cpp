@@ -41,10 +41,12 @@ void Client::init() {
     Renderer::init();
 
     blockShader.load("resources/blockShader.vsh", "resources/blockShader.fsh");
-    texture.load("resources/blocks.png");
+    texture.load("resources/terrain.png");
 
     //glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     player = new Player(Common::world);
@@ -53,26 +55,30 @@ void Client::init() {
     //Common::world.rebuild();
 }
 
-void Client::run(std::string ip) {
+void Client::run(std::string username, std::string ip) {
     window.create({1400, 800}, "Voxel Game");
 
     init();
 
-    Common::world.generate(false);
-    Common::world.rebuild();
 
-    NetworkManagerClient::connectToServer(ip);
 
-//    for (int x = 0; x < WORLD_SIZE; x++) {
-//        for (int y = 0; y < WORLD_HEIGHT; y++) {
-//            for (int z = 0; z < WORLD_SIZE; z++) {
-//                sf::Packet p;
-//                int id = 4;
-//                p << id << x << y << z;
-//                NetworkManagerClient::send(p);
-//            }
-//        }
-//    }
+    NetworkManagerClient::connectToServer(username, ip);
+
+    if (!NetworkManagerClient::isLocal) {
+        Common::world.generate(true);
+        Common::world.rebuild();
+
+        for (int x = 0; x < WORLD_SIZE; x++) {
+            for (int y = 0; y < WORLD_HEIGHT; y++) {
+                for (int z = 0; z < WORLD_SIZE; z++) {
+                    sf::Packet p;
+                    int id = 4;
+                    p << id << x << y << z;
+                    NetworkManagerClient::send(p);
+                }
+            }
+        }
+    }
 
     static Console console;
 
@@ -90,6 +96,9 @@ void Client::run(std::string ip) {
 
         player->update(camera, deltaTime);
 
+
+        NetworkManagerClient::serverToClientMutex.lock();
+        //if (!NetworkManagerClient::serverToClient.empty()) {
         for (int i = 0; i < NetworkManagerClient::serverToClient.size(); i++) {
             sf::Packet p = NetworkManagerClient::serverToClient[i];
 
@@ -113,7 +122,7 @@ void Client::run(std::string ip) {
                 std::string message;
                 p >> message;
 
-                console.AddLog("<Player> %s", message.c_str());
+                console.AddLog("%s", message.c_str());
             }
             if (id == 4) {
                 int x, y, z;
@@ -137,6 +146,7 @@ void Client::run(std::string ip) {
             }
         }
         NetworkManagerClient::serverToClient.clear();
+        NetworkManagerClient::serverToClientMutex.unlock();
 
         //<---===rendering===--->//
         Common::world.rebuild();

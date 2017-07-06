@@ -93,14 +93,14 @@ void main() {
   float shadow3 = mix(1.0, ShadowCalculation(fragLightSpace[3], tex3), distance > cascadeDistances[2] && distance < cascadeDistances[3]);
   float shadow = shadow0 * shadow1 * shadow2 * shadow3;
 
-  vec3 blockTex = texture(tex4, uv).rgb;
+  vec4 blockTex = texture(tex4, uv);
 
 	vec3 diffuse = max(dot(fragNormal, sunDirection), 0.0) * sunColor * shadow;
 
 	vec3 viewDir = normalize(cameraPos - fragPosition);
     vec3 reflectDir = reflect(-sunDirection, fragNormal);
 
-    vec3 specular = 0.3f * pow(max(dot(viewDir, reflectDir), 0.0), 8) * sunColor * shadow;
+    vec3 specular = 0.1f * pow(max(dot(viewDir, reflectDir), 0.0), 8) * sunColor * shadow;
 
 	vec3 diffuse2 = max(dot(fragNormal, normalize(vec3(-1.1, -0.9, -1.0))), 0.0) * vec3(1.0, 1.0, 1.0);
 	diffuse2 += max(dot(fragNormal, normalize(vec3(1.1, 0.9, 1.0))), 0.0) * vec3(1.0, 1.0, 1.0);
@@ -108,9 +108,14 @@ void main() {
 	vec3 blockColor = fragColor.rgb; //vec3(0.63, 0.83, 1.0);
 	vec3 fog = clamp((1.0/1000.0) * distance * distance, 0.0, 1.0) * vec3(0.6, 0.8, 1.0);
 
-    vec3 finalColor = blockTex * fragColor.a * (diffuse + diffuse2 + specular);
+    vec3 finalColor = blockTex.rgb * fragColor.a * (diffuse + diffuse2 + specular);
     finalColor = applyFog(finalColor, distance, normalize(cameraPos - fragPosition), -sunDirection);
     //finalColor = applyGroundFog(finalColor, distance, cameraPos, fragPosition - cameraPos);
 
-	color = vec4(finalColor, 1.0);
+	if (blockTex.a > 0) {
+		color = vec4(finalColor, 1.0);
+	}
+	else {
+		discard;
+	}
 }

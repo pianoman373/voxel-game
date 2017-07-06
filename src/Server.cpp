@@ -22,13 +22,24 @@ void Server::run() {
                 unsigned short port = m.port;
                 int id;
                 packet >> id;
+                User u = NetworkManagerServer::getUserByIp(sender, port);
 
                 std::string senderString = sender.toString() + std::string(":") + std::to_string(port);
 
                 //handshake
                 if (id == 0) {
-                    std::cout << "connected to " << sender << ":" << port << std::endl;
-                    NetworkManagerServer::handshake(sender, port);
+                    std::string name;
+                    packet >> name;
+                    NetworkManagerServer::handshake(sender, port, name);
+
+                    std::cout << "connected to " << name  << " (" << sender << ":" << port << ")" << std::endl;
+
+                    sf::Packet replyPacket;
+                    replyPacket << 3;
+                    replyPacket << (name + std::string(" joined the game"));
+
+                    NetworkManagerServer::sendToAll(replyPacket);
+
                 }
                 //setblock
                 if (id == 1) {
@@ -52,7 +63,7 @@ void Server::run() {
                     float x, y, z;
                     packet >> x >> y >> z;
 
-                    std::cout << senderString << " -> " << "CharacterMove(" << x << ", " << y << ", " << z << ")" << std::endl;
+                    //std::cout << senderString << " -> " << "CharacterMove(" << x << ", " << y << ", " << z << ")" << std::endl;
 
                     std::string key = sender.toString() + std::string(":") + std::to_string(port);
 
@@ -68,6 +79,8 @@ void Server::run() {
                     std::string message;
                     packet >> message;
 
+                    message = std::string("<") + u.name + std::string("> ") + message;
+
                     sf::Packet replyPacket;
                     replyPacket << id;
                     replyPacket << message;
@@ -76,6 +89,7 @@ void Server::run() {
                 }
                 //get chunk
                 if (id == 4) {
+                    static int i = 0;
                     int x, y, z;
                     packet >> x >> y >> z;
 
@@ -93,6 +107,8 @@ void Server::run() {
                         }
                     }
 
+                    std::cout << "sending chunk: " << i << std::endl;
+                    i++;
                     NetworkManagerServer::send(replyPacket, sender, port);
                 }
             }
