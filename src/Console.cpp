@@ -56,11 +56,11 @@ void Console::Draw()
     ImGui::Separator();
 
     ImGui::BeginChild("ScrollingRegion", ImVec2(0,-ImGui::GetItemsLineHeightWithSpacing()), false, ImGuiWindowFlags_HorizontalScrollbar);
-    if (ImGui::BeginPopupContextWindow())
-    {
-        if (ImGui::Selectable("Clear")) ClearLog();
-        ImGui::EndPopup();
-    }
+//    if (ImGui::BeginPopupContextWindow())
+//    {
+//        if (ImGui::Selectable("Clear")) ClearLog();
+//        ImGui::EndPopup();
+//    }
 
     // Display every line as a separate entry so we can change their color or add custom widgets. If you only want raw text you can use ImGui::TextUnformatted(log.begin(), log.end());
     // NB- if you have thousands of entries this approach may be too inefficient and may require user-side clipping to only process visible items.

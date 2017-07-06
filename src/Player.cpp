@@ -305,5 +305,5 @@ void Player::update(Camera &cam, float delta) {
     }
 
     vec3 chunkPos = vec3(x, y, z);
-    Renderer::renderDebugAABB((chunkPos * 32.0f), (chunkPos * 32.0f) + 32.0f, vec3(1.0f, 0.0f, 0.0f));
+    //Renderer::renderDebugAABB((chunkPos * 32.0f), (chunkPos * 32.0f) + 32.0f, vec3(1.0f, 0.0f, 0.0f));
 }
