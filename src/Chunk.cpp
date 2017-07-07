@@ -56,13 +56,13 @@ float frand() {
 }
 
 const float textureSize = 16.0f;
-const float AO = 0.7f;
+const float AO = 0.4f;
 
 void Chunk::generateMesh() {
     if (!empty) {
         MeshFactory ms = MeshFactory();
 
-        float bias = 0.0001f;
+        float bias = 0.00001f;
 
         //float textureSize = 64;
 
@@ -73,215 +73,261 @@ void Chunk::generateMesh() {
 
                     int block_X_Y_Z = getBlockFromWorld(x, y, z);
 
+                    if (block_X_Y_Z == 0)
+                       continue;
+
+
                     Block *block = BlockRegistry::getBlock(block_X_Y_Z);
 
 
-//                    int block_X_posY_Z = getBlockFromWorld(x, y + 1, z);
-//                    int block_X_negY_Z = getBlockFromWorld(x, y - 1, z);
+                    bool block_X_posY_Z = !BlockRegistry::getBlock(getBlockFromWorld(x, y + 1, z))->isSolid();
+                    bool block_X_negY_Z = !BlockRegistry::getBlock(getBlockFromWorld(x, y - 1, z))->isSolid();
 
-//                    int block_X_Y_negZ = getBlockFromWorld(x, y, z - 1);
-//                    int block_X_posY_negZ = getBlockFromWorld(x, y + 1, z - 1);
-//                    int block_X_negY_negZ = getBlockFromWorld(x, y - 1, z - 1);
+                    bool block_X_Y_negZ = !BlockRegistry::getBlock(getBlockFromWorld(x, y, z - 1))->isSolid();
+                    bool block_X_posY_negZ = !BlockRegistry::getBlock(getBlockFromWorld(x, y + 1, z - 1))->isSolid();
+                    bool block_X_negY_negZ = !BlockRegistry::getBlock(getBlockFromWorld(x, y - 1, z - 1))->isSolid();
 
-//                    int block_X_Y_posZ = getBlockFromWorld(x, y, z + 1);
-//                    int block_X_posY_posZ = getBlockFromWorld(x, y + 1, z + 1);
-//                    int block_X_negY_posZ = getBlockFromWorld(x, y - 1, z + 1);
-
-
-//                    int block_posX_Y_Z = getBlockFromWorld(x + 1, y, z);
-//                    int block_posX_posY_Z = getBlockFromWorld(x + 1, y + 1, z);
-//                    int block_posX_negY_Z = getBlockFromWorld(x + 1, y - 1, z);
-
-//                    int block_posX_Y_negZ = getBlockFromWorld(x + 1, y, z - 1);
-//                    int block_posX_posY_negZ = getBlockFromWorld(x + 1, y + 1, z - 1);
-//                    int block_posX_negY_negZ = getBlockFromWorld(x + 1, y - 1, z - 1);
-
-//                    int block_posX_Y_posZ = getBlockFromWorld(x + 1, y, z + 1);
-//                    int block_posX_posY_posZ = getBlockFromWorld(x + 1, y + 1, z + 1);
-//                    int block_posX_negY_posZ = getBlockFromWorld(x + 1, y - 1, z + 1);
+                    bool block_X_Y_posZ = !BlockRegistry::getBlock(getBlockFromWorld(x, y, z + 1))->isSolid();
+                    bool block_X_posY_posZ = !BlockRegistry::getBlock(getBlockFromWorld(x, y + 1, z + 1))->isSolid();
+                    bool block_X_negY_posZ = !BlockRegistry::getBlock(getBlockFromWorld(x, y - 1, z + 1))->isSolid();
 
 
-//                    int block_negX_Y_Z = getBlockFromWorld(x - 1, y, z);
-//                    int block_negX_posY_Z = getBlockFromWorld(x - 1, y + 1, z);
-//                    int block_negX_negY_Z = getBlockFromWorld(x - 1, y - 1, z);
+                    bool block_posX_Y_Z = !BlockRegistry::getBlock(getBlockFromWorld(x + 1, y, z))->isSolid();
+                    bool block_posX_posY_Z = !BlockRegistry::getBlock(getBlockFromWorld(x + 1, y + 1, z))->isSolid();
+                    bool block_posX_negY_Z = !BlockRegistry::getBlock(getBlockFromWorld(x + 1, y - 1, z))->isSolid();
 
-//                    int block_negX_Y_negZ = getBlockFromWorld(x - 1, y, z - 1);
-//                    int block_negX_posY_negZ = getBlockFromWorld(x - 1, y + 1, z - 1);
-//                    int block_negX_negY_negZ = getBlockFromWorld(x - 1, y - 1, z - 1);
+                    bool block_posX_Y_negZ = !BlockRegistry::getBlock(getBlockFromWorld(x + 1, y, z - 1))->isSolid();
+                    bool block_posX_posY_negZ = !BlockRegistry::getBlock(getBlockFromWorld(x + 1, y + 1, z - 1))->isSolid();
+                    bool block_posX_negY_negZ = !BlockRegistry::getBlock(getBlockFromWorld(x + 1, y - 1, z - 1))->isSolid();
 
-//                    int block_negX_Y_posZ = getBlockFromWorld(x - 1, y, z + 1);
-//                    int block_negX_posY_posZ = getBlockFromWorld(x - 1, y + 1, z + 1);
-//                    int block_negX_negY_posZ = getBlockFromWorld(x - 1, y - 1, z + 1);
+                    bool block_posX_Y_posZ = !BlockRegistry::getBlock(getBlockFromWorld(x + 1, y, z + 1))->isSolid();
+                    bool block_posX_posY_posZ = !BlockRegistry::getBlock(getBlockFromWorld(x + 1, y + 1, z + 1))->isSolid();
+                    bool block_posX_negY_posZ = !BlockRegistry::getBlock(getBlockFromWorld(x + 1, y - 1, z + 1))->isSolid();
 
-                    if (!BlockRegistry::getBlock(getBlockFromWorld(x + 1, y, z))->isSolid() && block_X_Y_Z != 0) { //+x face
+
+                    bool block_negX_Y_Z = !BlockRegistry::getBlock(getBlockFromWorld(x - 1, y, z))->isSolid();
+                    bool block_negX_posY_Z = !BlockRegistry::getBlock(getBlockFromWorld(x - 1, y + 1, z))->isSolid();
+                    bool block_negX_negY_Z = !BlockRegistry::getBlock(getBlockFromWorld(x - 1, y - 1, z))->isSolid();
+
+                    bool block_negX_Y_negZ = !BlockRegistry::getBlock(getBlockFromWorld(x - 1, y, z - 1))->isSolid();
+                    bool block_negX_posY_negZ = !BlockRegistry::getBlock(getBlockFromWorld(x - 1, y + 1, z - 1))->isSolid();
+                    bool block_negX_negY_negZ = !BlockRegistry::getBlock(getBlockFromWorld(x - 1, y - 1, z - 1))->isSolid();
+
+                    bool block_negX_Y_posZ = !BlockRegistry::getBlock(getBlockFromWorld(x - 1, y, z + 1))->isSolid();
+                    bool block_negX_posY_posZ = !BlockRegistry::getBlock(getBlockFromWorld(x - 1, y + 1, z + 1))->isSolid();
+                    bool block_negX_negY_posZ = !BlockRegistry::getBlock(getBlockFromWorld(x - 1, y - 1, z + 1))->isSolid();
+
+                    if (block_posX_Y_Z) { //+x face
                         vec2i textureCoord = block->getTextureCoord(EnumDirection::POSITIVE_X);
 
                         vec2 uv1 = vec2((textureCoord.x / textureSize), (textureCoord.y / textureSize)) + bias;
                         vec2 uv2 = vec2(((textureCoord.x + 1) / textureSize), ((textureCoord.y + 1) / textureSize)) - bias;
 
-                        float ao1 = 1.0f; //neg y pos z
-                        float ao2 = 1.0f; //pos y pos z
-                        float ao3 = 1.0f; //neg y neg z
-                        float ao4 = 1.0f; //pos y neg z
+                        float ao100 = 1.0f;
+                        float ao101 = 1.0f;
+                        float ao110 = 1.0f;
+                        float ao111 = 1.0f;
 
-                        if (getBlockFromWorld(x + 1, y - 1, z) != 0 || getBlockFromWorld(x + 1, y - 1, z + 1) != 0 || getBlockFromWorld(x + 1, y, z + 1) != 0)
-                            ao1 = AO;
-                        if (getBlockFromWorld(x + 1, y + 1, z) != 0 || getBlockFromWorld(x + 1, y + 1, z + 1) != 0 || getBlockFromWorld(x + 1, y, z + 1) != 0)
-                            ao2 = AO;
-                        if (getBlockFromWorld(x + 1, y - 1, z) != 0 || getBlockFromWorld(x + 1, y - 1, z - 1) != 0 || getBlockFromWorld(x + 1, y, z - 1) != 0)
-                            ao3 = AO;
-                        if (getBlockFromWorld(x + 1, y + 1, z) != 0 || getBlockFromWorld(x + 1, y + 1, z - 1) != 0 || getBlockFromWorld(x + 1, y, z - 1) != 0)
-                            ao4 = AO;
+                        if (!block_posX_negY_negZ && (block_posX_Y_negZ && block_posX_negY_Z)) ao100 -= AO;
+                        if (!block_posX_Y_negZ) ao100 -= AO;
+                        if (!block_posX_negY_Z) ao100 -= AO;
 
-                        ms.vertex(1.0f+x,  0.0f+y,  0.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao3,  uv1.x, uv2.y);
-                        ms.vertex(1.0f+x,  1.0f+y,  0.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao4,  uv1.x, uv1.y);
-                        ms.vertex(1.0f+x,  1.0f+y,  1.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao2,  uv2.x, uv1.y);
+                        if (!block_posX_negY_posZ && (block_posX_Y_posZ && block_posX_negY_Z)) ao101 -= AO;
+                        if (!block_posX_Y_posZ) ao101 -= AO;
+                        if (!block_posX_negY_Z) ao101 -= AO;
 
-                        ms.vertex(1.0f+x,  1.0f+y,  1.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao2,  uv2.x, uv1.y);
-                        ms.vertex(1.0f+x,  0.0f+y,  1.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao1,  uv2.x, uv2.y);
-                        ms.vertex(1.0f+x,  0.0f+y,  0.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao3,  uv1.x, uv2.y);
+                        if (!block_posX_posY_negZ && (block_posX_Y_negZ && block_posX_posY_Z)) ao110 -= AO;
+                        if (!block_posX_Y_negZ) ao110 -= AO;
+                        if (!block_posX_posY_Z) ao110 -= AO;
+
+                        if (!block_posX_posY_posZ && (block_posX_Y_posZ && block_posX_posY_Z)) ao111 -= AO;
+                        if (!block_posX_Y_posZ) ao111 -= AO;
+                        if (!block_posX_posY_Z) ao111 -= AO;
+
+                        ms.vertex(1.0f+x,  0.0f+y,  0.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao100,  uv1.x, uv2.y);
+                        ms.vertex(1.0f+x,  1.0f+y,  0.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao110,  uv1.x, uv1.y);
+                        ms.vertex(1.0f+x,  1.0f+y,  1.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao111,  uv2.x, uv1.y);
+
+                        ms.vertex(1.0f+x,  1.0f+y,  1.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao111,  uv2.x, uv1.y);
+                        ms.vertex(1.0f+x,  0.0f+y,  1.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao101,  uv2.x, uv2.y);
+                        ms.vertex(1.0f+x,  0.0f+y,  0.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao100,  uv1.x, uv2.y);
                     }
-                    if (!BlockRegistry::getBlock(getBlockFromWorld(x - 1, y, z))->isSolid() && block_X_Y_Z != 0) { //-x face
+                    if (block_negX_Y_Z) { //-x face
                         vec2i textureCoord = block->getTextureCoord(EnumDirection::NEGATIVE_X);
 
                         vec2 uv1 = vec2((textureCoord.x / textureSize), (textureCoord.y / textureSize)) + bias;
                         vec2 uv2 = vec2(((textureCoord.x + 1) / textureSize), ((textureCoord.y + 1) / textureSize)) - bias;
 
-                        float ao1 = 1.0f; //neg y pos z
-                        float ao2 = 1.0f; //pos y pos z
-                        float ao3 = 1.0f; //neg y neg z
-                        float ao4 = 1.0f; //pos y neg z
+                        float ao000 = 1.0f;
+                        float ao001 = 1.0f;
+                        float ao010 = 1.0f;
+                        float ao011 = 1.0f;
 
-                        if (getBlockFromWorld(x - 1, y - 1, z) != 0 || getBlockFromWorld(x - 1, y - 1, z + 1) != 0 || getBlockFromWorld(x - 1, y, z + 1) != 0)
-                            ao1 = AO;
-                        if (getBlockFromWorld(x - 1, y + 1, z) != 0 || getBlockFromWorld(x - 1, y + 1, z + 1) != 0 || getBlockFromWorld(x - 1, y, z + 1) != 0)
-                            ao2 = AO;
-                        if (getBlockFromWorld(x - 1, y - 1, z) != 0 || getBlockFromWorld(x - 1, y - 1, z - 1) != 0 || getBlockFromWorld(x - 1, y, z - 1) != 0)
-                            ao3 = AO;
-                        if (getBlockFromWorld(x - 1, y + 1, z) != 0 || getBlockFromWorld(x - 1, y + 1, z - 1) != 0 || getBlockFromWorld(x - 1, y, z - 1) != 0)
-                            ao4 = AO;
+                        if (!block_negX_negY_negZ && (block_negX_Y_negZ && block_negX_negY_Z)) ao000 -= AO;
+                        if (!block_negX_Y_negZ) ao000 -= AO;
+                        if (!block_negX_negY_Z) ao000 -= AO;
 
-                        ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao2,  uv1.x, uv1.y);
-                        ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao4,  uv2.x, uv1.y);
-                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao3,  uv2.x, uv2.y);
+                        if (!block_negX_negY_posZ && (block_negX_Y_posZ && block_negX_negY_Z)) ao001 -= AO;
+                        if (!block_negX_Y_posZ) ao001 -= AO;
+                        if (!block_negX_negY_Z) ao001 -= AO;
 
-                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao3,  uv2.x, uv2.y);
-                        ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao1,  uv1.x, uv2.y);
-                        ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao2,  uv1.x, uv1.y);
+                        if (!block_negX_posY_negZ && (block_negX_Y_negZ && block_negX_posY_Z)) ao010 -= AO;
+                        if (!block_negX_Y_negZ) ao010 -= AO;
+                        if (!block_negX_posY_Z) ao010 -= AO;
+
+                        if (!block_negX_posY_posZ && (block_negX_Y_posZ && block_negX_posY_Z)) ao011 -= AO;
+                        if (!block_negX_Y_posZ) ao011 -= AO;
+                        if (!block_negX_posY_Z) ao011 -= AO;
+
+                        ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao011,  uv1.x, uv1.y);
+                        ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao010,  uv2.x, uv1.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao000,  uv2.x, uv2.y);
+
+                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao000,  uv2.x, uv2.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao001,  uv1.x, uv2.y);
+                        ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao011,  uv1.x, uv1.y);
                     }
 
-                    if (!BlockRegistry::getBlock(getBlockFromWorld(x, y + 1, z))->isSolid() && block_X_Y_Z != 0) { //top face
+                    if (block_X_posY_Z) { //top face
                         vec2i textureCoord = block->getTextureCoord(EnumDirection::POSITIVE_Y);
 
                         vec2 uv1 = vec2((textureCoord.x / textureSize), (textureCoord.y / textureSize)) + bias;
                         vec2 uv2 = vec2(((textureCoord.x + 1) / textureSize), ((textureCoord.y + 1) / textureSize)) - bias;
 
-                        float ao1 = 1.0f; //neg x pos z
-                        float ao2 = 1.0f; //pos x pos z
-                        float ao3 = 1.0f; //neg x neg z
-                        float ao4 = 1.0f; //pos x neg z
+                        float ao010 = 1.0f;
+                        float ao110 = 1.0f;
+                        float ao011 = 1.0f;
+                        float ao111 = 1.0f;
 
-                        if (getBlockFromWorld(x - 1, y + 1, z) != 0 || getBlockFromWorld(x - 1, y + 1, z + 1) != 0 || getBlockFromWorld(x, y + 1, z + 1) != 0)
-                            ao1 = AO;
-                        if (getBlockFromWorld(x + 1, y + 1, z) != 0 || getBlockFromWorld(x + 1, y + 1, z + 1) != 0 || getBlockFromWorld(x, y + 1, z + 1) != 0)
-                            ao2 = AO;
-                        if (getBlockFromWorld(x - 1, y + 1, z) != 0 || getBlockFromWorld(x - 1, y + 1, z - 1) != 0 || getBlockFromWorld(x, y + 1, z - 1) != 0)
-                            ao3 = AO;
-                        if (getBlockFromWorld(x + 1, y + 1, z) != 0 || getBlockFromWorld(x + 1, y + 1, z - 1) != 0 || getBlockFromWorld(x, y + 1, z - 1) != 0)
-                            ao4 = AO;
+                        if (!block_negX_posY_negZ && (block_X_posY_negZ && block_negX_posY_Z)) ao010 -= AO;
+                        if (!block_X_posY_negZ) ao010 -= AO;
+                        if (!block_negX_posY_Z) ao010 -= AO;
 
-                        ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao2,  uv2.x, uv1.y);
-                        ms.vertex( 1.0f+x,  1.0f+y,  0.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao4,  uv2.x, uv2.y);
-                        ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao3,  uv1.x, uv2.y);
+                        if (!block_posX_posY_negZ && (block_X_posY_negZ && block_posX_posY_Z)) ao110 -= AO;
+                        if (!block_X_posY_negZ) ao110 -= AO;
+                        if (!block_posX_posY_Z) ao110 -= AO;
 
-                        ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao3,  uv1.x, uv2.y);
-                        ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao1,  uv1.x, uv1.y);
-                        ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao2,  uv2.x, uv1.y);
+                        if (!block_negX_posY_posZ && (block_X_posY_posZ && block_negX_posY_Z)) ao011 -= AO;
+                        if (!block_X_posY_posZ) ao011 -= AO;
+                        if (!block_negX_posY_Z) ao011 -= AO;
+
+                        if (!block_posX_posY_posZ && (block_X_posY_posZ && block_posX_posY_Z)) ao111 -= AO;
+                        if (!block_X_posY_posZ) ao111 -= AO;
+                        if (!block_posX_posY_Z) ao111 -= AO;
+
+                        ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao111,  uv2.x, uv1.y);
+                        ms.vertex( 1.0f+x,  1.0f+y,  0.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao110,  uv2.x, uv2.y);
+                        ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao010,  uv1.x, uv2.y);
+
+                        ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao010,  uv1.x, uv2.y);
+                        ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao011,  uv1.x, uv1.y);
+                        ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao111,  uv2.x, uv1.y);
                     }
-                    if (!BlockRegistry::getBlock(getBlockFromWorld(x, y - 1, z))->isSolid() && block_X_Y_Z != 0) { //bottom face
+                    if (block_X_negY_Z) { //bottom face
                         vec2i textureCoord = block->getTextureCoord(EnumDirection::NEGATIVE_Y);
 
                         vec2 uv1 = vec2((textureCoord.x / textureSize), (textureCoord.y / textureSize)) + bias;
                         vec2 uv2 = vec2(((textureCoord.x + 1) / textureSize), ((textureCoord.y + 1) / textureSize)) - bias;
 
-                        float ao1 = 1.0f; //neg x pos z
-                        float ao2 = 1.0f; //pos x pos z
-                        float ao3 = 1.0f; //neg x neg z
-                        float ao4 = 1.0f; //pos x neg z
+                        float ao000 = 1.0f;
+                        float ao100 = 1.0f;
+                        float ao001 = 1.0f;
+                        float ao101 = 1.0f;
 
-                        if (getBlockFromWorld(x - 1, y - 1, z) != 0 || getBlockFromWorld(x - 1, y - 1, z + 1) != 0 || getBlockFromWorld(x, y - 1, z + 1) != 0)
-                            ao1 = AO;
-                        if (getBlockFromWorld(x + 1, y - 1, z) != 0 || getBlockFromWorld(x + 1, y - 1, z + 1) != 0 || getBlockFromWorld(x, y - 1, z + 1) != 0)
-                            ao2 = AO;
-                        if (getBlockFromWorld(x - 1, y - 1, z) != 0 || getBlockFromWorld(x - 1, y - 1, z - 1) != 0 || getBlockFromWorld(x, y - 1, z - 1) != 0)
-                            ao3 = AO;
-                        if (getBlockFromWorld(x + 1, y - 1, z) != 0 || getBlockFromWorld(x + 1, y - 1, z - 1) != 0 || getBlockFromWorld(x, y - 1, z - 1) != 0)
-                            ao4 = AO;
+                        if (!block_negX_negY_negZ && (block_X_negY_negZ && block_negX_negY_Z)) ao000 -= AO;
+                        if (!block_X_negY_negZ) ao000 -= AO;
+                        if (!block_negX_negY_Z) ao000 -= AO;
 
-                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao3,  uv1.x, uv2.y);
-                        ms.vertex( 1.0f+x,  0.0f+y,  0.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao4,  uv2.x, uv2.y);
-                        ms.vertex( 1.0f+x,  0.0f+y,  1.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao2,  uv2.x, uv1.y);
+                        if (!block_posX_negY_negZ && (block_X_negY_negZ && block_posX_negY_Z)) ao100 -= AO;
+                        if (!block_X_negY_negZ) ao100 -= AO;
+                        if (!block_posX_negY_Z) ao100 -= AO;
 
-                        ms.vertex( 1.0f+x,  0.0f+y,  1.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao2,  uv2.x, uv1.y);
-                        ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao1,  uv1.x, uv1.y);
-                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao3,  uv1.x, uv2.y);
+                        if (!block_negX_negY_posZ  && (block_X_negY_posZ && block_negX_negY_Z)) ao001 -= AO;
+                        if (!block_X_negY_posZ) ao001 -= AO;
+                        if (!block_negX_negY_Z) ao001 -= AO;
+
+                        if (!block_posX_negY_posZ  && (block_X_negY_posZ && block_posX_negY_Z)) ao101 -= AO;
+                        if (!block_X_negY_posZ) ao101 -= AO;
+                        if (!block_posX_negY_Z) ao101 -= AO;
+
+                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao000,  uv1.x, uv2.y);
+                        ms.vertex( 1.0f+x,  0.0f+y,  0.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao100,  uv2.x, uv2.y);
+                        ms.vertex( 1.0f+x,  0.0f+y,  1.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao101,  uv2.x, uv1.y);
+
+                        ms.vertex( 1.0f+x,  0.0f+y,  1.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao101,  uv2.x, uv1.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao001,  uv1.x, uv1.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao000,  uv1.x, uv2.y);
                     }
 
-                    if (!BlockRegistry::getBlock(getBlockFromWorld(x, y, z - 1))->isSolid() && block_X_Y_Z != 0) { //-z face
+                    if (block_X_Y_negZ) { //-z face
                         vec2i textureCoord = block->getTextureCoord(EnumDirection::NEGATIVE_Z);
 
                         vec2 uv1 = vec2((textureCoord.x / textureSize), (textureCoord.y / textureSize)) + bias;
                         vec2 uv2 = vec2(((textureCoord.x + 1) / textureSize), ((textureCoord.y + 1) / textureSize)) - bias;
 
-                        float ao1 = 1.0f; //neg x pos y
-                        float ao2 = 1.0f; //pos x pos y
-                        float ao3 = 1.0f; //neg x neg y
-                        float ao4 = 1.0f; //pos x neg y
+                        float ao000 = 1.0f;
+                        float ao010 = 1.0f;
+                        float ao100 = 1.0f;
+                        float ao110 = 1.0f;
 
-                        if (getBlockFromWorld(x - 1, y, z - 1) != 0 || getBlockFromWorld(x - 1, y + 1, z - 1) != 0 || getBlockFromWorld(x, y + 1, z - 1) != 0)
-                            ao1 = AO;
-                        if (getBlockFromWorld(x + 1, y, z - 1) != 0 || getBlockFromWorld(x + 1, y + 1, z - 1) != 0 || getBlockFromWorld(x, y + 1, z - 1) != 0)
-                            ao2 = AO;
-                        if (getBlockFromWorld(x - 1, y, z - 1) != 0 || getBlockFromWorld(x - 1, y - 1, z - 1) != 0 || getBlockFromWorld(x, y - 1, z - 1) != 0)
-                            ao3 = AO;
-                        if (getBlockFromWorld(x + 1, y, z - 1) != 0 || getBlockFromWorld(x + 1, y - 1, z - 1) != 0 || getBlockFromWorld(x, y - 1, z - 1) != 0)
-                            ao4 = AO;
+                        if (!block_negX_negY_negZ && (block_X_negY_negZ && block_negX_Y_negZ)) ao000 -= AO;
+                        if (!block_X_negY_negZ) ao000 -= AO;
+                        if (!block_negX_Y_negZ) ao000 -= AO;
 
-                        ms.vertex( 1.0f+x,  1.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, ao2,  uv2.x, uv1.y);
-                        ms.vertex( 1.0f+x,  0.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, ao4,  uv2.x, uv2.y);
-                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, ao3,  uv1.x, uv2.y);
+                        if (!block_negX_posY_negZ && (block_X_posY_negZ && block_negX_Y_negZ)) ao010 -= AO;
+                        if (!block_X_posY_negZ) ao010 -= AO;
+                        if (!block_negX_Y_negZ) ao010 -= AO;
 
-                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, ao3,  uv1.x, uv2.y);
-                        ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, ao1,  uv1.x, uv1.y);
-                        ms.vertex( 1.0f+x,  1.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, ao2,  uv2.x, uv1.y);
+                        if (!block_posX_negY_negZ && (block_X_negY_negZ && block_posX_Y_negZ)) ao100 -= AO;
+                        if (!block_X_negY_negZ) ao100 -= AO;
+                        if (!block_posX_Y_negZ) ao100 -= AO;
+
+                        if (!block_posX_posY_negZ && (block_X_posY_negZ && block_posX_Y_negZ)) ao110 -= AO;
+                        if (!block_X_posY_negZ) ao110 -= AO;
+                        if (!block_posX_Y_negZ) ao110 -= AO;
+
+                        ms.vertex( 1.0f+x,  1.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, ao110,  uv2.x, uv1.y);
+                        ms.vertex( 1.0f+x,  0.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, ao100,  uv2.x, uv2.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, ao000,  uv1.x, uv2.y);
+
+                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, ao000,  uv1.x, uv2.y);
+                        ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, ao010,  uv1.x, uv1.y);
+                        ms.vertex( 1.0f+x,  1.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, ao110,  uv2.x, uv1.y);
                     }
-                    if (!BlockRegistry::getBlock(getBlockFromWorld(x, y, z + 1))->isSolid() && block_X_Y_Z != 0) { //+z face
+                    if (block_X_Y_posZ) { //+z face
                         vec2i textureCoord = block->getTextureCoord(EnumDirection::POSITIVE_Z);
 
                         vec2 uv1 = vec2((textureCoord.x / textureSize), (textureCoord.y / textureSize)) + bias;
                         vec2 uv2 = vec2(((textureCoord.x + 1) / textureSize), ((textureCoord.y + 1) / textureSize)) - bias;
 
-                        float ao1 = 1.0f; //neg x pos y
-                        float ao2 = 1.0f; //pos x pos y
-                        float ao3 = 1.0f; //neg x neg y
-                        float ao4 = 1.0f; //pos x neg y
+                        float ao001 = 1.0f;
+                        float ao011 = 1.0f;
+                        float ao101 = 1.0f;
+                        float ao111 = 1.0f;
 
-                        if (getBlockFromWorld(x - 1, y, z + 1) != 0 || getBlockFromWorld(x - 1, y + 1, z + 1) != 0 || getBlockFromWorld(x, y + 1, z + 1) != 0)
-                            ao1 = AO;
-                        if (getBlockFromWorld(x + 1, y, z + 1) != 0 || getBlockFromWorld(x + 1, y + 1, z + 1) != 0 || getBlockFromWorld(x, y + 1, z + 1) != 0)
-                            ao2 = AO;
-                        if (getBlockFromWorld(x - 1, y, z + 1) != 0 || getBlockFromWorld(x - 1, y - 1, z + 1) != 0 || getBlockFromWorld(x, y - 1, z + 1) != 0)
-                            ao3 = AO;
-                        if (getBlockFromWorld(x + 1, y, z + 1) != 0 || getBlockFromWorld(x + 1, y - 1, z + 1) != 0 || getBlockFromWorld(x, y - 1, z + 1) != 0)
-                            ao4 = AO;
+                        if (!block_negX_negY_posZ && (block_X_negY_posZ && block_negX_Y_posZ)) ao001 -= AO;
+                        if (!block_X_negY_posZ) ao001 -= AO;
+                        if (!block_negX_Y_posZ) ao001 -= AO;
 
-                        ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, ao3,  uv1.x, uv2.y);
-                        ms.vertex( 1.0f+x,  0.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, ao4,  uv2.x, uv2.y);
-                        ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, ao2,  uv2.x, uv1.y);
+                        if (!block_negX_posY_posZ && (block_X_posY_posZ && block_negX_Y_posZ)) ao011 -= AO;
+                        if (!block_X_posY_posZ) ao011 -= AO;
+                        if (!block_negX_Y_posZ) ao011 -= AO;
 
-                        ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, ao2,  uv2.x, uv1.y);
-                        ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, ao1,  uv1.x, uv1.y);
-                        ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, ao3,  uv1.x, uv2.y);
+                        if (!block_posX_negY_posZ && (block_X_negY_posZ && block_posX_Y_posZ)) ao101 -= AO;
+                        if (!block_X_negY_posZ) ao101 -= AO;
+                        if (!block_posX_Y_posZ) ao101 -= AO;
+
+                        if (!block_posX_posY_posZ && (block_X_posY_posZ && block_posX_Y_posZ)) ao111 -= AO;
+                        if (!block_X_posY_posZ) ao111 -= AO;
+                        if (!block_posX_Y_posZ) ao111 -= AO;
+
+                        ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, ao001,  uv1.x, uv2.y);
+                        ms.vertex( 1.0f+x,  0.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, ao101,  uv2.x, uv2.y);
+                        ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, ao111,  uv2.x, uv1.y);
+
+                        ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, ao111,  uv2.x, uv1.y);
+                        ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, ao011,  uv1.x, uv1.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, ao001,  uv1.x, uv2.y);
                     }
                 }
             }

@@ -263,7 +263,7 @@ void Player::update(Camera &cam, float delta) {
             NetworkManagerClient::send(packet);
         }
         if (placeBlock) {
-            if (!playerBoundingBox.intersectsWith(AABB(vec3(blockpos.x + blocknormal.x, blockpos.y + blocknormal.y, blockpos.z + blocknormal.z), vec3(blockpos.x  + blocknormal.x + 1, blockpos.y  + blocknormal.y + 1, blockpos.z  + blocknormal.z + 1)))) {
+            //if (!playerBoundingBox.intersectsWith(AABB(vec3(blockpos.x + blocknormal.x, blockpos.y + blocknormal.y, blockpos.z + blocknormal.z), vec3(blockpos.x  + blocknormal.x + 1, blockpos.y  + blocknormal.y + 1, blockpos.z  + blocknormal.z + 1)))) {
                 int x = blockpos.x + blocknormal.x;
                 int y = blockpos.y + blocknormal.y;
                 int z = blockpos.z + blocknormal.z;
@@ -275,7 +275,7 @@ void Player::update(Camera &cam, float delta) {
                 packet << x << y << z << blockID;
 
                 NetworkManagerClient::send(packet);
-            }
+            //}
         }
     }
 
