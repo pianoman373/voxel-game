@@ -12,8 +12,10 @@ void Server::run() {
     NetworkManagerServer::bind();
 
     while (true) {
+        //std::cout << "server looping" << std::endl;
 
         //must check if the vector is empty cause somehow we end up getting garbage from size() sometimes
+        NetworkManagerServer::clientToServerMutex.lock();
         if (!NetworkManagerServer::clientToServer.empty()) {
             for (int i = 0; i < NetworkManagerServer::clientToServer.size(); i++) {
                 ClientMessage m = NetworkManagerServer::clientToServer[i];
@@ -114,5 +116,6 @@ void Server::run() {
             }
             NetworkManagerServer::clientToServer.clear();
         }
+        NetworkManagerServer::clientToServerMutex.unlock();
     }
 }

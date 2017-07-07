@@ -4,9 +4,11 @@
 #include <iostream>
 #include <thread>
 #include <string>
+//#include <unistd.h>
 
 
 std::vector<ClientMessage> NetworkManagerServer::clientToServer;
+std::mutex NetworkManagerServer::clientToServerMutex;
 sf::UdpSocket NetworkManagerServer::socket;
 bool NetworkManagerServer::isLocal = false;
 
@@ -34,6 +36,8 @@ void NetworkManagerServer::handleIncomingPackets() {
             // error...
             std::cout << "error receiving packet" << std::endl;
         }
+
+        //usleep(100*1000);
         std::cout << "received packet" << std::endl;
 
         ClientMessage message;
@@ -41,9 +45,9 @@ void NetworkManagerServer::handleIncomingPackets() {
         message.ip = sender;
         message.port = port;
 
+        clientToServerMutex.lock();
         clientToServer.push_back(message);
-
-
+        clientToServerMutex.unlock();
     }
 }
 

@@ -30,6 +30,17 @@ LuaBlock::LuaBlock(int blockID) {
         this->name = std::string(lua_tostring(Common::lua, -1));
     else
         this->name = "[Undefined]";
+
+    lua_pop(Common::lua, 1);
+
+    lua_pushstring(Common::lua, "isSolid");
+    lua_gettable(Common::lua, -2);
+    lua_call(Common::lua, 0, 1);
+
+    bool solid =  lua_toboolean(Common::lua, -1);
+
+    this->solid = solid;
+    lua_settop(Common::lua, 1);
 }
 
 vec2i LuaBlock::getTextureCoord(EnumDirection dir) {
@@ -49,17 +60,6 @@ vec2i LuaBlock::getTextureCoord(EnumDirection dir) {
 }
 
 bool LuaBlock::isSolid() {
-    lua_pushstring(Common::lua, "BLOCK_REGISTRY");
-    lua_gettable(Common::lua, LUA_REGISTRYINDEX);
-    lua_pushinteger(Common::lua, blockID);
-    lua_gettable(Common::lua, -2);
-    lua_pushstring(Common::lua, "isSolid");
-    lua_gettable(Common::lua, -2);
-    lua_call(Common::lua, 0, 1);
-
-    bool solid =  lua_toboolean(Common::lua, -1);
-    lua_settop(Common::lua, 1);
-
     return solid;
 }
 

@@ -6,6 +6,7 @@
 #include <thread>
 #include <iostream>
 #include <string>
+//#include <unistd.h>
 
 std::vector<sf::Packet> NetworkManagerClient::serverToClient;
 std::mutex NetworkManagerClient::serverToClientMutex;
@@ -26,9 +27,13 @@ void NetworkManagerClient::handleIncomingPackets() {
             // error...
         }
 
+        //usleep(100*1000);
+
 //        Message message = {packet, sender, port};
 //        messageStack.push_back(message);
+        serverToClientMutex.lock();
         serverToClient.push_back(packet);
+        serverToClientMutex.unlock();
     }
 }
 
@@ -77,7 +82,9 @@ void NetworkManagerClient::connectToServer(std::string username, sf::IpAddress r
 void NetworkManagerClient::send(sf::Packet packet) {
     if (isLocal) {
         //clientToServer.push_back(packet);
+        NetworkManagerServer::clientToServerMutex.lock();
         NetworkManagerServer::clientToServer.push_back({packet, sf::IpAddress(), 0});
+        NetworkManagerServer::clientToServerMutex.unlock();
     }
     else {
         socket.send(packet, connectedServer, 54000);

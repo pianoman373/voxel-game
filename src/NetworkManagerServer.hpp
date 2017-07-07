@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <mutex>
 #include <SFML/Network.hpp>
 
 struct ClientMessage {
@@ -26,6 +27,7 @@ private:
 public:
     static bool isLocal;
     static std::vector<ClientMessage> clientToServer;
+    static std::mutex clientToServerMutex;
 
     static User getUserByIp(sf::IpAddress ip, unsigned short port);
 

@@ -19,6 +19,7 @@ public:
 
 class LuaBlock : public Block {
     int blockID;
+    bool solid;
 
 public:
     LuaBlock(int blockID);

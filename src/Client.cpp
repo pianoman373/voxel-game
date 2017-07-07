@@ -65,8 +65,8 @@ void Client::run(std::string username, std::string ip) {
     NetworkManagerClient::connectToServer(username, ip);
 
     if (!NetworkManagerClient::isLocal) {
-        Common::world.generate(true);
-        Common::world.rebuild();
+       // Common::world.generate(true);
+        //Common::world.rebuild();
 
         for (int x = 0; x < WORLD_SIZE; x++) {
             for (int y = 0; y < WORLD_HEIGHT; y++) {
@@ -130,7 +130,7 @@ void Client::run(std::string username, std::string ip) {
 
                 std::cout << "received chunk from server" << std::endl;
 
-                Chunk *c = Common::world.getChunk(x, y, z);
+                Chunk *c = new Chunk(x, y, z, &Common::world);//Common::world.getChunk(x, y, z);
 
                 for (int i = 0; i < CHUNK_SIZE; i++) {
                     for (int j = 0; j < CHUNK_SIZE; j++) {
@@ -143,6 +143,8 @@ void Client::run(std::string username, std::string ip) {
                         }
                     }
                 }
+
+                Common::world.addChunk(x, y, z, c);
             }
         }
         NetworkManagerClient::serverToClient.clear();
