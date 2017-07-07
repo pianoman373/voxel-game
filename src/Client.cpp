@@ -125,21 +125,27 @@ void Client::run(std::string username, std::string ip) {
                 console.AddLog("%s", message.c_str());
             }
             if (id == 4) {
-                int x, y, z;
-                p >> x >> y >> z;
-
                 std::cout << "received chunk from server" << std::endl;
 
-                Chunk *c = new Chunk(x, y, z, &Common::world);//Common::world.getChunk(x, y, z);
+                bool isEmpty;
+                int x, y, z;
 
-                for (int i = 0; i < CHUNK_SIZE; i++) {
-                    for (int j = 0; j < CHUNK_SIZE; j++) {
-                        for (int k = 0; k < CHUNK_SIZE; k++) {
-                            sf::Int8 b;
-                            p >> b;
+                p >> isEmpty >> x >> y >> z;
 
-                            c->setBlock(i, j, k, b);
-                            c->rebuild = true;
+                 Chunk *c = new Chunk(x, y, z, &Common::world);
+
+                if (!isEmpty) {
+
+
+                    for (int i = 0; i < CHUNK_SIZE; i++) {
+                        for (int j = 0; j < CHUNK_SIZE; j++) {
+                            for (int k = 0; k < CHUNK_SIZE; k++) {
+                                sf::Int8 b;
+                                p >> b;
+
+                                c->setBlock(i, j, k, b);
+                                c->rebuild = true;
+                            }
                         }
                     }
                 }

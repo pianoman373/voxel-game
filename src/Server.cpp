@@ -91,26 +91,29 @@ void Server::run() {
                 }
                 //get chunk
                 if (id == 4) {
-                    static int i = 0;
                     int x, y, z;
                     packet >> x >> y >> z;
 
+                    Chunk *c = Common::world.getChunk(x, y, z);
+
+                    bool isEmpty;
                     sf::Packet replyPacket;
                     replyPacket << id;
-                    replyPacket << x << y << z;
+                    replyPacket << c->empty << x << y << z;
 
-                    Chunk *c = Common::world.getChunk(x, y, z);
-                    for (int i = 0; i < CHUNK_SIZE; i++) {
-                        for (int j = 0; j < CHUNK_SIZE; j++) {
-                            for (int k = 0; k < CHUNK_SIZE; k++) {
-                                char b = c->getBlock(i, j, k);
-                                replyPacket << (sf::Int8)b;
+
+                    if (!c->empty) {
+                        for (int i = 0; i < CHUNK_SIZE; i++) {
+                            for (int j = 0; j < CHUNK_SIZE; j++) {
+                                for (int k = 0; k < CHUNK_SIZE; k++) {
+                                    char b = c->getBlock(i, j, k);
+                                    replyPacket << (sf::Int8)b;
+                                }
                             }
                         }
                     }
 
-                    std::cout << "sending chunk: " << i << std::endl;
-                    i++;
+                    std::cout << "sending chunk" << std::endl;
                     NetworkManagerServer::send(replyPacket, sender, port);
                 }
             }
