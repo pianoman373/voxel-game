@@ -282,16 +282,6 @@ void Player::update(Camera &cam, float delta) {
     velocity.x = 0.0f;
     velocity.z = 0.0f;
 
-    if (oldPosition.x != position.x || oldPosition.y != position.y || oldPosition.z != position.z) {
-        int id = 2;
-
-        sf::Packet packet;
-        packet << id;
-        packet << position.x << position.y << position.z;
-
-        NetworkManagerClient::send(packet);
-    }
-
     int x = (int)(position.x / 32.0f);
     if (position.x < 0) x -= 1;
     int y = (int)(position.y / 32.0f);
@@ -304,6 +294,13 @@ void Player::update(Camera &cam, float delta) {
         velocity.y = 0.0f;
     }
 
-    vec3 chunkPos = vec3(x, y, z);
-    //Renderer::renderDebugAABB((chunkPos * 32.0f), (chunkPos * 32.0f) + 32.0f, vec3(1.0f, 0.0f, 0.0f));
+    if (oldPosition.x != position.x || oldPosition.y != position.y || oldPosition.z != position.z) {
+        int id = 2;
+
+        sf::Packet packet;
+        packet << id;
+        packet << position.x << position.y << position.z;
+
+        NetworkManagerClient::send(packet);
+    }
 }
