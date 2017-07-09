@@ -26,6 +26,7 @@ Mesh skyboxMesh;
 Mesh crosshairMesh;
 
 MeshFactory ms;
+Mesh mesh;
 
 static void renderShadow(Framebuffer &fbuffer, mat4 lightSpaceMatrix) {
     glViewport(0, 0, fbuffer.getWidth(), fbuffer.getHeight());
@@ -262,7 +263,6 @@ void Renderer::flush(Camera cam) {
     debugShader.uniformMat4("projection", orthographic(-(size.x/2), (size.x/2), (size.y/2), -(size.y/2), -1.0f, 1.0f));
     crosshairMesh.render();
 
-    Mesh mesh;
     ms.toMesh(mesh);
 
     debugShader.bind();

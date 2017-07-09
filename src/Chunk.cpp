@@ -60,6 +60,7 @@ const float AO = 0.4f;
 
 void Chunk::generateMesh() {
     if (!empty) {
+        float time = glfwGetTime();
         MeshFactory ms = MeshFactory();
 
         float bias = 0.00001f;
@@ -334,6 +335,8 @@ void Chunk::generateMesh() {
         }
         ms.toMesh(this->mesh);
 		ms.clear();
+
+        std::cout << "mesh gen time: " << glfwGetTime() - time << std::endl;
     }
 
     this->rebuild = false;

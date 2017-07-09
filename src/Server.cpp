@@ -20,21 +20,20 @@ void Server::run() {
             for (int i = 0; i < NetworkManagerServer::clientToServer.size(); i++) {
                 ClientMessage m = NetworkManagerServer::clientToServer[i];
                 sf::Packet packet = m.packet;
-                sf::IpAddress sender = m.ip;
-                unsigned short port = m.port;
+                int userID = m.userID;
                 int id;
                 packet >> id;
-                User u = NetworkManagerServer::getUserByIp(sender, port);
-
-                std::string senderString = sender.toString() + std::string(":") + std::to_string(port);
+                //User u = NetworkManagerServer::getUserByIp(sender, port);
 
                 //handshake
                 if (id == 0) {
                     std::string name;
                     packet >> name;
-                    NetworkManagerServer::handshake(sender, port, name);
+                    std::cout << "connected to " << name << std::endl;
 
-                    std::cout << "connected to " << name  << " (" << sender << ":" << port << ")" << std::endl;
+                    sf::Packet authPacket;
+                    authPacket << id;
+                    NetworkManagerServer::send(authPacket, userID);
 
                     sf::Packet replyPacket;
                     replyPacket << 3;
@@ -50,7 +49,7 @@ void Server::run() {
                     packet >> x >> y >> z >> blockID;
 
 
-                    std::cout << senderString << " -> " << "PlaceBlock(" << x << ", " << y << ", " << z << ", " << blockID << ")" << std::endl;
+                    //std::cout << senderString << " -> " << "PlaceBlock(" << x << ", " << y << ", " << z << ", " << blockID << ")" << std::endl;
 
                     Common::world.setBlock(x, y, z, blockID);
 
@@ -67,11 +66,11 @@ void Server::run() {
 
                     //std::cout << senderString << " -> " << "CharacterMove(" << x << ", " << y << ", " << z << ")" << std::endl;
 
-                    std::string key = sender.toString() + std::string(":") + std::to_string(port);
+                    //std::string key = sender.toString() + std::string(":") + std::to_string(port);
 
                     sf::Packet replyPacket;
                     replyPacket << id;
-                    replyPacket << x << y << z << key;
+                    replyPacket << x << y << z << userID;
 
 
                     NetworkManagerServer::sendToAll(replyPacket);
@@ -81,7 +80,7 @@ void Server::run() {
                     std::string message;
                     packet >> message;
 
-                    message = std::string("<") + u.name + std::string("> ") + message;
+                    message = std::string("<") + "u.name" + std::string("> ") + message;
 
                     sf::Packet replyPacket;
                     replyPacket << id;
@@ -114,7 +113,7 @@ void Server::run() {
                     }
 
                     std::cout << "sending chunk" << std::endl;
-                    NetworkManagerServer::send(replyPacket, sender, port);
+                    NetworkManagerServer::send(replyPacket, userID);
                 }
             }
             NetworkManagerServer::clientToServer.clear();

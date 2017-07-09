@@ -6,26 +6,30 @@
 #include <thread>
 #include <iostream>
 #include <string>
-//#include <unistd.h>
+#include <unistd.h>
 
 std::vector<sf::Packet> NetworkManagerClient::serverToClient;
 std::mutex NetworkManagerClient::serverToClientMutex;
 
 bool NetworkManagerClient::isLocal = false;
-sf::UdpSocket NetworkManagerClient::socket;
+sf::TcpSocket NetworkManagerClient::socket;
 sf::IpAddress NetworkManagerClient::connectedServer;
 
 void NetworkManagerClient::handleIncomingPackets() {
+    static int i = 0;
     while (true) {
         sf::Packet packet;
 
         sf::IpAddress sender;
         unsigned short port;
 
-        if (socket.receive(packet, sender, port) != sf::Socket::Done)
+        if (socket.receive(packet) != sf::Socket::Done)
         {
             // error...
+            std::cout << "error on packet receive" << std::endl;
         }
+        std::cout << "received packet " << i << std::endl;
+        i++;
 
         //usleep(100*1000);
 
@@ -42,12 +46,15 @@ void NetworkManagerClient::connectToServer(std::string username, sf::IpAddress r
 
     }
     else {
-        // bind the socket to a port
-        if (socket.bind(socket.AnyPort) != sf::Socket::Done)
+        sf::Socket::Status status = socket.connect(remoteAddress, 55000);
+        if (status != sf::Socket::Done)
         {
             // error...
+            std::cout << "error connecting to remote socket" << std::endl;
         }
+
         connectedServer = remoteAddress;
+        std::cout << "connected to server" << std::endl;
 
         //send connection packet
         sf::Packet connectionPacket;
@@ -62,7 +69,7 @@ void NetworkManagerClient::connectToServer(std::string username, sf::IpAddress r
             sf::IpAddress sender;
             unsigned short port;
             //wait for response handshake packet
-            if (socket.receive(packet, sender, port) != sf::Socket::Done)
+            if (socket.receive(packet) != sf::Socket::Done)
             {
                 // error...
             }
@@ -83,10 +90,10 @@ void NetworkManagerClient::send(sf::Packet packet) {
     if (isLocal) {
         //clientToServer.push_back(packet);
         NetworkManagerServer::clientToServerMutex.lock();
-        NetworkManagerServer::clientToServer.push_back({packet, sf::IpAddress(), 0});
+        NetworkManagerServer::clientToServer.push_back({packet, 0});
         NetworkManagerServer::clientToServerMutex.unlock();
     }
     else {
-        socket.send(packet, connectedServer, 54000);
+        socket.send(packet);
     }
 }

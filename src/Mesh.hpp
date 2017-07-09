@@ -7,8 +7,8 @@ enum MeshMode {
 
 class Mesh {
 private:
-    unsigned int VAO;
-    unsigned int VBO;
+    unsigned int VAO = 0;
+    unsigned int VBO = 0;
     int size;
 
 public:
@@ -16,7 +16,9 @@ public:
 
     Mesh();
 
-    void initialize(float *vertices, int size, MeshMode mode);
+    //                                                          GL_STATIC_DRAW |
+    //                                                                         V
+    void initialize(float *vertices, int size, MeshMode mode, int meshStream=0x88E4);
 
     void render(int mode=0x0004);
 };

@@ -6,7 +6,7 @@
 
 class NetworkManagerClient {
 private:
-    static sf::UdpSocket socket;
+    static sf::TcpSocket socket;
     static sf::IpAddress connectedServer;
 
     static void handleIncomingPackets();

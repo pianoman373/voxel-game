@@ -3,16 +3,22 @@
 #include <GL/glew.h>
 #include <iostream>
 
-void Mesh::initialize(GLfloat *vertices, int size, MeshMode mode) {
+void Mesh::initialize(GLfloat *vertices, int size, MeshMode mode, int meshStream) {
     this->size = size;
     //setup the model
-    glGenVertexArrays(1, &VAO);
+
+    if (VAO == 0) {
+        glGenVertexArrays(1, &VAO);
+        std::cout << VAO << std::endl;
+    }
 
     glBindVertexArray(VAO);
         if (mode == MeshMode::BLOCKS) {
-            glGenBuffers(1, &VBO);
+            if (VBO == 0) {
+                glGenBuffers(1, &VBO);
+            }
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
-            glBufferData(GL_ARRAY_BUFFER, this->size * 12 * sizeof(float), vertices, GL_STATIC_DRAW);
+            glBufferData(GL_ARRAY_BUFFER, this->size * 12 * sizeof(float), vertices, meshStream);
 
             glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 12 * sizeof(float), (GLvoid*)0);
             glEnableVertexAttribArray(0);
@@ -27,7 +33,9 @@ void Mesh::initialize(GLfloat *vertices, int size, MeshMode mode) {
             glEnableVertexAttribArray(3);
         }
         if (mode == MeshMode::SIMPLE_TEXTURED) {
-            glGenBuffers(1, &VBO);
+            if (VBO == 0) {
+                glGenBuffers(1, &VBO);
+            }
             glBindBuffer(GL_ARRAY_BUFFER, VBO);
             glBufferData(GL_ARRAY_BUFFER, this->size * 5 * sizeof(float), vertices, GL_STATIC_DRAW);
 

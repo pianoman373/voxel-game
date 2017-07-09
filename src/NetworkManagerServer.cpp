@@ -9,45 +9,70 @@
 
 std::vector<ClientMessage> NetworkManagerServer::clientToServer;
 std::mutex NetworkManagerServer::clientToServerMutex;
-sf::UdpSocket NetworkManagerServer::socket;
+sf::TcpSocket NetworkManagerServer::socket;
+sf::TcpListener NetworkManagerServer::listener;
 bool NetworkManagerServer::isLocal = false;
 
-std::vector<User> NetworkManagerServer::users;
+sf::SocketSelector selector;
+
+std::vector<sf::TcpSocket*> NetworkManagerServer::users;
+std::mutex NetworkManagerServer::usersMutex;
 
 User NetworkManagerServer::getUserByIp(sf::IpAddress ip, unsigned short port) {
-    unsigned int integerIP = ip.toInteger();
-    for (unsigned int i = 0; i < users.size(); i++) {
-        User u = users[i];
-        if (u.address.toInteger() == integerIP && u.port == port) {
-            return u;
-        }
-    }
-    return {sf::IpAddress(), 0, "null"};
+//    unsigned int integerIP = ip.toInteger();
+//    for (unsigned int i = 0; i < users.size(); i++) {
+//        User u = users[i];
+//        if (u.address.toInteger() == integerIP && u.port == port) {
+//            return u;
+//        }
+//    }
+    //return {sf::IpAddress(), 0, "null"};
 }
 
 void NetworkManagerServer::handleIncomingPackets() {
+    listener.listen(55000);
+    selector.add(listener);
+
     while (true) {
-        sf::Packet packet;
-        sf::IpAddress sender;
-        unsigned short port;
+        selector.wait();
 
-        if (socket.receive(packet, sender, port) != sf::Socket::Done)
-        {
-            // error...
-            std::cout << "error receiving packet" << std::endl;
+        if (selector.isReady(listener)) {
+            sf::TcpSocket* client = new sf::TcpSocket;
+            if (listener.accept(*client) == sf::Socket::Done) {
+                usersMutex.lock();
+                users.push_back(client);
+                usersMutex.unlock();
+
+                selector.add(*client);
+                std::cout << "connected to client" << std::endl;
+            }
+            else {
+                delete client;
+                std::cout << "error connecting to client" << std::endl;
+            }
         }
+        else
+        {
+            usersMutex.lock();
+            for (int i = 0; i < users.size(); i++)
+            {
+                sf::TcpSocket* socket = users[i];
+                if (selector.isReady(*socket))
+                {
+                    // The client has sent some data, we can receive it
+                    sf::Packet packet;
+                    if (socket->receive(packet) == sf::Socket::Done)
+                    {
+                        std::cout << "received packet" << std::endl;
+                        clientToServerMutex.lock();
+                        clientToServer.push_back({packet, i});
+                        clientToServerMutex.unlock();
+                    }
+                }
 
-        //usleep(100*1000);
-        std::cout << "received packet" << std::endl;
-
-        ClientMessage message;
-        message.packet = packet;
-        message.ip = sender;
-        message.port = port;
-
-        clientToServerMutex.lock();
-        clientToServer.push_back(message);
-        clientToServerMutex.unlock();
+            }
+            usersMutex.unlock();
+        }
     }
 }
 
@@ -57,15 +82,11 @@ void NetworkManagerServer::bind() {
 
     }
     else {
-        if (socket.bind(54000) != sf::Socket::Done)
-        {
-            // error...
-        }
-
-        std::cout << "bound server to port 54000" << std::endl;
+        //std::thread thread(handleIncomingConnections);
+        //thread.detach();
 
         std::thread thread(handleIncomingPackets);
-        thread.detach();
+        thread.detach();\
     }
 }
 
@@ -77,14 +98,14 @@ void NetworkManagerServer::sendToAll(sf::Packet packet) {
     }
     else {
         for (unsigned int i = 0; i < users.size(); i++) {
-            User currentUser = users[i];
-            socket.send(packet, currentUser.address, currentUser.port);
+            users[i]->send(packet);
         }
     }
 }
 
-void NetworkManagerServer::send(sf::Packet packet, sf::IpAddress recipient, unsigned short port) {
-    socket.send(packet, recipient, port);
+void NetworkManagerServer::send(sf::Packet packet, int userID) {
+    //socket.send(packet, recipient, port);
+    users[userID]->send(packet);
 }
 
 void NetworkManagerServer::handshake(sf::IpAddress sender, unsigned short port, std::string name) {
@@ -92,12 +113,12 @@ void NetworkManagerServer::handshake(sf::IpAddress sender, unsigned short port, 
 
     }
     else {
-        users.push_back({sender, port, name});
+        //users.push_back({sender, port, name});
 
         int id = 0;
         sf::Packet replyPacket;
         replyPacket << id;
 
-        socket.send(replyPacket, sender, port);
+        //socket.send(replyPacket, sender, port);
     }
 }

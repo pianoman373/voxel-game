@@ -1,5 +1,6 @@
 #include "MeshFactory.hpp"
 #include "iostream"
+#include <GL/glew.h>
 
 MeshFactory::MeshFactory() {
     vertices = std::vector<float>();
@@ -30,7 +31,7 @@ void MeshFactory::vertex(float x, float y, float z, float nx, float ny, float nz
 }
 
 void MeshFactory::toMesh(Mesh &mesh) {
-    mesh.initialize(vertices.data(), count, MeshMode::BLOCKS);
+    mesh.initialize(vertices.data(), count, MeshMode::BLOCKS, GL_DYNAMIC_DRAW);
 }
 
 void MeshFactory::clear() {

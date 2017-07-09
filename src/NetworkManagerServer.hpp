@@ -6,21 +6,21 @@
 
 struct ClientMessage {
     sf::Packet packet;
-    sf::IpAddress ip;
-    unsigned short port;
+    int userID;
 };
 
 struct User {
-    sf::IpAddress address;
-    unsigned short port;
+    sf::TcpSocket *socket;
     std::string name;
 };
 
 class NetworkManagerServer {
 private:
-    static sf::UdpSocket socket;
+    static sf::TcpSocket socket;
+    static sf::TcpListener listener;
 
-    static std::vector<User> users;
+    static std::vector<sf::TcpSocket*> users;
+    static std::mutex usersMutex;
 
     static void handleIncomingPackets();
 
@@ -35,7 +35,7 @@ public:
 
     static void sendToAll(sf::Packet packet);
 
-    static void send(sf::Packet packet, sf::IpAddress recipient, unsigned short port);
+    static void send(sf::Packet packet, int userID);
 
     static void handshake(sf::IpAddress sender, unsigned short port, std::string name);
 };

@@ -28,7 +28,7 @@ static Player *player;
 
 static bool p_open = false;
 
-static std::map<std::string, vec3> playerPositions;
+static std::map<int, vec3> playerPositions;
 
 Window Client::window;
 
@@ -75,6 +75,7 @@ void Client::run(std::string username, std::string ip) {
                     int id = 4;
                     p << id << x << y << z;
                     NetworkManagerClient::send(p);
+                    std::cout << "sending chunk request" << std::endl;
                 }
             }
         }
@@ -112,7 +113,7 @@ void Client::run(std::string username, std::string ip) {
             }
             if (id == 2) {
                 float x, y, z;
-                std::string userID;
+                int userID;
 
                 p >> x >> y >> z >> userID;
 
