@@ -335,8 +335,6 @@ void Chunk::generateMesh() {
         }
         ms.toMesh(this->mesh);
 		ms.clear();
-
-        std::cout << "mesh gen time: " << glfwGetTime() - time << std::endl;
     }
 
     this->rebuild = false;

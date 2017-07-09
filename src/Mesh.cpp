@@ -9,7 +9,6 @@ void Mesh::initialize(GLfloat *vertices, int size, MeshMode mode, int meshStream
 
     if (VAO == 0) {
         glGenVertexArrays(1, &VAO);
-        std::cout << VAO << std::endl;
     }
 
     glBindVertexArray(VAO);
