@@ -39,6 +39,7 @@ void Server::run() {
                     replyPacket << 3;
                     replyPacket << (name + std::string(" joined the game"));
 
+                    NetworkManagerServer::addUsername(userID, name);
                     NetworkManagerServer::sendToAll(replyPacket);
 
                 }
@@ -80,7 +81,7 @@ void Server::run() {
                     std::string message;
                     packet >> message;
 
-                    message = std::string("<") + "u.name" + std::string("> ") + message;
+                    message = std::string("<") + NetworkManagerServer::getUsernameByID(userID) + std::string("> ") + message;
 
                     sf::Packet replyPacket;
                     replyPacket << id;

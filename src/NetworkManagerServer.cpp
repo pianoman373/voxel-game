@@ -18,15 +18,14 @@ sf::SocketSelector selector;
 std::vector<sf::TcpSocket*> NetworkManagerServer::users;
 std::mutex NetworkManagerServer::usersMutex;
 
-User NetworkManagerServer::getUserByIp(sf::IpAddress ip, unsigned short port) {
-//    unsigned int integerIP = ip.toInteger();
-//    for (unsigned int i = 0; i < users.size(); i++) {
-//        User u = users[i];
-//        if (u.address.toInteger() == integerIP && u.port == port) {
-//            return u;
-//        }
-//    }
-    //return {sf::IpAddress(), 0, "null"};
+std::vector<std::string> NetworkManagerServer::usernames;
+
+std::string NetworkManagerServer::getUsernameByID(int id) {
+    return usernames[id];
+}
+
+void NetworkManagerServer::addUsername(int id, std::string name) {
+    usernames[id] = name;
 }
 
 void NetworkManagerServer::handleIncomingPackets() {
@@ -42,6 +41,7 @@ void NetworkManagerServer::handleIncomingPackets() {
                 usersMutex.lock();
                 users.push_back(client);
                 usersMutex.unlock();
+                usernames.push_back("");
 
                 selector.add(*client);
                 std::cout << "connected to client" << std::endl;

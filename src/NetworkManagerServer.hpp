@@ -22,6 +22,8 @@ private:
     static std::vector<sf::TcpSocket*> users;
     static std::mutex usersMutex;
 
+    static std::vector<std::string> usernames;
+
     static void handleIncomingPackets();
 
 public:
@@ -29,7 +31,9 @@ public:
     static std::vector<ClientMessage> clientToServer;
     static std::mutex clientToServerMutex;
 
-    static User getUserByIp(sf::IpAddress ip, unsigned short port);
+    static std::string getUsernameByID(int id);
+
+    static void addUsername(int id, std::string name);
 
     static void bind();
 
