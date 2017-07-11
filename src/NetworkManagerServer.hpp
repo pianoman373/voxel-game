@@ -1,6 +1,7 @@
 #pragma once
 
 #include <vector>
+#include <map>
 #include <mutex>
 #include <SFML/Network.hpp>
 
@@ -19,10 +20,8 @@ private:
     static sf::TcpSocket socket;
     static sf::TcpListener listener;
 
-    static std::vector<sf::TcpSocket*> users;
+    static std::map<int, User> users;
     static std::mutex usersMutex;
-
-    static std::vector<std::string> usernames;
 
     static void handleIncomingPackets();
 
@@ -41,5 +40,5 @@ public:
 
     static void send(sf::Packet packet, int userID);
 
-    static void handshake(sf::IpAddress sender, unsigned short port, std::string name);
+    static void broadcastChat(std::string message);
 };

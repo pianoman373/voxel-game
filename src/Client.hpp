@@ -19,4 +19,6 @@ public:
     static void run(std::string username, std::string ip);
 
     static void scrollBlocks(int direction);
+
+    static void shutdown();
 };

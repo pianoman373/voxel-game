@@ -1,5 +1,6 @@
 #include "World.hpp"
 #include <iostream>
+#include <mutex>
 #include "GL/glew.h"
 #include "Renderer.hpp"
 #include "AABB.hpp"
@@ -99,29 +100,48 @@ void World::deleteChunk(int x, int y, int z) {
 }
 
 void World::rebuild() {
+    int i = 0;
     for (auto const ref: chunks) {
         Chunk *c = ref.second;
 
         if (c->rebuild) {
             c->generateMesh();
+            i++;
+            if (i > 10)
+                return;
         }
     }
 }
 
-void World::render(Camera &cam, Shader shader, Texture tex) {
+void World::render(Camera &cam, Shader nearshader, Shader farshader, Texture tex) {
     for (auto const &ref: chunks) {
         Chunk *c = ref.second;
 
         if (!c->empty) {
-            Material mat;
-            mat.setShader(shader);
-            mat.setUniformTexture("tex4", tex, 4);
+
 
             vec3 chunkPos = vec3(c->chunk_x * CHUNK_SIZE, (c->chunk_y * CHUNK_SIZE), c->chunk_z * CHUNK_SIZE);
 
-            if (lengthSquared(cam.getPosition() - (chunkPos + (CHUNK_SIZE / 2.0f))) < (Settings::render_distance * Settings::render_distance)) {
+            //we use square distance because computing square roots would be an extra step and hurt performance
+            float squareDistanceToChunk = lengthSquared(cam.getPosition() - (chunkPos + (CHUNK_SIZE / 2.0f)));
+
+            //it is much faster to square our render distance rather than square rooting our chunk distance
+            if (squareDistanceToChunk < (Settings::render_distance/2.0) * (Settings::render_distance/2.0)) {
+                Material mat;
+                mat.setShader(nearshader);
+                mat.setUniformTexture("tex4", tex, 4);
+
                 Renderer::render(&c->mesh, mat, Transform(chunkPos, vec3(), vec3()));
             }
+            else if (squareDistanceToChunk < (Settings::render_distance * Settings::render_distance)) {
+                Material mat;
+                mat.setShader(farshader);
+                mat.setUniformTexture("tex4", tex, 4);
+
+                Renderer::render(&c->mesh, mat, Transform(chunkPos, vec3(), vec3()));
+            }
+
+            //Renderer::renderDebugAABB(chunkPos, chunkPos + (float)CHUNK_SIZE, vec3(0.0f, 0.0f, 1.0f));
         }
     }
 }

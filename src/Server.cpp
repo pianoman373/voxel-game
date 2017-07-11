@@ -83,11 +83,7 @@ void Server::run() {
 
                     message = std::string("<") + NetworkManagerServer::getUsernameByID(userID) + std::string("> ") + message;
 
-                    sf::Packet replyPacket;
-                    replyPacket << id;
-                    replyPacket << message;
-
-                    NetworkManagerServer::sendToAll(replyPacket);
+                    NetworkManagerServer::broadcastChat(message);
                 }
                 //get chunk
                 if (id == 4) {

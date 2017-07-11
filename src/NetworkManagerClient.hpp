@@ -18,4 +18,6 @@ public:
     static void connectToServer(std::string username, sf::IpAddress remoteAddress);
 
     static void send(sf::Packet packet);
+
+    static void disconnect();
 };

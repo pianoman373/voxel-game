@@ -6,7 +6,6 @@
 #include <thread>
 #include <iostream>
 #include <string>
-#include <unistd.h>
 
 std::vector<sf::Packet> NetworkManagerClient::serverToClient;
 std::mutex NetworkManagerClient::serverToClientMutex;
@@ -50,7 +49,8 @@ void NetworkManagerClient::connectToServer(std::string username, sf::IpAddress r
         if (status != sf::Socket::Done)
         {
             // error...
-            std::cout << "error connecting to remote socket" << std::endl;
+            std::cout << "error connecting to remote host" << std::endl;
+            Client::shutdown();
         }
 
         connectedServer = remoteAddress;
@@ -96,4 +96,8 @@ void NetworkManagerClient::send(sf::Packet packet) {
     else {
         socket.send(packet);
     }
+}
+
+void NetworkManagerClient::disconnect() {
+    socket.disconnect();
 }

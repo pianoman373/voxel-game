@@ -22,6 +22,7 @@
 #include <stdio.h>
 
 static Shader blockShader;
+static Shader blockShaderFar;
 static Texture texture;
 static Camera camera;
 static Player *player;
@@ -41,16 +42,17 @@ void Client::init() {
     Renderer::init();
 
     blockShader.load("resources/blockShader.vsh", "resources/blockShader.fsh");
+    blockShaderFar.load("resources/blockShader.vsh", "resources/blockShaderSimple.fsh");
     texture.load("resources/terrain.png");
 
-    //glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
     player = new Player(Common::world);
-    player->position = vec3(WORLD_SIZE * CHUNK_SIZE / 2.0f, 50.0f, WORLD_SIZE * CHUNK_SIZE / 2.0f);
+    player->position = vec3(WORLD_SIZE * CHUNK_SIZE / 2.0f, 64.0f, WORLD_SIZE * CHUNK_SIZE / 2.0f);
 
     //Common::world.rebuild();
 }
@@ -96,7 +98,6 @@ void Client::run(std::string username, std::string ip) {
         window.pollEvents();
 
         player->update(camera, deltaTime);
-
 
         NetworkManagerClient::serverToClientMutex.lock();
         //if (!NetworkManagerClient::serverToClient.empty()) {
@@ -145,10 +146,10 @@ void Client::run(std::string username, std::string ip) {
                                 p >> b;
 
                                 c->setBlock(i, j, k, b);
-                                c->rebuild = true;
                             }
                         }
                     }
+                    c->rebuild = true;
                 }
 
                 Common::world.addChunk(x, y, z, c);
@@ -159,7 +160,7 @@ void Client::run(std::string username, std::string ip) {
 
         //<---===rendering===--->//
         Common::world.rebuild();
-        Common::world.render(camera, blockShader, texture);
+        Common::world.render(camera, blockShader, blockShaderFar, texture);
 
         for (auto const &ref: playerPositions) {
             vec3 v = ref.second;
@@ -189,8 +190,7 @@ void Client::run(std::string username, std::string ip) {
         window.update();
     }
 
-    delete player;
-    window.terminate();
+    shutdown();
 }
 
 void Client::scrollBlocks(int direction) {
@@ -203,4 +203,10 @@ void Client::scrollBlocks(int direction) {
         player->heldBlock = BlockRegistry::registeredBlocks() - 1;
     }
     std::cout << player->heldBlock << std::endl;
+}
+
+void Client::shutdown() {
+    NetworkManagerClient::disconnect();
+    window.terminate();
+    exit(0);
 }

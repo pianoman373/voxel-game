@@ -14,7 +14,7 @@
 #include "Shader.hpp"
 
 #define WORLD_SIZE 8
-#define WORLD_HEIGHT 2
+#define WORLD_HEIGHT 3
 
 struct chunk_position {
     int x;
@@ -50,7 +50,7 @@ public:
 
     void rebuild();
 
-    void render(Camera &cam, Shader shader, Texture tex);
+    void render(Camera &cam, Shader nearshader, Shader farShader, Texture tex);
 
     int getBlock(int x, int y, int z);
 

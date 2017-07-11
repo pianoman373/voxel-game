@@ -40,6 +40,31 @@ LuaBlock::LuaBlock(int blockID) {
     bool solid =  lua_toboolean(Common::lua, -1);
 
     this->solid = solid;
+
+    lua_pop(Common::lua, 1);
+
+    lua_pushstring(Common::lua, "color");
+    lua_gettable(Common::lua, -2);
+
+    if (lua_istable(Common::lua, -1)) {
+        lua_pushinteger(Common::lua, 1);
+        lua_gettable(Common::lua, -2);
+        float x = lua_tonumber(Common::lua, -1);
+        lua_pop(Common::lua, 1);
+
+        lua_pushinteger(Common::lua, 2);
+        lua_gettable(Common::lua, -2);
+        float y = lua_tonumber(Common::lua, -1);
+        lua_pop(Common::lua, 1);
+
+        lua_pushinteger(Common::lua, 3);
+        lua_gettable(Common::lua, -2);
+        float z = lua_tonumber(Common::lua, -1);
+        lua_pop(Common::lua, 1);
+
+        color = vec3(x, y, z);
+    }
+
     lua_settop(Common::lua, 1);
 }
 

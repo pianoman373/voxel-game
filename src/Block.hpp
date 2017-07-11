@@ -9,6 +9,7 @@
 class Block {
 public:
     std::string name = "";
+    vec3 color;
 
     Block();
 
