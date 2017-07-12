@@ -64,21 +64,23 @@ void NetworkManagerServer::handleIncomingPackets() {
                     sf::TcpSocket::Status s = socket->receive(packet);
                     if (s == sf::Socket::Done)
                     {
-                        std::cout << "received packet" << std::endl;
+                        //std::cout << "received packet" << std::endl;
                         clientToServerMutex.lock();
                         clientToServer.push_back({packet, it->first});
                         clientToServerMutex.unlock();
                     }
                     else if (s == sf::Socket::Disconnected) {
-                        std::cout << "user disconnected" << std::endl;
+                        sf::Packet p;
+                        int id = -1;
+                        int userID = it->first;
+                        p << id ;
 
-                        broadcastChat(it->second.name + " disconnected.");
+                        clientToServerMutex.lock();
+                        clientToServer.push_back({p, userID});
+                        clientToServerMutex.unlock();
 
                         selector.remove(*socket);
                         socket->disconnect();
-
-                        users.erase(it);
-                        --it;
                     }
                 }
 
@@ -106,8 +108,9 @@ void NetworkManagerServer::sendToAll(sf::Packet packet) {
         NetworkManagerClient::serverToClientMutex.unlock();
     }
     else {
-        for (unsigned int i = 0; i < users.size(); i++) {
-            users[i].socket->send(packet);
+        std::cout << users.size() << std::endl;
+        for (auto it = users.begin(); it != users.end(); ++it) {
+            it->second.socket->send(packet);
         }
     }
 }
@@ -117,11 +120,8 @@ void NetworkManagerServer::send(sf::Packet packet, int userID) {
     users[userID].socket->send(packet);
 }
 
-void NetworkManagerServer::broadcastChat(std::string message) {
-    sf::Packet replyPacket;
-    int id = 3;
-    replyPacket << id;
-    replyPacket << message;
-
-    sendToAll(replyPacket);
+void NetworkManagerServer::removeUser(int userID) {
+    usersMutex.lock();
+    users.erase(userID);
+    usersMutex.unlock();
 }

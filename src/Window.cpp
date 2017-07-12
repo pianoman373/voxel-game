@@ -17,6 +17,7 @@ void Window::create(vec2i resolution, std::string title) {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    glfwSwapInterval(1);
 
     window = glfwCreateWindow(resolution.x, resolution.y, title.c_str(), nullptr, nullptr);
 

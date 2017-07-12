@@ -27,7 +27,7 @@ void NetworkManagerClient::handleIncomingPackets() {
             // error...
             std::cout << "error on packet receive" << std::endl;
         }
-        std::cout << "received packet " << i << std::endl;
+        //std::cout << "received packet " << i << std::endl;
         i++;
 
         //usleep(100*1000);

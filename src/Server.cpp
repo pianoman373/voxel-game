@@ -5,6 +5,15 @@
 #include <iostream>
 #include <vector>
 
+void Server::broadcastChat(std::string message) {
+    sf::Packet replyPacket;
+    int id = 3;
+    replyPacket << id;
+    replyPacket << message;
+
+    NetworkManagerServer::sendToAll(replyPacket);
+}
+
 void Server::run() {
     Common::init();
     Common::world.generate(false);
@@ -12,7 +21,6 @@ void Server::run() {
     NetworkManagerServer::bind();
 
     while (true) {
-        //std::cout << "server looping" << std::endl;
 
         //must check if the vector is empty cause somehow we end up getting garbage from size() sometimes
         NetworkManagerServer::clientToServerMutex.lock();
@@ -25,6 +33,18 @@ void Server::run() {
                 packet >> id;
                 //User u = NetworkManagerServer::getUserByIp(sender, port);
 
+                //disconnect pseudo-packet
+                if (id == -1) {
+                    std::cout << "got disconnect pseudo-packet" << std::endl;
+                    broadcastChat(NetworkManagerServer::getUsernameByID(userID) + " left the game.");
+                    NetworkManagerServer::removeUser(userID);
+
+                    sf::Packet replyPacket;
+                    replyPacket << id;
+                    replyPacket << userID;
+
+                    NetworkManagerServer::sendToAll(replyPacket);
+                }
                 //handshake
                 if (id == 0) {
                     std::string name;
@@ -83,7 +103,7 @@ void Server::run() {
 
                     message = std::string("<") + NetworkManagerServer::getUsernameByID(userID) + std::string("> ") + message;
 
-                    NetworkManagerServer::broadcastChat(message);
+                    broadcastChat(message);
                 }
                 //get chunk
                 if (id == 4) {

@@ -40,5 +40,5 @@ public:
 
     static void send(sf::Packet packet, int userID);
 
-    static void broadcastChat(std::string message);
+    static void removeUser(int userID);
 };

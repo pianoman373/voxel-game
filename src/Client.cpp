@@ -107,6 +107,13 @@ void Client::run(std::string username, std::string ip) {
             int id;
             p >> id;
 
+            if (id == -1) {
+                int userID;
+                p >> userID;
+
+                std::cout << "got message from server that user #" << userID << " disconnected" << std::endl;
+                playerPositions.erase(userID);
+            }
             if (id == 1) {
                 int x, y, z, blockID;
                 p >> x >> y >> z >> blockID;
