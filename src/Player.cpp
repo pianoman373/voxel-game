@@ -109,7 +109,6 @@ void Player::update(Camera &cam, float delta) {
             velocity = velocity + dir;
         }
         if (Input::isKeyDown(GLFW_KEY_SPACE) && onGround) {
-            std::cout << "jumping" << std::endl;
             velocity.y = jumpPower;
         }
         if (Input::isKeyDown(GLFW_KEY_R)) {
@@ -127,7 +126,9 @@ void Player::update(Camera &cam, float delta) {
     AABB playerBoundingBox = AABB(vec3(), vec3());
 
     //the collider for narrowing down all the world's blocks to a smaller area
-    AABB playerBoundingBoxLarge = AABB(position - vec3(5.0f), position + vec3(5.0f));
+    AABB playerBoundingBoxLarge = AABB(position - vec3(10.0f), position + vec3(10.0f));
+
+    //Renderer::renderDebugAABB(playerBoundingBoxLarge, vec3(1.0f, 0.0f, 0.0f));
 
     std::vector<AABB> collisions = world.getCollisions(playerBoundingBoxLarge);
 
