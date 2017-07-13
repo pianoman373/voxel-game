@@ -6,12 +6,13 @@
 #include "Client.hpp"
 
 #include <imgui.h>
+#include <stack>
 
 const float cascadeDistances[4] = {10.0f, 40.0f, 100.0f, 500.0f};
 const vec3 sunDirection = normalize(vec3(0.4f, 0.7f, 1.0f));
 const vec3 sunColor = vec3(1.4f, 1.3f, 1.0f);
 
-std::vector<RenderCall> renderQueue;
+std::stack<RenderCall> renderQueue;
 
 Framebuffer shadowBuffer0;
 Framebuffer shadowBuffer1;
@@ -33,8 +34,11 @@ static void renderShadow(Framebuffer &fbuffer, mat4 lightSpaceMatrix) {
     fbuffer.bind();
     glClear(GL_DEPTH_BUFFER_BIT);
 
-    for (unsigned int i = 0; i < renderQueue.size(); i++) {
-        RenderCall c = renderQueue[i];
+    std::stack<RenderCall> renderQueueCopy = renderQueue;
+
+    for (unsigned int i = 0; i < renderQueueCopy.size(); i++) {
+        RenderCall c = renderQueueCopy.top();
+        renderQueueCopy.pop();
 
         ShadowShader.bind();
         ShadowShader.uniformMat4("lightSpaceMatrix", lightSpaceMatrix);
@@ -146,7 +150,7 @@ void Renderer::render(Mesh *mesh, Material material, Transform transform) {
     call.material = material;
     call.transform = transform;
 
-    renderQueue.push_back(call);
+    renderQueue.push(call);
 }
 
 void Renderer::renderDebugLine(vec3 v1, vec3 v2, vec3 color) {
@@ -215,7 +219,8 @@ void Renderer::flush(Camera cam) {
 
 
     for (unsigned int i = 0; i < renderQueue.size(); i++) {
-            RenderCall call = renderQueue[i];
+            RenderCall call = renderQueue.top();
+            renderQueue.pop();
 
             Shader s = call.material.getShader();
             s.bind();
@@ -255,8 +260,6 @@ void Renderer::flush(Camera cam) {
 
             call.mesh->render();
     }
-
-    renderQueue.clear();
 
     debugShader.bind();
     debugShader.uniformMat4("view", mat4());

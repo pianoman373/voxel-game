@@ -216,8 +216,20 @@ void World::setBlock(int x, int y, int z, int block) {
         //std::cout << "caught exception" << std::endl;
     }
 
-    c->setBlock(x % CHUNK_SIZE, y % CHUNK_SIZE, z % CHUNK_SIZE, block);
-    c->rebuild = true;
+    vec3i bpos = vec3i(x % CHUNK_SIZE, y % CHUNK_SIZE, z % CHUNK_SIZE);
+
+    c->setBlock(bpos.x, bpos.y, bpos.z, block);
+    //c->rebuild = true;
+
+    for (int i = -1; i < 2; i++) {
+        for (int j = -1; j < 2; j++) {
+            for (int k = -1; k < 2; k++) {
+                if (chunkExists(pos.x + i, pos.y + j, pos.z + k)) {
+                    getChunk(pos.x + i, pos.y + j, pos.z + k)->rebuild = true;
+                }
+            }
+        }
+    }
 }
 
 void World::update(Camera &cam, float delta) {

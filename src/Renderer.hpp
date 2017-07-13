@@ -6,7 +6,6 @@
 #include "Camera.hpp"
 #include "AABB.hpp"
 
-#include <vector>
 
 struct RenderCall {
     Mesh *mesh;
