@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Window.hpp"
+#include "Frustum.hpp"
 
 #include <SFML/Network.hpp>
 #include <string>
@@ -12,6 +13,7 @@ class Client {
 private:
     static void init();
 public:
+    static Frustum frustum;
     static sf::UdpSocket socket;
     static sf::IpAddress connectedServer;
     static Window window;

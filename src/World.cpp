@@ -8,9 +8,10 @@
 #include "GLFW/glfw3.h"
 #include "Settings.hpp"
 #include "Util.hpp"
+#include "Client.hpp"
 
 static float heightAt(vec3 pos) {
-    return Util::ridgedNoise(vec2(pos.x, pos.z), 5, 0.003f, 0.5f) * 30.0f + 20.0f;
+    return Util::ridgedNoise(vec2(pos.x/2.0f, pos.z/2.0f), 5, 0.003f, 0.5f) * 50.0f + 70.0f;
 }
 
 static void placeBlocks(Chunk *chunk) {
@@ -104,12 +105,28 @@ void World::rebuild() {
     for (auto const ref: chunks) {
         Chunk *c = ref.second;
 
+        chunk_position pos = ref.first;
+
+        for (int x = pos.x - 1; x < (pos.x + 2); x++) {
+            for (int y = pos.y - 1; y < (pos.y + 2); y++) {
+                for (int z = pos.z - 1; z < (pos.z + 2); z++) {
+                    if (!chunkExists(x, y, z)) {
+                        goto end;
+                    }
+                }
+            }
+        }
+
+
         if (c->rebuild) {
             c->generateMesh();
             i++;
             if (i > 10)
                 return;
         }
+
+        end:
+        ;
     }
 }
 
@@ -122,26 +139,31 @@ void World::render(Camera &cam, Shader nearshader, Shader farshader, Texture tex
 
             vec3 chunkPos = vec3(c->chunk_x * CHUNK_SIZE, (c->chunk_y * CHUNK_SIZE), c->chunk_z * CHUNK_SIZE);
 
+            vec3 chunkCenterPos = chunkPos + vec3(CHUNK_SIZE / 2.0f);
+
             //we use square distance because computing square roots would be an extra step and hurt performance
-            float squareDistanceToChunk = lengthSquared(cam.getPosition() - (chunkPos + (CHUNK_SIZE / 2.0f)));
+            float squareDistanceToChunk = lengthSquared(cam.getPosition() - chunkCenterPos);
 
-            //it is much faster to square our render distance rather than square rooting our chunk distance
-            if (squareDistanceToChunk < (Settings::render_distance/2.0) * (Settings::render_distance/2.0)) {
-                Material mat;
-                mat.setShader(nearshader);
-                mat.setUniformTexture("tex4", tex, 4);
+            if (Client::frustum.isBoxInside(AABB(chunkPos , chunkPos + vec3(CHUNK_SIZE)))) {
+                //it is much faster to square our render distance rather than square rooting our chunk distance
+                if (squareDistanceToChunk < (128.0f) * (128.0f)) {
+                    Material mat;
+                    mat.setShader(nearshader);
+                    mat.setUniformTexture("tex4", tex, 4);
 
-                Renderer::render(&c->mesh, mat, Transform(chunkPos, vec3(), vec3()));
+                    Renderer::render(&c->mesh, mat, Transform(chunkPos, vec3(), vec3()));
+                }
+                else if (squareDistanceToChunk < (Settings::render_distance * Settings::render_distance)) {
+                    Material mat;
+                    mat.setShader(farshader);
+                    mat.setUniformTexture("tex4", tex, 4);
+
+                    Renderer::render(&c->mesh, mat, Transform(chunkPos, vec3(), vec3()));
+                }
             }
-            else if (squareDistanceToChunk < (Settings::render_distance * Settings::render_distance)) {
-                Material mat;
-                mat.setShader(farshader);
-                mat.setUniformTexture("tex4", tex, 4);
 
-                Renderer::render(&c->mesh, mat, Transform(chunkPos, vec3(), vec3()));
-            }
-
-            //Renderer::renderDebugAABB(chunkPos, chunkPos + (float)CHUNK_SIZE, vec3(0.0f, 0.0f, 1.0f));
+//            if (Client::frustum.isPointInside(chunkPos))
+//                Renderer::renderDebugAABB(chunkPos, chunkPos + (float)CHUNK_SIZE, vec3(0.0f, 0.0f, 1.0f));
         }
     }
 }

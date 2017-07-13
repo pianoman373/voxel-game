@@ -198,3 +198,25 @@ void AABB::move(vec3 dir) {
     min = min + dir;
     max = max + dir;
 }
+
+vec3 AABB::getCorner(int i) {
+    switch (i) {
+        case 0:
+            return vec3(min.x, min.y, min.z);
+        case 1:
+            return vec3(min.x, min.y, max.z);
+        case 2:
+            return vec3(min.x, max.y, min.z);
+        case 3:
+            return vec3(min.x, max.y, max.z);
+        case 4:
+            return vec3(max.x, min.y, min.z);
+        case 5:
+            return vec3(max.x, min.y, max.z);
+        case 6:
+            return vec3(max.x, max.y, min.z);
+        case 7:
+            return vec3(max.x, max.y, max.z);
+    }
+    return vec3();
+}

@@ -13,8 +13,8 @@
 #include "AABB.hpp"
 #include "Shader.hpp"
 
-#define WORLD_SIZE 8
-#define WORLD_HEIGHT 3
+#define WORLD_SIZE 16
+#define WORLD_HEIGHT 8
 
 struct chunk_position {
     int x;

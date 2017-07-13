@@ -56,4 +56,6 @@ public:
     float calculateZOffset(AABB &other, float offset);
 
     void move(vec3 dir);
+
+    vec3 getCorner(int i);
 };

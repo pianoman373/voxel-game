@@ -10,6 +10,8 @@
 #include "NetworkManagerClient.hpp"
 #include "Block.hpp"
 #include "Console.hpp"
+#include "Frustum.hpp"
+#include "Input.hpp"
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -26,6 +28,8 @@ static Shader blockShaderFar;
 static Texture texture;
 static Camera camera;
 static Player *player;
+
+Frustum Client::frustum;
 
 static bool p_open = false;
 
@@ -164,6 +168,11 @@ void Client::run(std::string username, std::string ip) {
         }
         NetworkManagerClient::serverToClient.clear();
         NetworkManagerClient::serverToClientMutex.unlock();
+
+        vec2i size = Client::window.getWindowSize();
+        frustum.setupInternals(Settings::fov, (float)size.x / (float)size.y, 1.1f, 1000.0f);
+        frustum.updateCamPosition(camera);
+        //frustum.renderDebug();
 
         //<---===rendering===--->//
         Common::world.rebuild();

@@ -5,6 +5,7 @@
 #include "json.hpp"
 
 #include <string>
+#include <list>
 
 class Util {
 public:

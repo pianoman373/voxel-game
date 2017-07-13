@@ -28,6 +28,8 @@ public:
      */
     vec3 getRight();
 
+    vec3 getUp();
+
     void setPosition(const vec3 &position);
 
     /**
