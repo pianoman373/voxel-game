@@ -143,10 +143,11 @@ void World::render(Camera &cam, Shader nearshader, Shader farshader, Texture tex
 
             //we use square distance because computing square roots would be an extra step and hurt performance
             float squareDistanceToChunk = lengthSquared(cam.getPosition() - chunkCenterPos);
+            std::cout << squareDistanceToChunk << std::endl;
 
             if (Client::frustum.isBoxInside(AABB(chunkPos , chunkPos + vec3(CHUNK_SIZE)))) {
                 //it is much faster to square our render distance rather than square rooting our chunk distance
-                if (squareDistanceToChunk < (128.0f) * (128.0f)) {
+                if (squareDistanceToChunk < (128.0f) * (128.0f) && squareDistanceToChunk < (Settings::render_distance * Settings::render_distance)) {
                     Material mat;
                     mat.setShader(nearshader);
                     mat.setUniformTexture("tex4", tex, 4);
