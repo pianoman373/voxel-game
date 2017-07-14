@@ -108,7 +108,6 @@ void NetworkManagerServer::sendToAll(sf::Packet packet) {
         NetworkManagerClient::serverToClientMutex.unlock();
     }
     else {
-        std::cout << users.size() << std::endl;
         for (auto it = users.begin(); it != users.end(); ++it) {
             it->second.socket->send(packet);
         }
