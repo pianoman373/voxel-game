@@ -1,17 +1,17 @@
 #pragma once
 
 #include <map>
-#include <unordered_map>
 #include <vector>
 #include <string>
 
 #include "Math.hpp"
-#include "Texture.hpp"
-#include "Camera.hpp"
-#include "Player.hpp"
-#include "Chunk.hpp"
-#include "AABB.hpp"
-#include "Shader.hpp"
+
+class Texture;
+class Shader;
+class Camera;
+class AABB;
+class Chunk;
+
 
 #define WORLD_SIZE 16
 #define WORLD_HEIGHT 8

@@ -2,7 +2,13 @@
 
 #include <deque>
 #include <mutex>
-#include <SFML/Network.hpp>
+#include <vector>
+
+namespace sf {
+    class TcpSocket;
+    class Packet;
+    class IpAddress;
+}
 
 class NetworkManagerClient {
 private:

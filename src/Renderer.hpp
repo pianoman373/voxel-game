@@ -1,10 +1,12 @@
 #pragma once
 
-#include "Mesh.hpp"
-#include "Material.hpp"
 #include "Math.hpp"
-#include "Camera.hpp"
-#include "AABB.hpp"
+#include "Material.hpp"
+
+class Mesh;
+class AABB;
+class Camera;
+class Material;
 
 
 struct RenderCall {

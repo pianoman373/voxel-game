@@ -1,4 +1,5 @@
 #include "Chunk.hpp"
+#include "Mesh.hpp"
 #include "MeshFactory.hpp"
 #include "World.hpp"
 #include "Renderer.hpp"

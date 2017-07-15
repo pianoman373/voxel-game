@@ -3,9 +3,9 @@
 #include <map>
 #include <string>
 
+#include "Math.hpp"
 #include "Shader.hpp"
 #include "Texture.hpp"
-#include "Math.hpp"
 
 struct UniformTexture {
     Texture tex;

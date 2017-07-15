@@ -2,7 +2,7 @@
 
 #include "Math.hpp"
 
-#include <GLFW/glfw3.h>
+class GLFWwindow;
 
 namespace Input {
 

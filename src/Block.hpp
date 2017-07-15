@@ -4,7 +4,6 @@
 
 #include <map>
 #include <string>
-#include <lua.hpp>
 
 class Block {
 public:

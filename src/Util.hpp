@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Math.hpp"
-#include "Mesh.hpp"
 #include "json.hpp"
 
 #include <string>

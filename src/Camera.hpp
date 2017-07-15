@@ -1,19 +1,12 @@
 #pragma once
 
 #include "Math.hpp"
-#include "GLFW/glfw3.h"
-
-const float MOVEMENT_SPEED = 0.5f;
-const float ROTATION_SPEED = 0.01f;
 
 class Camera {
 private:
     vec3 position = vec3(0.0f, 0.0f, 0.0f);
     vec3 direction = vec3(0.0f, 0.0f, 1.0f);
     vec3 up = vec3(0.0f, 1.0f, 0.0f);
-
-    float xRot = 0.0f;
-    float yRot = 0.0f;
 
 public:
     vec3 getPosition();

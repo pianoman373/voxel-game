@@ -1,6 +1,8 @@
 #include "Server.hpp"
 #include "Common.hpp"
 #include "NetworkManagerServer.hpp"
+#include "World.hpp"
+#include "Chunk.hpp"
 
 #include <iostream>
 #include <vector>

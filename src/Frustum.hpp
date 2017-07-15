@@ -1,8 +1,9 @@
 #pragma once
 
 #include "Math.hpp"
-#include "Camera.hpp"
-#include "AABB.hpp"
+
+class Camera;
+class AABB;
 
 class Frustum {
 public:

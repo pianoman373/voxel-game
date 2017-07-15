@@ -5,9 +5,12 @@
 #include "Renderer.hpp"
 #include "World.hpp"
 #include "Client.hpp"
+#include "Camera.hpp"
 #include "NetworkManagerClient.hpp"
 
+#include <SFML/Network.hpp>
 #include <imgui.h>
+#include <GLFW/glfw3.h>
 
 static const float movementSpeed = 6.0f;
 static const float mouseSensitivity = 8.0f;

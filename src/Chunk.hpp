@@ -3,8 +3,8 @@
 #define CHUNK_SIZE 32
 
 #include "Mesh.hpp"
-#include "MeshFactory.hpp"
 
+class MeshFactory;
 class World;
 
 

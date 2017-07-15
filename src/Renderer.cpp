@@ -4,6 +4,9 @@
 #include "MeshFactory.hpp"
 #include "Settings.hpp"
 #include "Client.hpp"
+#include "Window.hpp"
+#include "Camera.hpp"
+#include "AABB.hpp"
 
 #include <imgui.h>
 #include <stack>

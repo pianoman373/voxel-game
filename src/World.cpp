@@ -1,6 +1,4 @@
 #include "World.hpp"
-#include <iostream>
-#include <mutex>
 #include "GL/glew.h"
 #include "Renderer.hpp"
 #include "AABB.hpp"
@@ -9,6 +7,12 @@
 #include "Settings.hpp"
 #include "Util.hpp"
 #include "Client.hpp"
+#include "Frustum.hpp"
+#include "Camera.hpp"
+#include "Chunk.hpp"
+
+#include <iostream>
+#include <mutex>
 
 static float heightAt(vec3 pos) {
     return Util::ridgedNoise(vec2(pos.x/2.0f, pos.z/2.0f), 5, 0.003f, 0.5f) * 50.0f + 70.0f;

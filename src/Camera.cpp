@@ -2,6 +2,7 @@
 #include "Input.hpp"
 #include "Client.hpp"
 #include "Settings.hpp"
+#include "Window.hpp"
 
 #include <iostream>
 

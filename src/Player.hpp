@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Math.hpp"
-#include "Camera.hpp"
+
+class Camera;
 
 //forward declaration
 class World;
