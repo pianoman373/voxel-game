@@ -1,28 +1,8 @@
-EnumDirection = {
-	POSITIVE_X = 0,
-    NEGATIVE_X = 1,
-    POSITIVE_Y = 2,
-    NEGATIVE_Y = 3,
-    POSITIVE_Z = 4,
-    NEGATIVE_Z = 5
-}
-
-function simpleBlock(blockName, texX, texY, color)
-	return {
-		name = blockName,
-		color = color,
-		getTextureCoord = function(side)
-			return texX, texY
-		end,
-		isSolid = function()
-			return true
-		end
-	}
-end
+--local inspect = require("inspect")
 
 registerBlock(0, {
 	name = "Air",
-	color = {0.0, 0.0, 0.0},
+	color = {0, 0, 0},
 	getTextureCoord = function(side)
 		return 0, 0
 	end,
@@ -33,7 +13,7 @@ registerBlock(0, {
 
 registerBlock(1, {
 	name = "Grass",
-	color = {78/255, 111/255, 40/255},
+	color = rgb(78, 111, 40),
 	getTextureCoord = function(side)
 		if side == EnumDirection.POSITIVE_Y then
 			return 0, 0
@@ -48,19 +28,19 @@ registerBlock(1, {
 	end
 })
 
-registerBlock(2, simpleBlock("Stone", 1, 0, {138/255, 128/255, 115/255}))
+registerBlock(2, api.simpleBlock("Stone", 1, 0, rgb(138, 128, 115)))
 
-registerBlock(3, simpleBlock("Dirt", 2, 0, {73/255, 51/255, 41/255}))
+registerBlock(3, api.simpleBlock("Dirt", 2, 0, rgb(73, 51, 41)))
 
-registerBlock(4, simpleBlock("Cobblestone", 0, 1, {148/255, 138/255, 129/255}))
+registerBlock(4, api.simpleBlock("Cobblestone", 0, 1, rgb(148, 138, 129)))
 
-registerBlock(5, simpleBlock("Planks", 4, 0, {106/255, 85/255, 61/255}))
+registerBlock(5, api.simpleBlock("Planks", 4, 0, rgb(106, 85, 61)))
 
-registerBlock(6, simpleBlock("Wood", 4, 1, {87/255, 63/255, 52/255}))
+registerBlock(6, api.simpleBlock("Wood", 4, 1, rgb(87, 63, 52)))
 
 registerBlock(7, {
 	name = "Leaves",
-	color = {91/255, 129/255, 48/255},
+	color = rgb(91, 129, 48),
 	getTextureCoord = function(side)
 		return 4, 3
 	end,
@@ -69,13 +49,13 @@ registerBlock(7, {
 	end
 })
 
-registerBlock(8, simpleBlock("Bricks", 7, 0, {161/255, 149/255, 134/255}))
+registerBlock(8, api.simpleBlock("Bricks", 7, 0, rgb(161, 149, 134)))
 
-registerBlock(9, simpleBlock("Stone Bricks", 6, 3, {129/255, 93/255, 70/255}))
+registerBlock(9, api.simpleBlock("Stone Bricks", 6, 3, rgb(129, 93, 70)))
 
 registerBlock(10, {
 	name = "Glass",
-	color = {216/255, 227/255, 231/255},
+	color = rgb(216, 227, 231),
 	getTextureCoord = function(side)
 		return 1, 3
 	end,

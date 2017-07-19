@@ -5,6 +5,8 @@
 #include <map>
 #include <string>
 
+#include "sol.hpp"
+
 class Block {
 public:
     std::string name = "";
@@ -18,11 +20,11 @@ public:
 };
 
 class LuaBlock : public Block {
-    int blockID;
+    sol::table table;
     bool solid;
 
 public:
-    LuaBlock(int blockID);
+    LuaBlock(sol::table table);
 
     vec2i getTextureCoord(EnumDirection dir);
 

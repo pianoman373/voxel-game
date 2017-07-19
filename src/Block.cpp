@@ -1,7 +1,7 @@
 #include "Block.hpp"
 #include "Common.hpp"
 
-#include <lua.hpp>
+static Block defaultBlock;
 
 //Block
 Block::Block() {
@@ -17,71 +17,19 @@ bool Block::isSolid() {
 }
 
 //LuaBlock
-LuaBlock::LuaBlock(int blockID) {
-    this->blockID = blockID;
+LuaBlock::LuaBlock(sol::table table) {
+    this->table = table;
+    this->name = table["name"];
+    this->color = vec3(table["color"][1], table["color"][2], table["color"][3]);
 
-    lua_pushstring(Common::lua, "BLOCK_REGISTRY");
-    lua_gettable(Common::lua, LUA_REGISTRYINDEX);
-    lua_pushinteger(Common::lua, blockID);
-    lua_gettable(Common::lua, -2);
-    lua_pushstring(Common::lua, "name");
-    lua_gettable(Common::lua, -2);
-    if (lua_isstring(Common::lua, -1))
-        this->name = std::string(lua_tostring(Common::lua, -1));
-    else
-        this->name = "[Undefined]";
-
-    lua_pop(Common::lua, 1);
-
-    lua_pushstring(Common::lua, "isSolid");
-    lua_gettable(Common::lua, -2);
-    lua_call(Common::lua, 0, 1);
-
-    bool solid =  lua_toboolean(Common::lua, -1);
-
-    this->solid = solid;
-
-    lua_pop(Common::lua, 1);
-
-    lua_pushstring(Common::lua, "color");
-    lua_gettable(Common::lua, -2);
-
-    if (lua_istable(Common::lua, -1)) {
-        lua_pushinteger(Common::lua, 1);
-        lua_gettable(Common::lua, -2);
-        float x = lua_tonumber(Common::lua, -1);
-        lua_pop(Common::lua, 1);
-
-        lua_pushinteger(Common::lua, 2);
-        lua_gettable(Common::lua, -2);
-        float y = lua_tonumber(Common::lua, -1);
-        lua_pop(Common::lua, 1);
-
-        lua_pushinteger(Common::lua, 3);
-        lua_gettable(Common::lua, -2);
-        float z = lua_tonumber(Common::lua, -1);
-        lua_pop(Common::lua, 1);
-
-        color = vec3(x, y, z);
-    }
-
-    lua_settop(Common::lua, 1);
+    sol::safe_function fun = table.get<sol::safe_function>("isSolid");
+    solid = fun();
 }
 
 vec2i LuaBlock::getTextureCoord(EnumDirection dir) {
-    lua_pushstring(Common::lua, "BLOCK_REGISTRY");
-    lua_gettable(Common::lua, LUA_REGISTRYINDEX);
-    lua_pushinteger(Common::lua, blockID);
-    lua_gettable(Common::lua, -2);
-    lua_pushstring(Common::lua, "getTextureCoord");
-    lua_gettable(Common::lua, -2);
-    lua_pushinteger(Common::lua, static_cast<int>(dir));
-    lua_pcall(Common::lua, 1, 2, 0);
-
-    vec2i coord = vec2i(lua_tointeger(Common::lua, -2), lua_tointeger(Common::lua, -1));
-    lua_settop(Common::lua, 1);
-
-    return coord;
+    std::tuple<int, int> coord = table["getTextureCoord"](static_cast<int>(dir));
+    return vec2i(std::get<0>(coord), std::get<1>(coord));
+    return vec2i();
 }
 
 bool LuaBlock::isSolid() {
@@ -96,7 +44,12 @@ void BlockRegistry::registerBlock(int id, Block *block) {
 }
 
 Block *BlockRegistry::getBlock(int id) {
-    return registry[id];
+    //try {
+        return registry.at(id);
+//    }
+//    catch (std::out_of_range exception) {
+//        return &defaultBlock;
+//    }
 }
 
 int BlockRegistry::registeredBlocks() {
