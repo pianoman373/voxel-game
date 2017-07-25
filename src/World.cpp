@@ -10,6 +10,8 @@
 #include "Frustum.hpp"
 #include "Camera.hpp"
 #include "Chunk.hpp"
+#include "sol.hpp"
+#include "Common.hpp"
 
 #include <iostream>
 #include <mutex>
@@ -20,52 +22,69 @@ static float heightAt(vec3 pos) {
 
 static void placeBlocks(Chunk *chunk) {
     //std::cout << "generating chunk" << std::endl;
-
-    //double time1 = glfwGetTime();
-    for (int x = 0; x < CHUNK_SIZE; x++) {
-        //for (int y = 0; y < CHUNK_SIZE; y++) {
-            for (int z = 0; z < CHUNK_SIZE; z++) {
-                float height = heightAt(vec3(x + (chunk->chunk_x * CHUNK_SIZE), 0.0f, z + (chunk->chunk_z * CHUNK_SIZE)));
-
-                //create vectors which begin at this block and extend to the next block over
-                vec3 lineNegX =  normalize(vec3(x - 1, heightAt(vec3(x + (chunk->chunk_x * CHUNK_SIZE) - 1, 0.0f, z + (chunk->chunk_z * CHUNK_SIZE))), z) - vec3(x, height, z));
-                vec3 linePosX =  normalize(vec3(x + 1, heightAt(vec3(x + (chunk->chunk_x * CHUNK_SIZE) + 1, 0.0f, z + (chunk->chunk_z * CHUNK_SIZE))), z) - vec3(x, height, z));
-
-                vec3 lineNegY =  normalize(vec3(x, heightAt(vec3(x + (chunk->chunk_x * CHUNK_SIZE), 0.0f, z + (chunk->chunk_z * CHUNK_SIZE) - 1)), z - 1) - vec3(x, height, z));
-                vec3 linePosY =  normalize(vec3(x, heightAt(vec3(x + (chunk->chunk_x * CHUNK_SIZE), 0.0f, z + (chunk->chunk_z * CHUNK_SIZE) + 1)), z + 1) - vec3(x, height, z));
-
-                //cross those vectors to get upwards pointing lines
-                vec3 norm1 = cross(lineNegY, lineNegX);
-                vec3 norm2 = cross(linePosX, lineNegY);
-
-                vec3 norm3 = cross(linePosY, linePosX);
-                vec3 norm4 = cross(lineNegX, linePosY);
+    sol::table t = Common::world.luaState["generateChunk"](chunk->chunk_x, chunk->chunk_y, chunk->chunk_z);
 
 
-                //average them together to get what is effectively a surface normal if this terrain were to be smoothed out
-                vec3 finalNorm = (norm1 + norm2 + norm3 + norm4) / 4.0f;
+    for (int x = 1; x <= CHUNK_SIZE; x++) {
+        for (int y = 1; y <= CHUNK_SIZE; y++) {
+            for (int z = 1; z <= CHUNK_SIZE; z++) {
+                //int block = t[x + 32*(y-1) + 32*32*(z-1)];
+                int block = t[x][y][z];
 
-
-                //std::cout << lineNegX << std::endl;
-
-                height -= (chunk->chunk_y * 32);
-                for (int i = 0; i < height; i++) {
-                    if (dot(finalNorm, vec3(0.0f, 1.0f, 0.0f)) < 0.7f) {
-                        chunk->setBlock(x, i, z, 2);
-                    }
-                    else {
-                        chunk->setBlock(x, i, z, 3);
-                    }
-                }
-                if (dot(finalNorm, vec3(0.0f, 1.0f, 0.0f)) < 0.7f) {
-                    chunk->setBlock(x, floor(height), z, 2);
-                }
-                else {
-                    chunk->setBlock(x, floor(height), z, 1);
+                if (block != 0) {
+                    chunk->setBlock(x-1, y-1, z-1, block);
                 }
             }
-        //}
+        }
     }
+
+
+
+    //double time1 = glfwGetTime();
+//    for (int x = 0; x < CHUNK_SIZE; x++) {
+//        //for (int y = 0; y < CHUNK_SIZE; y++) {
+//            for (int z = 0; z < CHUNK_SIZE; z++) {
+//                float height = heightAt(vec3(x + (chunk->chunk_x * CHUNK_SIZE), 0.0f, z + (chunk->chunk_z * CHUNK_SIZE)));
+//
+//                //create vectors which begin at this block and extend to the next block over
+//                vec3 lineNegX =  normalize(vec3(x - 1, heightAt(vec3(x + (chunk->chunk_x * CHUNK_SIZE) - 1, 0.0f, z + (chunk->chunk_z * CHUNK_SIZE))), z) - vec3(x, height, z));
+//                vec3 linePosX =  normalize(vec3(x + 1, heightAt(vec3(x + (chunk->chunk_x * CHUNK_SIZE) + 1, 0.0f, z + (chunk->chunk_z * CHUNK_SIZE))), z) - vec3(x, height, z));
+//
+//                vec3 lineNegY =  normalize(vec3(x, heightAt(vec3(x + (chunk->chunk_x * CHUNK_SIZE), 0.0f, z + (chunk->chunk_z * CHUNK_SIZE) - 1)), z - 1) - vec3(x, height, z));
+//                vec3 linePosY =  normalize(vec3(x, heightAt(vec3(x + (chunk->chunk_x * CHUNK_SIZE), 0.0f, z + (chunk->chunk_z * CHUNK_SIZE) + 1)), z + 1) - vec3(x, height, z));
+//
+//                //cross those vectors to get upwards pointing lines
+//                vec3 norm1 = cross(lineNegY, lineNegX);
+//                vec3 norm2 = cross(linePosX, lineNegY);
+//
+//                vec3 norm3 = cross(linePosY, linePosX);
+//                vec3 norm4 = cross(lineNegX, linePosY);
+//
+//
+//                //average them together to get what is effectively a surface normal if this terrain were to be smoothed out
+//                vec3 finalNorm = (norm1 + norm2 + norm3 + norm4) / 4.0f;
+//
+//
+//                //std::cout << lineNegX << std::endl;
+//
+//                height -= (chunk->chunk_y * 32);
+//                for (int i = 0; i < height; i++) {
+//                    if (dot(finalNorm, vec3(0.0f, 1.0f, 0.0f)) < 0.7f) {
+//                        chunk->setBlock(x, i, z, 2);
+//                    }
+//                    else {
+//                        chunk->setBlock(x, i, z, 3);
+//                    }
+//                }
+//                if (dot(finalNorm, vec3(0.0f, 1.0f, 0.0f)) < 0.7f) {
+//                    chunk->setBlock(x, floor(height), z, 2);
+//                }
+//                else {
+//                    chunk->setBlock(x, floor(height), z, 1);
+//                }
+//            }
+//        //}
+//    }
     //std::cout << "generated chunk in: " << glfwGetTime() - time1 << std::endl;
     //chunk->generateMesh();
 }
@@ -77,7 +96,22 @@ World::~World() {
 }
 
 World::World() {
-    //std::cout << "creating world instance" << std::endl;
+    std::cout << "creating world instance" << std::endl;
+    luaState.open_libraries(sol::lib::base,
+                            sol::lib::bit32,
+                            sol::lib::coroutine,
+                            sol::lib::count,
+                            sol::lib::io,
+                            sol::lib::math,
+                            sol::lib::os,
+                            sol::lib::package,
+                            sol::lib::string,
+                            sol::lib::table,
+                            sol::lib::utf8,
+                            sol::lib::ffi
+                        );
+    luaState.script_file("api.lua");
+    luaState.script_file("worldgen.lua");
 }
 
 void World::generate(bool empty) {

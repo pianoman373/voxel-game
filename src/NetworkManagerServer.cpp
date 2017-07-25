@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <thread>
-#include <string>
 
 std::vector<ClientMessage> NetworkManagerServer::clientToServer;
 std::mutex NetworkManagerServer::clientToServerMutex;

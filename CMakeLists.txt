@@ -8,10 +8,6 @@ add_subdirectory(lib/glfw)
 
 add_subdirectory(lib/sfml)
 
-include_directories(lib/glew)
-link_libraries(${GLEW_LIBRARIES})
-add_library (glew lib/glew/src/glew.c)
-
 link_directories(lib/luajit/lib
                  )
 
@@ -21,13 +17,14 @@ include_directories(lib/glfw/include/
                     lib/imgui/
                     lib/glm/glm/
                     lib/sfml/include
-                    lib/luajit/include/luajit-2.0
+                    lib/luajit/include/
                     )
 
 file(GLOB PROJECT_SOURCES src/*.cpp
                           src/*.c
                           lib/imgui/*.cpp
                           lib/imgui/*.c
+						  lib/glew/src/glew.c
                           )
 file(GLOB PROJECT_HEADERS src/*.h
                           src/*.hpp
@@ -35,17 +32,18 @@ file(GLOB PROJECT_HEADERS src/*.h
 
 add_definitions(-DGLFW_INCLUDE_NONE
                 -DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\"
-                -DSFML_STATIC)
+                -DSFML_STATIC
+				-DGLFW_STATIC)
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES}
-                               ${PROJECT_HEADERS})
+                               ${PROJECT_HEADERS} src/Test.cpp src/Test.hpp)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES
 	RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 if(WIN32)
-    target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES} glew opengl32 sfml-network sfml-graphics sfml-window sfml-system luajit lua51)
+    target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES} opengl32 sfml-network sfml-graphics sfml-window sfml-system luajit lua51)
 elseif(UNIX AND NOT APPLE)
-    target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES} glew GL sfml-network sfml-graphics sfml-window sfml-system luajit-5.1)
+    target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES} GL sfml-network sfml-graphics sfml-window sfml-system luajit-5.1)
 endif(WIN32)
 
 if(MSVC)

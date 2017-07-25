@@ -12,13 +12,11 @@
 #include "Window.hpp"
 #include "Frustum.hpp"
 #include "World.hpp"
-#include "json.hpp"
 #include "Camera.hpp"
 #include "Chunk.hpp"
 
 #define GLEW_STATIC
 #include <GL/glew.h>
-#include <map>
 #include <SFML/Network.hpp>
 
 static Shader blockShader;

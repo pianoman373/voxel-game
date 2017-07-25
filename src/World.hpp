@@ -5,6 +5,7 @@
 #include <string>
 
 #include "Math.hpp"
+#include "sol.hpp"
 
 class Texture;
 class Shader;
@@ -36,6 +37,8 @@ private:
     bool isDedicatedServer;
 
 public:
+    sol::state luaState;
+
     std::map<chunk_position, Chunk*> chunks;
 
     ~World();

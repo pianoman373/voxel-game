@@ -1,12 +1,7 @@
 #include "Camera.hpp"
-#include "Input.hpp"
 #include "Client.hpp"
 #include "Settings.hpp"
 #include "Window.hpp"
-
-#include <iostream>
-
-#include <GLFW/glfw3.h>
 
 vec3 Camera::getPosition() {
     return this->position;

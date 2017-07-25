@@ -33,3 +33,5 @@
 
 # Imgui files
 imgui.ini
+cmake-build-*
+.idea

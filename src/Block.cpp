@@ -17,8 +17,10 @@ bool Block::isSolid() {
 }
 
 //LuaBlock
-LuaBlock::LuaBlock(sol::table table) {
-    this->table = table;
+LuaBlock::LuaBlock(int id) {
+    this->id = id;
+
+    sol::table table = Common::luaState["__blocks"][id];
     this->name = table["name"];
     this->color = vec3(table["color"][1], table["color"][2], table["color"][3]);
 
@@ -27,9 +29,12 @@ LuaBlock::LuaBlock(sol::table table) {
 }
 
 vec2i LuaBlock::getTextureCoord(EnumDirection dir) {
-    std::tuple<int, int> coord = table["getTextureCoord"](static_cast<int>(dir));
+    sol::table table = Common::luaState["__blocks"][id];
+    sol::safe_function f = table.get<sol::safe_function>("getTextureCoord");
+    std::tuple<int, int> coord = f(static_cast<int>(dir));
+
     return vec2i(std::get<0>(coord), std::get<1>(coord));
-    return vec2i();
+    //return vec2i();
 }
 
 bool LuaBlock::isSolid() {

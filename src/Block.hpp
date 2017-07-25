@@ -20,11 +20,11 @@ public:
 };
 
 class LuaBlock : public Block {
-    sol::table table;
+    int id;
     bool solid;
 
 public:
-    LuaBlock(sol::table table);
+    LuaBlock(int id);
 
     vec2i getTextureCoord(EnumDirection dir);
 

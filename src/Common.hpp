@@ -1,16 +1,17 @@
 #pragma once
+#include "sol.hpp"
+#include <mutex>
 
-class lua_State;
 class World;
-class Lua;
 
 /**
  * Controller of all tasks/variables that need to be created on both server and client-side.
  */
 class Common {
 public:
-    static Lua lua;
     static World world;
+    static sol::state luaState;
+    static sol::thread luaThread;
 
     static void init();
 };
