@@ -24,7 +24,6 @@ public:
     static Frustum frustum;
     static sf::UdpSocket socket;
     static sf::IpAddress connectedServer;
-    static Window window;
 
     static void run(std::string username, std::string ip);
 

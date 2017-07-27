@@ -3,8 +3,8 @@
 #include <map>
 #include <vector>
 #include <string>
+#include <Math.hpp>
 
-#include "Math.hpp"
 #include "sol.hpp"
 
 class Texture;

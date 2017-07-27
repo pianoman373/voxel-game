@@ -1,12 +1,13 @@
 #include "Player.hpp"
-#include "Input.hpp"
 #include "Chunk.hpp"
-#include "AABB.hpp"
-#include "Renderer.hpp"
 #include "World.hpp"
 #include "Client.hpp"
-#include "Camera.hpp"
 #include "NetworkManagerClient.hpp"
+
+#include <AABB.hpp>
+#include <Renderer.hpp>
+#include <Camera.hpp>
+#include <Input.hpp>
 
 #include <SFML/Network.hpp>
 #include <imgui.h>

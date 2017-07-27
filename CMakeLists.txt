@@ -13,18 +13,20 @@ link_directories(lib/luajit/lib
 
 include_directories(lib/glfw/include/
                     lib/stb/
-                    lib/glew/include
                     lib/imgui/
-                    lib/glm/glm/
                     lib/sfml/include
                     lib/luajit/include/
+					lib/glad/include/
+                    engine/
                     )
 
 file(GLOB PROJECT_SOURCES src/*.cpp
                           src/*.c
+                          engine/*.cpp
+                          engine/*.c
                           lib/imgui/*.cpp
                           lib/imgui/*.c
-						  lib/glew/src/glew.c
+						  lib/glad/src/glad.c
                           )
 file(GLOB PROJECT_HEADERS src/*.h
                           src/*.hpp

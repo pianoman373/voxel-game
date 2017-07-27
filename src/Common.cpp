@@ -1,6 +1,7 @@
 #include "Common.hpp"
 #include "Block.hpp"
 #include "World.hpp"
+#include "SimplexNoise.hpp"
 
 World Common::world;
 sol::state Common::luaState;
@@ -20,6 +21,8 @@ struct test {
 };
 
 void Common::init() {
+    std::cout << normalize(vec3(1.4, 1.3, 1.0)) << std::endl;
+
     if (alreadyInitted)
         return;
 

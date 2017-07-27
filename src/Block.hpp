@@ -1,7 +1,6 @@
 #pragma once
 
-#include "Math.hpp"
-
+#include <Math.hpp>
 #include <map>
 #include <string>
 

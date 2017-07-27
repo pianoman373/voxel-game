@@ -1,22 +1,21 @@
 #include "Client.hpp"
 #include "Settings.hpp"
-#include "Shader.hpp"
 #include "Util.hpp"
-#include "Texture.hpp"
 #include "Player.hpp"
 #include "Common.hpp"
-#include "Renderer.hpp"
 #include "NetworkManagerClient.hpp"
 #include "Console.hpp"
 #include "Block.hpp"
-#include "Window.hpp"
-#include "Frustum.hpp"
 #include "World.hpp"
-#include "Camera.hpp"
 #include "Chunk.hpp"
 
-#define GLEW_STATIC
-#include <GL/glew.h>
+#include <Shader.hpp>
+#include <Texture.hpp>
+#include <Renderer.hpp>
+#include <Window.hpp>
+#include <Frustum.hpp>
+#include <glad/glad.h>
+#include <Camera.hpp>
 #include <SFML/Network.hpp>
 
 static Shader blockShader;
@@ -31,8 +30,6 @@ Frustum Client::frustum;
 static bool p_open = false;
 
 static std::map<int, vec3> playerPositions;
-
-Window Client::window;
 
 void Client::renderGUI(float deltaTime) {
     ImGui::SetNextWindowPos(ImVec2(10,10));
@@ -125,7 +122,7 @@ void Client::init() {
     Settings::load(j);
 
     Common::init();
-    Renderer::init();
+    Renderer::init(Settings::shadows, Settings::shadow_resolution);
 
     blockShader.load("resources/blockShader.vsh", "resources/blockShader.fsh");
     blockShaderFar.load("resources/blockShader.vsh", "resources/blockShaderSimple.fsh");
@@ -141,7 +138,7 @@ void Client::init() {
 }
 
 void Client::run(std::string username, std::string ip) {
-    window.create({1400, 800}, "Voxel Game");
+    Window::create({1400, 800}, "Voxel Game");
 
     init();
 
@@ -161,23 +158,23 @@ void Client::run(std::string username, std::string ip) {
         }
     }
 
-    while(window.isOpen()) {
+    while(Window::isOpen()) {
         static float deltaTime;
-        static float lastFrameTime = window.getTime();
+        static float lastFrameTime = Window::getTime();
 
-        float currentFrameTime = window.getTime();
+        float currentFrameTime = Window::getTime();
         deltaTime = currentFrameTime - lastFrameTime;
         lastFrameTime = currentFrameTime;
 
-        window.begin();
-        window.pollEvents();
+        Window::begin();
+        Window::pollEvents();
 
         player->update(camera, deltaTime);
 
         //receive packets
         handlePackets();
 
-        vec2i size = Client::window.getWindowSize();
+        vec2i size = Window::getWindowSize();
         frustum.setupInternals(Settings::fov, (float)size.x / (float)size.y, 1.1f, 1000.0f);
         frustum.updateCamPosition(camera);
 
@@ -195,7 +192,7 @@ void Client::run(std::string username, std::string ip) {
 
         //render scene and update window
         Renderer::flush(camera);
-        window.update();
+        Window::update();
     }
 
     shutdown();
@@ -215,6 +212,6 @@ void Client::scrollBlocks(int direction) {
 
 void Client::shutdown() {
     NetworkManagerClient::disconnect();
-    window.terminate();
+    Window::terminate();
     exit(0);
 }

@@ -1,17 +1,18 @@
 #include "World.hpp"
-#include "GL/glew.h"
-#include "Renderer.hpp"
-#include "AABB.hpp"
-#include "Input.hpp"
+#include "glad/glad.h"
 #include "GLFW/glfw3.h"
 #include "Settings.hpp"
 #include "Util.hpp"
 #include "Client.hpp"
-#include "Frustum.hpp"
-#include "Camera.hpp"
 #include "Chunk.hpp"
 #include "sol.hpp"
 #include "Common.hpp"
+
+#include <Renderer.hpp>
+#include <Input.hpp>
+#include <Camera.hpp>
+#include <AABB.hpp>
+#include <Frustum.hpp>
 
 #include <iostream>
 #include <mutex>

@@ -1,5 +1,6 @@
-#include "Math.hpp"
 #include "Util.hpp"
+
+#include <Math.hpp>
 
 #ifdef WIN32
 #define LUA_API __declspec(dllexport)

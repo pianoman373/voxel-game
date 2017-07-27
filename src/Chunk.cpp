@@ -1,10 +1,11 @@
 #include "Chunk.hpp"
-#include "Mesh.hpp"
-#include "MeshFactory.hpp"
 #include "World.hpp"
-#include "Renderer.hpp"
 #include "Block.hpp"
-#include "Math.hpp"
+
+#include <MeshFactory.hpp>
+#include <Renderer.hpp>
+#include <Mesh.hpp>
+#include <Math.hpp>
 
 #include <math.h>
 
