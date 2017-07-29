@@ -33,6 +33,16 @@ void Frustum::setupInternals(float fov, float aspect, float near, float far) {
     this->fw = fh * aspect;
 }
 
+void Frustum::setupInternalsOrthographic(float left, float right, float bottom, float top, float near, float far) {
+    this->near = near;
+    this->far = far;
+
+    this->nh = bottom - top;
+    this->nw = right - left;
+    this->fh = bottom - top;
+    this->fw = right - left;
+}
+
 void Frustum::updateCamPosition(Camera &cam) {
     pos = cam.getPosition();
     dir = cam.getDirection();
@@ -85,6 +95,7 @@ void Frustum::renderDebug() {
 
 bool Frustum::isBoxInside(AABB box) {
     vec3 sides[5] = {dir, normalRight, normalLeft, normalTop, normalBottom};
+    vec3 offsets[5] = {pos + (dir * near), pos - (right * nw), pos + (right * nw), pos - (up * nh), pos + (up * nh)};
 
     //bool inside = false;
 
@@ -96,7 +107,7 @@ bool Frustum::isBoxInside(AABB box) {
 
             vec3 point = box.getCorner(j);
 
-            if (planeCollision(pos, sides[i], point)) {
+            if (planeCollision(offsets[i], sides[i], point)) {
                 insideSide = true;
             }
         }
@@ -111,9 +122,10 @@ bool Frustum::isBoxInside(AABB box) {
 
 bool Frustum::isPointInside(vec3 point) {
     vec3 sides[5] = {dir, normalRight, normalLeft, normalTop, normalBottom};
+    vec3 offsets[5] = {nbl, nbr, ntl, ntr, nbl};
 
     for (int i = 0; i < 5; i++) {
-        if (!planeCollision(pos, sides[i], point)) {
+        if (!planeCollision(offsets[i], sides[i], point)) {
             return false;
         }
     }

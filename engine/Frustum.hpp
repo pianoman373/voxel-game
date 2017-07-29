@@ -19,6 +19,8 @@ public:
 
     void setupInternals(float fov, float aspect, float near, float far);
 
+    void setupInternalsOrthographic(float left, float right, float bottom, float top, float near, float far);
+
     void updateCamPosition(Camera &cam);
 
     void renderDebug();

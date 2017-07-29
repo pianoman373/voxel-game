@@ -7,6 +7,8 @@ public:
     vec3 min;
     vec3 max;
 
+    AABB();
+
     /**
      * Creates a bounding cube from 2 vectors. The first is the minimum point of a cube
      * and the second is the maximum point. It actually doesn't matter to make sure min

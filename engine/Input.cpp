@@ -1,5 +1,4 @@
 #include "Input.hpp"
-#include "../src/Client.hpp"
 #include <imgui.h>
 #include "imgui_impl_glfw_gl3.h"
 
@@ -67,7 +66,8 @@ namespace Input {
     }
 
     void scroll_callback(GLFWwindow *window, double xoffset, double yoffset) {
-        Client::scrollBlocks((int)yoffset);
+        //Client::scrollBlocks((int)yoffset);
+        scroll = yoffset;
 
         if (cursor)
             ImGui_ImplGlfwGL3_ScrollCallback(window, xoffset, yoffset);
@@ -104,4 +104,8 @@ namespace Input {
     bool isMouseGrabbed() {
         return !cursor;
     }
+}
+
+void Input::update() {
+    scroll = 0;
 }

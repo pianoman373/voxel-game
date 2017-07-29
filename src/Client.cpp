@@ -17,6 +17,7 @@
 #include <glad/glad.h>
 #include <Camera.hpp>
 #include <SFML/Network.hpp>
+#include <Input.hpp>
 
 static Shader blockShader;
 static Shader blockShaderFar;
@@ -168,6 +169,7 @@ void Client::run(std::string username, std::string ip) {
 
         Window::begin();
         Window::pollEvents();
+        scrollBlocks(Input::getScroll());
 
         player->update(camera, deltaTime);
 
@@ -175,12 +177,18 @@ void Client::run(std::string username, std::string ip) {
         handlePackets();
 
         vec2i size = Window::getWindowSize();
-        frustum.setupInternals(Settings::fov, (float)size.x / (float)size.y, 1.1f, 1000.0f);
-        frustum.updateCamPosition(camera);
+
+        if (Input::isKeyDown(GLFW_KEY_F) || true) {
+            frustum.setupInternals(Settings::fov, (float) size.x / (float) size.y, 0.1f, 1000.0f);
+            float radius = 20.0f;
+            //frustum.setupInternalsOrthographic(-radius, radius, -radius, radius, -radius * 8, radius * 8);
+            frustum.updateCamPosition(camera);
+        }
 
         //<---===rendering===--->//
         Common::world.rebuild();
         Common::world.render(camera, blockShader, blockShaderFar, texture);
+        //frustum.renderDebug();
 
         for (auto const &ref: playerPositions) {
             vec3 v = ref.second;

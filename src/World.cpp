@@ -169,6 +169,9 @@ void World::rebuild() {
     }
 }
 
+Material nearMat;
+Material farMat;
+
 void World::render(Camera &cam, Shader nearshader, Shader farshader, Texture tex) {
     for (auto const &ref: chunks) {
         Chunk *c = ref.second;
@@ -183,26 +186,21 @@ void World::render(Camera &cam, Shader nearshader, Shader farshader, Texture tex
             //we use square distance because computing square roots would be an extra step and hurt performance
             float squareDistanceToChunk = lengthSquared(cam.getPosition() - chunkCenterPos);
 
-            if (Client::frustum.isBoxInside(AABB(chunkPos , chunkPos + vec3(CHUNK_SIZE)))) {
+            if (Client::frustum.isBoxInside(AABB(chunkPos , chunkPos + vec3(CHUNK_SIZE))) || AABB(chunkPos , chunkPos + vec3(CHUNK_SIZE)).isVecInside(cam.getPosition())) {
                 //it is much faster to square our render distance rather than square rooting our chunk distance
                 if (squareDistanceToChunk < (128.0f) * (128.0f) && squareDistanceToChunk < (Settings::render_distance * Settings::render_distance)) {
-                    Material mat;
-                    mat.setShader(nearshader);
-                    mat.setUniformTexture("tex4", tex, 4);
+                    nearMat.setShader(nearshader);
+                    nearMat.setUniformTexture("tex4", tex, 4);
 
-                    Renderer::render(&c->mesh, mat, Transform(chunkPos, vec3(), vec3()));
+                    Renderer::render(&c->mesh, &nearMat, Transform(chunkPos, vec3(), vec3()), AABB(chunkPos , chunkPos + vec3(CHUNK_SIZE)));
                 }
                 else if (squareDistanceToChunk < (Settings::render_distance * Settings::render_distance)) {
-                    Material mat;
-                    mat.setShader(farshader);
-                    mat.setUniformTexture("tex4", tex, 4);
+                    farMat.setShader(farshader);
+                    farMat.setUniformTexture("tex4", tex, 4);
 
-                    Renderer::render(&c->mesh, mat, Transform(chunkPos, vec3(), vec3()));
+                    Renderer::render(&c->mesh, &farMat, Transform(chunkPos, vec3(), vec3()), AABB(chunkPos , chunkPos + vec3(CHUNK_SIZE)));
                 }
             }
-
-//            if (Client::frustum.isPointInside(chunkPos))
-//                Renderer::renderDebugAABB(chunkPos, chunkPos + (float)CHUNK_SIZE, vec3(0.0f, 0.0f, 1.0f));
         }
     }
 }

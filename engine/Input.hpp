@@ -32,4 +32,6 @@ namespace Input {
     float getTime();
 
     bool isMouseGrabbed();
+
+	void update();
 }

@@ -57,6 +57,7 @@ void Window::begin() {
 }
 
 void Window::pollEvents() {
+    Input::update();
     glfwPollEvents();
 }
 

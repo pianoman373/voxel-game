@@ -2,6 +2,7 @@
 
 #include "Math.hpp"
 #include "Material.hpp"
+#include "AABB.hpp"
 
 class Mesh;
 class AABB;
@@ -11,8 +12,9 @@ class Material;
 
 struct RenderCall {
     Mesh *mesh;
-    Material material;
+    Material *material;
     Transform transform;
+    AABB aabb;
 };
 
 class Renderer {
@@ -26,7 +28,7 @@ public:
     /**
      * General purpose abstraction of all render calls to an internal renderer.
      */
-    static void render(Mesh *mesh, Material material, Transform transform);
+    static void render(Mesh *mesh, Material *material, Transform transform, AABB aabb);
 
     /**
      * Render a line of the specified color from point v1 to v2

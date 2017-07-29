@@ -5,6 +5,7 @@
 #include "Window.hpp"
 #include "Camera.hpp"
 #include "AABB.hpp"
+#include "Frustum.hpp"
 
 #include <imgui.h>
 #include <stack>
@@ -33,7 +34,22 @@ Mesh mesh;
 static bool shadows;
 static int shadow_resolution;
 
-static void renderShadow(Framebuffer &fbuffer, mat4 lightSpaceMatrix) {
+static mat4 shadowMatrix(float radius, Camera &cam) {
+    return orthographic(-radius, radius, -radius, radius, -radius * 8.0f, radius * 8.0f) * LookAt(cam.getPosition() + sunDirection, cam.getPosition(), vec3( 0.0f, 1.0f,  0.0f));
+}
+
+static Frustum shadowFrustum(float radius, Camera &cam) {
+    Frustum shadowFrustum;
+    shadowFrustum.setupInternalsOrthographic(-radius, radius, -radius, radius, -radius * 8, radius * 8);
+    Camera shadowCam;
+    shadowCam.setPosition(cam.getPosition());
+    shadowCam.setDirection(sunDirection);
+    shadowFrustum.updateCamPosition(shadowCam);
+
+    return shadowFrustum;
+}
+
+static void renderShadow(Framebuffer &fbuffer, mat4 lightSpaceMatrix, Frustum f) {
     glViewport(0, 0, fbuffer.getWidth(), fbuffer.getHeight());
     fbuffer.bind();
     glClear(GL_DEPTH_BUFFER_BIT);
@@ -44,19 +60,18 @@ static void renderShadow(Framebuffer &fbuffer, mat4 lightSpaceMatrix) {
         RenderCall c = renderQueueCopy.top();
         renderQueueCopy.pop();
 
-        ShadowShader.bind();
-        ShadowShader.uniformMat4("lightSpaceMatrix", lightSpaceMatrix);
+        if (f.isBoxInside(c.aabb)) {
 
-        mat4 model;
-        model = translate(model, c.transform.position);
-        ShadowShader.uniformMat4("model", model);
+            ShadowShader.bind();
+            ShadowShader.uniformMat4("lightSpaceMatrix", lightSpaceMatrix);
 
-        c.mesh->render();
+            mat4 model;
+            model = translate(model, c.transform.position);
+            ShadowShader.uniformMat4("model", model);
+
+            c.mesh->render();
+        }
     }
-}
-
-static mat4 shadowMatrix(float radius, Camera &cam) {
-    return orthographic(-radius, radius, -radius, radius, -radius * 8, radius * 8) * LookAt(cam.getPosition() + sunDirection, cam.getPosition(), vec3( 0.0f, 1.0f,  0.0f));
 }
 
 void Renderer::init(bool doShadows, int shadowResolution) {
@@ -151,11 +166,12 @@ void Renderer::init(bool doShadows, int shadowResolution) {
     m.toMesh(crosshairMesh);
 }
 
-void Renderer::render(Mesh *mesh, Material material, Transform transform) {
+void Renderer::render(Mesh *mesh, Material *material, Transform transform, AABB aabb) {
     RenderCall call;
     call.mesh = mesh;
     call.material = material;
     call.transform = transform;
+    call.aabb = aabb;
 
     renderQueue.push(call);
 }
@@ -196,12 +212,22 @@ void Renderer::flush(Camera cam) {
     mat4 lightSpaceMatrix2 = shadowMatrix(cascadeDistances[2], cam);
     mat4 lightSpaceMatrix3 = shadowMatrix(cascadeDistances[3], cam);
 
+    Frustum shadowFrustum0 = shadowFrustum(cascadeDistances[0], cam);
+    Frustum shadowFrustum1 = shadowFrustum(cascadeDistances[1], cam);
+    Frustum shadowFrustum2 = shadowFrustum(cascadeDistances[2], cam);
+    Frustum shadowFrustum3 = shadowFrustum(cascadeDistances[3], cam);
+
+    //shadowFrustum0.renderDebug();
+    //shadowFrustum1.renderDebug();
+    //shadowFrustum2.renderDebug();
+    //shadowFrustum3.renderDebug();
+
     //shadow buffer
     if (shadows) {
-        renderShadow(shadowBuffer0, lightSpaceMatrix0);
-        renderShadow(shadowBuffer1, lightSpaceMatrix1);
-        renderShadow(shadowBuffer2, lightSpaceMatrix2);
-        renderShadow(shadowBuffer3, lightSpaceMatrix3);
+        renderShadow(shadowBuffer0, lightSpaceMatrix0, shadowFrustum0);
+        renderShadow(shadowBuffer1, lightSpaceMatrix1, shadowFrustum1);
+        renderShadow(shadowBuffer2, lightSpaceMatrix2, shadowFrustum2);
+        renderShadow(shadowBuffer3, lightSpaceMatrix3, shadowFrustum3);
     }
 
     //normal rendering
@@ -223,49 +249,54 @@ void Renderer::flush(Camera cam) {
     skyboxMesh.render();
     glDepthMask(true);
 
-
+    Material *lastMaterial = nullptr;
 
     for (unsigned int i = 0; i < renderQueue.size(); i++) {
             RenderCall call = renderQueue.top();
             renderQueue.pop();
 
-            Shader s = call.material.getShader();
-            s.bind();
-            call.material.bindUniforms();
+            Shader s = call.material->getShader();
 
-            if (shadows) {
-                shadowBuffer0.bindTexture(0);
-                shadowBuffer1.bindTexture(1);
-                shadowBuffer2.bindTexture(2);
-                shadowBuffer3.bindTexture(3);
+            if (call.material != lastMaterial) {
+                s.bind();
+                call.material->bindUniforms();
 
-                s.uniformInt("tex0", 0);
-                s.uniformInt("tex1", 1);
-                s.uniformInt("tex2", 2);
-                s.uniformInt("tex3", 3);
+                if (shadows) {
+                    shadowBuffer0.bindTexture(0);
+                    shadowBuffer1.bindTexture(1);
+                    shadowBuffer2.bindTexture(2);
+                    shadowBuffer3.bindTexture(3);
 
-                s.uniformMat4("lightSpaceMatrix[0]", lightSpaceMatrix0);
-                s.uniformMat4("lightSpaceMatrix[1]", lightSpaceMatrix1);
-                s.uniformMat4("lightSpaceMatrix[2]", lightSpaceMatrix2);
-                s.uniformMat4("lightSpaceMatrix[3]", lightSpaceMatrix3);
+                    s.uniformInt("tex0", 0);
+                    s.uniformInt("tex1", 1);
+                    s.uniformInt("tex2", 2);
+                    s.uniformInt("tex3", 3);
 
-                s.uniformFloat("cascadeDistances[0]", cascadeDistances[0]);
-                s.uniformFloat("cascadeDistances[1]", cascadeDistances[1]);
-                s.uniformFloat("cascadeDistances[2]", cascadeDistances[2]);
-                s.uniformFloat("cascadeDistances[3]", cascadeDistances[3]);
+                    s.uniformMat4("lightSpaceMatrix[0]", lightSpaceMatrix0);
+                    s.uniformMat4("lightSpaceMatrix[1]", lightSpaceMatrix1);
+                    s.uniformMat4("lightSpaceMatrix[2]", lightSpaceMatrix2);
+                    s.uniformMat4("lightSpaceMatrix[3]", lightSpaceMatrix3);
+
+                    s.uniformFloat("cascadeDistances[0]", cascadeDistances[0]);
+                    s.uniformFloat("cascadeDistances[1]", cascadeDistances[1]);
+                    s.uniformFloat("cascadeDistances[2]", cascadeDistances[2]);
+                    s.uniformFloat("cascadeDistances[3]", cascadeDistances[3]);
+                }
+
+                s.uniformMat4("view", cam.getView());
+                s.uniformMat4("projection", cam.getProjection());
+                s.uniformVec3("cameraPos", cam.getPosition());
+                s.uniformVec3("sunDirection", sunDirection);
+                s.uniformVec3("sunColor", sunColor);
             }
-
-            s.uniformMat4("view", cam.getView());
-            s.uniformMat4("projection", cam.getProjection());
-            s.uniformVec3("cameraPos", cam.getPosition());
-            s.uniformVec3("sunDirection", sunDirection);
-            s.uniformVec3("sunColor", sunColor);
 
             mat4 model;
             model = translate(model, call.transform.position);
             s.uniformMat4("model", model);
 
             call.mesh->render();
+
+            lastMaterial = call.material;
     }
 
     debugShader.bind();
@@ -283,8 +314,8 @@ void Renderer::flush(Camera cam) {
     ms.clear();
 
 
-//    ImGui::Image(ImTextureID(shadowBuffer0.getTextureID()), ImVec2(128, 128), ImVec2(0,1), ImVec2(1,0), ImColor(255,255,255,255), ImColor(255,255,255,128));
-//    ImGui::Image(ImTextureID(shadowBuffer1.getTextureID()), ImVec2(128, 128), ImVec2(0,1), ImVec2(1,0), ImColor(255,255,255,255), ImColor(255,255,255,128));
-//    ImGui::Image(ImTextureID(shadowBuffer2.getTextureID()), ImVec2(128, 128), ImVec2(0,1), ImVec2(1,0), ImColor(255,255,255,255), ImColor(255,255,255,128));
-//    ImGui::Image(ImTextureID(shadowBuffer3.getTextureID()), ImVec2(128, 128), ImVec2(0,1), ImVec2(1,0), ImColor(255,255,255,255), ImColor(255,255,255,128));
+    ImGui::Image(ImTextureID(shadowBuffer0.getTextureID()), ImVec2(128, 128), ImVec2(0,1), ImVec2(1,0), ImColor(255,255,255,255), ImColor(255,255,255,128));
+    ImGui::Image(ImTextureID(shadowBuffer1.getTextureID()), ImVec2(128, 128), ImVec2(0,1), ImVec2(1,0), ImColor(255,255,255,255), ImColor(255,255,255,128));
+    ImGui::Image(ImTextureID(shadowBuffer2.getTextureID()), ImVec2(128, 128), ImVec2(0,1), ImVec2(1,0), ImColor(255,255,255,255), ImColor(255,255,255,128));
+    ImGui::Image(ImTextureID(shadowBuffer3.getTextureID()), ImVec2(128, 128), ImVec2(0,1), ImVec2(1,0), ImColor(255,255,255,255), ImColor(255,255,255,128));
 }
