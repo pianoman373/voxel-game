@@ -15,7 +15,9 @@ public:
     // Constructor reads and builds the shader
     Shader();
 
-    void load(const std::string vertexPath, const std::string fragmentPath);
+    void loadFile(const std::string vertexPath, const std::string fragmentPath);
+
+    void load(const std::string vertex, const std::string fragment);
 
     // Use the program
     void bind();

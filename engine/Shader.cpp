@@ -8,7 +8,7 @@ Shader::Shader() {
 
 }
 
-void Shader::load(const std::string vertexPath, const std::string fragmentPath) {
+void Shader::loadFile(const std::string vertexPath, const std::string fragmentPath) {
     // 1. Retrieve the vertex/fragment source code from filePath
 
     std::cout << "loading shaders: " << vertexPath << " and " << fragmentPath << std::endl;
@@ -26,6 +26,55 @@ void Shader::load(const std::string vertexPath, const std::string fragmentPath) 
 
     const char* vShaderCode = vertexCode.c_str();
     const char* fShaderCode = fragmentCode.c_str();
+
+    //shaders
+    unsigned int vertexShader;
+    vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    glShaderSource(vertexShader, 1, &vShaderCode, NULL);
+    glCompileShader(vertexShader);
+
+    int success;
+    char infoLog[512];
+    glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
+
+    if(!success)
+    {
+        glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
+    }
+
+    unsigned int fragmentShader;
+    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+    glShaderSource(fragmentShader, 1, &fShaderCode, NULL);
+    glCompileShader(fragmentShader);
+
+    glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &success);
+
+    if(!success)
+    {
+        glGetShaderInfoLog(fragmentShader, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::FRAGMENT::COMPILATION_FAILED\n" << infoLog << std::endl;
+    }
+
+    this->id = glCreateProgram();
+
+    glAttachShader(this->id, vertexShader);
+    glAttachShader(this->id, fragmentShader);
+    glLinkProgram(this->id);
+
+    glGetProgramiv(this->id, GL_LINK_STATUS, &success);
+    if(!success) {
+        glGetProgramInfoLog(this->id, 512, NULL, infoLog);
+        std::cout << "ERROR::SHADER::PROGRAM::LINK_FAILED\n" << infoLog << std::endl;
+    }
+
+    glDeleteShader(vertexShader);
+    glDeleteShader(fragmentShader);
+}
+
+void Shader::load(const std::string vertex, const std::string fragment) {
+    const char* vShaderCode = vertex.c_str();
+    const char* fShaderCode = fragment.c_str();
 
     //shaders
     unsigned int vertexShader;

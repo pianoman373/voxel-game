@@ -1,14 +1,16 @@
 #include "Renderer.hpp"
 #include "Framebuffer.hpp"
 #include <glad/glad.h>
-#include "MeshFactory.hpp"
 #include "Window.hpp"
 #include "Camera.hpp"
 #include "AABB.hpp"
 #include "Frustum.hpp"
+#include "Mesh.hpp"
+#include "MeshFactory.hpp"
 
 #include <imgui.h>
 #include <stack>
+#include <string>
 
 const float cascadeDistances[4] = {10.0f, 40.0f, 100.0f, 500.0f};
 const vec3 sunDirection = normalize(vec3(0.4f, 0.7f, 1.0f));
@@ -23,13 +25,44 @@ Framebuffer shadowBuffer3;
 
 Shader ShadowShader;
 Shader debugShader;
-Shader skyboxShader;
 
 Mesh skyboxMesh;
 Mesh crosshairMesh;
-
 MeshFactory ms;
+
 Mesh mesh;
+
+static const std::string debug_vsh = R"(
+#version 330 core
+
+layout (location = 0) in vec3 position;
+layout (location = 1) in vec3 color;
+
+uniform mat4 view;
+uniform mat4 projection;
+
+out vec3 vertexColor;
+
+void main() {
+	gl_Position = projection * view * vec4(position, 1.0);
+	vertexColor = color;
+}
+)";
+
+static const std::string debug_fsh = R"(
+#version 330 core
+
+uniform mat4 view;
+uniform mat4 projection;
+
+in vec3 vertexColor;
+
+out vec4 FragColor;
+
+void main() {
+    FragColor = vec4(vertexColor, 1.0);
+}
+)";
 
 static bool shadows;
 static int shadow_resolution;
@@ -83,87 +116,10 @@ void Renderer::init(bool doShadows, int shadowResolution) {
         shadowBuffer1.setupShadow(shadow_resolution, shadow_resolution);
         shadowBuffer2.setupShadow(shadow_resolution, shadow_resolution);
         shadowBuffer3.setupShadow(shadow_resolution, shadow_resolution);
-        ShadowShader.load("resources/shadow.vsh", "resources/shadow.fsh");
+        ShadowShader.loadFile("resources/shadow.vsh", "resources/shadow.fsh");
     }
 
-    debugShader.load("resources/debug.vsh", "resources/debug.fsh");
-    skyboxShader.load("resources/skybox.vsh", "resources/skybox.fsh");
-
-
-    MeshFactory m;
-    m.vertex(1.0f,  1.0f,  1.0f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex(1.0f,  1.0f,  -1.0f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex(1.0f,  -1.0f,  -1.0f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-
-    m.vertex(1.0f,  -1.0f,  -1.0f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex(1.0f,  -1.0f,  1.0f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex(1.0f,  1.0f,  1.0f,  1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-
-
-    m.vertex( -1.0f,  -1.0f,  -1.0f,  -1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex( -1.0f,  1.0f,  -1.0f,  -1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex( -1.0f,  1.0f,  1.0f,  -1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-
-    m.vertex( -1.0f,  1.0f,  1.0f,  -1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex( -1.0f,  -1.0f,  1.0f,  -1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex( -1.0f,  -1.0f,  -1.0f,  -1.0f, 0.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-
-
-    m.vertex( -1.0f,  1.0f,  -1.0f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex( 1.0f,  1.0f,  -1.0f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex( 1.0f,  1.0f,  1.0f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-
-    m.vertex( 1.0f,  1.0f,  1.0f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex( -1.0f,  1.0f,  1.0f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex( -1.0f,  1.0f,  -1.0f,  0.0f, 1.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-
-
-    m.vertex( 1.0f,  -1.0f,  1.0f,  0.0f, -1.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex( 1.0f,  -1.0f,  -1.0f,  0.0f, -1.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex( -1.0f, -1.0f,  -1.0f,  0.0f, -1.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-
-    m.vertex( -1.0f,  -1.0f,  -1.0f,  0.0f, -1.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex( -1.0f,  -1.0f,  1.0f,  0.0f, -1.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex( 1.0f,  -1.0f,  1.0f,  0.0f, -1.0f, 0.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-
-
-    m.vertex( -1.0f,  -1.0f,  -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex( 1.0f,  -1.0f,  -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex( 1.0f,  1.0f,  -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-
-    m.vertex( 1.0f,  1.0f,  -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex( -1.0f,  1.0f,  -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex( -1.0f,  -1.0f,  -1.0f,  0.0f, 0.0f, -1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-
-
-    m.vertex( 1.0f,  1.0f,  1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex( 1.0f,  -1.0f,  1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex( -1.0f,  -1.0f,  1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-
-    m.vertex( -1.0f,  -1.0f,  1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex( -1.0f,  1.0f,  1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex( 1.0f,  1.0f,  1.0f,  0.0f, 0.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-
-    m.toMesh(skyboxMesh);
-    m.clear();
-
-    m.vertex( 10.0f,  1.0f,  0.0f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex( 10.0f,  -1.0f,  0.0f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex( -10.0f,  -1.0f,  0.0f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-
-    m.vertex( -10.0f,  -1.0f,  0.0f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex( -10.0f,  1.0f,  0.0f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex( 10.0f,  1.0f,  0.0f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-
-    m.vertex( 1.0f,  10.0f,  0.0f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex( 1.0f,  -10.0f,  0.0f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex( -1.0f,  -10.0f,  0.0f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-
-    m.vertex( -1.0f,  -10.0f,  0.0f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex( -1.0f,  10.0f,  0.0f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-    m.vertex( 1.0f,  10.0f,  0.0f,  1.0f, 1.0f, 1.0f,  0.0f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f);
-
-    m.toMesh(crosshairMesh);
+    debugShader.load(debug_vsh, debug_fsh);
 }
 
 void Renderer::render(Mesh *mesh, Material *material, Transform transform, AABB aabb) {
@@ -235,19 +191,19 @@ void Renderer::flush(Camera cam) {
     vec2i size = Window::getWindowSize();
     glViewport(0, 0, size.x, size.y);
 
-    glDepthMask(false);
-    skyboxShader.bind();
-
-    mat4 skyboxModel;
-    skyboxModel = translate(skyboxModel, cam.getPosition());
-    skyboxShader.uniformMat4("model", skyboxModel);
-    skyboxShader.uniformMat4("view", cam.getView());
-    skyboxShader.uniformMat4("projection", cam.getProjection());
-    skyboxShader.uniformVec3("sunDirection", sunDirection);
-    skyboxShader.uniformVec3("sunColor", sunColor);
-
-    skyboxMesh.render();
-    glDepthMask(true);
+//    glDepthMask(false);
+//    skyboxShader.bind();
+//
+//    mat4 skyboxModel;
+//    skyboxModel = translate(skyboxModel, cam.getPosition());
+//    skyboxShader.uniformMat4("model", skyboxModel);
+//    skyboxShader.uniformMat4("view", cam.getView());
+//    skyboxShader.uniformMat4("projection", cam.getProjection());
+//    skyboxShader.uniformVec3("sunDirection", sunDirection);
+//    skyboxShader.uniformVec3("sunColor", sunColor);
+//
+//    skyboxMesh.render();
+//    glDepthMask(true);
 
     Material *lastMaterial = nullptr;
 

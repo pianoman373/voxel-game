@@ -1,24 +1,37 @@
 #pragma once
 
-enum MeshMode {
-    BLOCKS,
-    SIMPLE_TEXTURED
-};
+#include <vector>
+#include <string>
+
+#include "Math.hpp"
+
 
 class Mesh {
 private:
     unsigned int VAO = 0;
     unsigned int VBO = 0;
-    int size;
+    unsigned int EBO = 0;
+
+    int length = 0;
 
 public:
-   ~Mesh();
+    std::vector<vec3> positions;
+    std::vector<vec2> uvs;
+    std::vector<vec3> normals;
+    std::vector<vec3> colors;
+    std::vector<unsigned int> indices;
 
     Mesh();
 
-    //                                                          GL_STATIC_DRAW |
-    //                                                                         V
-    void initialize(float *vertices, int size, MeshMode mode, int meshStream=0x88E4);
+    Mesh(std::vector<vec3> positions, std::vector<unsigned int> indices);
+
+    Mesh(std::vector<vec3> positions, std::vector<vec3> normals, std::vector<unsigned int> indices);
+
+    Mesh(std::vector<vec3> positions, std::vector<vec3> normals, std::vector<vec2> uvs, std::vector<unsigned int> indices);
+
+    Mesh(std::vector<vec3> positions, std::vector<vec3> normals, std::vector<vec2> uvs, std::vector<vec3> colors, std::vector<unsigned int> indices);
+
+    void generate();
 
     void render(int mode=0x0004);
 };

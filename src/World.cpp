@@ -119,10 +119,10 @@ void World::generate(bool empty) {
     for (int x = 0; x < WORLD_SIZE; x++) {
         for (int y = 0; y < WORLD_HEIGHT; y++) {
             for (int z = 0; z < WORLD_SIZE; z++) {
-                Chunk *c = new Chunk(x, y, z, this);
-                if (!empty)
-                    placeBlocks(c);
-                addChunk(x, y, z, c);
+//                Chunk *c = new Chunk(x, y, z, this);
+//                if (!empty)
+//                    placeBlocks(c);
+//                addChunk(x, y, z, c);
             }
         }
     }
@@ -131,6 +131,13 @@ void World::generate(bool empty) {
 void World::addChunk(int x, int y, int z, Chunk *c) {
     chunk_position pos = {x, y, z};
     chunks.insert(std::make_pair(pos, c));
+}
+
+void World::generateNewChunk(int x, int y, int z) {
+    Chunk *c = new Chunk(x, y, z, this);
+
+    placeBlocks(c);
+    addChunk(x, y, z, c);
 }
 
 void World::deleteChunk(int x, int y, int z) {
@@ -180,6 +187,8 @@ void World::render(Camera &cam, Shader nearshader, Shader farshader, Texture tex
 
 
             vec3 chunkPos = vec3(c->chunk_x * CHUNK_SIZE, (c->chunk_y * CHUNK_SIZE), c->chunk_z * CHUNK_SIZE);
+            Renderer::renderDebugAABB(AABB(chunkPos , chunkPos + vec3(CHUNK_SIZE)), vec3(1.0f, 0.0f, 0.0f));
+
 
             vec3 chunkCenterPos = chunkPos + vec3(CHUNK_SIZE / 2.0f);
 

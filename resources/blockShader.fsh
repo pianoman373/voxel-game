@@ -11,7 +11,7 @@ uniform vec3 sunDirection;
 uniform vec3 sunColor;
 
 in vec3 fragNormal;
-in vec4 fragColor;
+in vec3 fragColor;
 in vec2 uv;
 in vec4 fragLightSpace[4];
 in vec3 fragPosition;
@@ -94,7 +94,7 @@ void main() {
 	vec3 diffuse2 = max(dot(fragNormal, normalize(vec3(-1.1, -0.9, -1.0))), 0.0) * vec3(1.0, 1.0, 1.0);
 	diffuse2 += max(dot(fragNormal, normalize(vec3(1.1, 0.9, 1.0))), 0.0) * vec3(1.0, 1.0, 1.0);
 
-    vec3 finalColor = blockTex.rgb * fragColor.a * (diffuse + diffuse2 + specular);
+    vec3 finalColor = blockTex.rgb * (diffuse + diffuse2 + specular);
     finalColor = applyFog(finalColor, distance, normalize(cameraPos - fragPosition), -sunDirection);
 
 	if (blockTex.a > 0) {

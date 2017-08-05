@@ -1,5 +1,8 @@
 #include <iostream>
 #include <thread>
+#include <Window.hpp>
+#include <Renderer.hpp>
+#include <Camera.hpp>
 
 #include "Server.hpp"
 #include "Client.hpp"

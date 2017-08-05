@@ -17,12 +17,7 @@ public:
 
     static void begin();
 
-    /**
-     * Updates input events.
-     */
-    static void pollEvents();
-
-    static void update();
+    static void end();
 
     static void terminate();
 

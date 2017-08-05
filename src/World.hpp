@@ -49,6 +49,8 @@ public:
 
     void addChunk(int x, int y, int z, Chunk *c);
 
+    void generateNewChunk(int x, int y, int z);
+
     void deleteChunk(int x, int y, int z);
 
     void rebuild();

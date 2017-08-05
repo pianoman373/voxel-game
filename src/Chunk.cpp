@@ -143,13 +143,13 @@ void Chunk::generateMesh() {
                          if (!block_posX_Y_posZ) ao111 -= AO;
                          if (!block_posX_posY_Z) ao111 -= AO;
 
-                        ms.vertex(1.0f+x,  0.0f+y,  0.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao100,  uv1.x, uv2.y);
-                        ms.vertex(1.0f+x,  1.0f+y,  0.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao110,  uv1.x, uv1.y);
-                        ms.vertex(1.0f+x,  1.0f+y,  1.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao111,  uv2.x, uv1.y);
+                        ms.vertex(1.0f+x,  0.0f+y,  0.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao100,*/  uv1.x, uv2.y);
+                        ms.vertex(1.0f+x,  1.0f+y,  0.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao110,*/  uv1.x, uv1.y);
+                        ms.vertex(1.0f+x,  1.0f+y,  1.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao111,*/  uv2.x, uv1.y);
 
-                        ms.vertex(1.0f+x,  1.0f+y,  1.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao111,  uv2.x, uv1.y);
-                        ms.vertex(1.0f+x,  0.0f+y,  1.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao101,  uv2.x, uv2.y);
-                        ms.vertex(1.0f+x,  0.0f+y,  0.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao100,  uv1.x, uv2.y);
+                        ms.vertex(1.0f+x,  1.0f+y,  1.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao111,*/  uv2.x, uv1.y);
+                        ms.vertex(1.0f+x,  0.0f+y,  1.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao101,*/  uv2.x, uv2.y);
+                        ms.vertex(1.0f+x,  0.0f+y,  0.0f+z,  1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao100,*/  uv1.x, uv2.y);
                     }
                     if (block_negX_Y_Z) { //-x face
                         vec2i textureCoord = block->getTextureCoord(EnumDirection::NEGATIVE_X);
@@ -178,13 +178,13 @@ void Chunk::generateMesh() {
                          if (!block_negX_Y_posZ) ao011 -= AO;
                          if (!block_negX_posY_Z) ao011 -= AO;
 
-                        ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao011,  uv1.x, uv1.y);
-                        ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao010,  uv2.x, uv1.y);
-                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao000,  uv2.x, uv2.y);
+                        ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao011,*/  uv1.x, uv1.y);
+                        ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao010,*/  uv2.x, uv1.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao000,*/  uv2.x, uv2.y);
 
-                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao000,  uv2.x, uv2.y);
-                        ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao001,  uv1.x, uv2.y);
-                        ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao011,  uv1.x, uv1.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao000,*/  uv2.x, uv2.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao001,*/  uv1.x, uv2.y);
+                        ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  -1.0f, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao011,*/  uv1.x, uv1.y);
                     }
 
                     if (block_X_posY_Z) { //top face
@@ -214,13 +214,13 @@ void Chunk::generateMesh() {
                          if (!block_X_posY_posZ) ao111 -= AO;
                          if (!block_posX_posY_Z) ao111 -= AO;
 
-                        ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao111,  uv2.x, uv1.y);
-                        ms.vertex( 1.0f+x,  1.0f+y,  0.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao110,  uv2.x, uv2.y);
-                        ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao010,  uv1.x, uv2.y);
+                        ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao111,*/  uv2.x, uv1.y);
+                        ms.vertex( 1.0f+x,  1.0f+y,  0.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao110,*/  uv2.x, uv2.y);
+                        ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao010,*/  uv1.x, uv2.y);
 
-                        ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao010,  uv1.x, uv2.y);
-                        ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao011,  uv1.x, uv1.y);
-                        ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao111,  uv2.x, uv1.y);
+                        ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao010,*/  uv1.x, uv2.y);
+                        ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao011,*/  uv1.x, uv1.y);
+                        ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao111,*/  uv2.x, uv1.y);
                     }
                     if (block_X_negY_Z) { //bottom face
                         vec2i textureCoord = block->getTextureCoord(EnumDirection::NEGATIVE_Y);
@@ -249,13 +249,13 @@ void Chunk::generateMesh() {
                          if (!block_X_negY_posZ) ao101 -= AO;
                          if (!block_posX_negY_Z) ao101 -= AO;
 
-                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao000,  uv1.x, uv2.y);
-                        ms.vertex( 1.0f+x,  0.0f+y,  0.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao100,  uv2.x, uv2.y);
-                        ms.vertex( 1.0f+x,  0.0f+y,  1.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao101,  uv2.x, uv1.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao000,*/  uv1.x, uv2.y);
+                        ms.vertex( 1.0f+x,  0.0f+y,  0.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao100,*/  uv2.x, uv2.y);
+                        ms.vertex( 1.0f+x,  0.0f+y,  1.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao101,*/  uv2.x, uv1.y);
 
-                        ms.vertex( 1.0f+x,  0.0f+y,  1.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao101,  uv2.x, uv1.y);
-                        ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao001,  uv1.x, uv1.y);
-                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, ao000,  uv1.x, uv2.y);
+                        ms.vertex( 1.0f+x,  0.0f+y,  1.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao101,*/  uv2.x, uv1.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao001,*/  uv1.x, uv1.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, -1.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao000,*/  uv1.x, uv2.y);
                     }
 
                     if (block_X_Y_negZ) { //-z face
@@ -285,13 +285,13 @@ void Chunk::generateMesh() {
                          if (!block_X_posY_negZ) ao110 -= AO;
                          if (!block_posX_Y_negZ) ao110 -= AO;
 
-                        ms.vertex( 1.0f+x,  1.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, ao110,  uv2.x, uv1.y);
-                        ms.vertex( 1.0f+x,  0.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, ao100,  uv2.x, uv2.y);
-                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, ao000,  uv1.x, uv2.y);
+                        ms.vertex( 1.0f+x,  1.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao110,*/  uv2.x, uv1.y);
+                        ms.vertex( 1.0f+x,  0.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao100,*/  uv2.x, uv2.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao000,*/  uv1.x, uv2.y);
 
-                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, ao000,  uv1.x, uv2.y);
-                        ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, ao010,  uv1.x, uv1.y);
-                        ms.vertex( 1.0f+x,  1.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, ao110,  uv2.x, uv1.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao000,*/  uv1.x, uv2.y);
+                        ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao010,*/  uv1.x, uv1.y);
+                        ms.vertex( 1.0f+x,  1.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao110,*/  uv2.x, uv1.y);
                     }
                     if (block_X_Y_posZ) { //+z face
                         vec2i textureCoord = block->getTextureCoord(EnumDirection::POSITIVE_Z);
@@ -320,13 +320,13 @@ void Chunk::generateMesh() {
                          if (!block_X_posY_posZ) ao111 -= AO;
                          if (!block_posX_Y_posZ) ao111 -= AO;
 
-                        ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, ao001,  uv1.x, uv2.y);
-                        ms.vertex( 1.0f+x,  0.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, ao101,  uv2.x, uv2.y);
-                        ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, ao111,  uv2.x, uv1.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao001,*/  uv1.x, uv2.y);
+                        ms.vertex( 1.0f+x,  0.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao101,*/  uv2.x, uv2.y);
+                        ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao111,*/  uv2.x, uv1.y);
 
-                        ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, ao111,  uv2.x, uv1.y);
-                        ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, ao011,  uv1.x, uv1.y);
-                        ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, ao001,  uv1.x, uv2.y);
+                        ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao111,*/  uv2.x, uv1.y);
+                        ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao011,*/  uv1.x, uv1.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao001,*/  uv1.x, uv2.y);
                     }
                 }
             }

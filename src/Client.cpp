@@ -125,8 +125,8 @@ void Client::init() {
     Common::init();
     Renderer::init(Settings::shadows, Settings::shadow_resolution);
 
-    blockShader.load("resources/blockShader.vsh", "resources/blockShader.fsh");
-    blockShaderFar.load("resources/blockShader.vsh", "resources/blockShaderSimple.fsh");
+    blockShader.loadFile("resources/blockShader.vsh", "resources/blockShader.fsh");
+    blockShaderFar.loadFile("resources/blockShader.vsh", "resources/blockShaderSimple.fsh");
     texture.load("resources/terrain.png");
 
     glEnable(GL_CULL_FACE);
@@ -168,7 +168,6 @@ void Client::run(std::string username, std::string ip) {
         lastFrameTime = currentFrameTime;
 
         Window::begin();
-        Window::pollEvents();
         scrollBlocks(Input::getScroll());
 
         player->update(camera, deltaTime);
@@ -200,7 +199,7 @@ void Client::run(std::string username, std::string ip) {
 
         //render scene and update window
         Renderer::flush(camera);
-        Window::update();
+        Window::end();
     }
 
     shutdown();

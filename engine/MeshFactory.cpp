@@ -3,38 +3,36 @@
 #include <glad/glad.h>
 
 MeshFactory::MeshFactory() {
-    vertices = std::vector<float>();
     count = 0;
 }
 
-void MeshFactory::vertex(float x, float y, float z, float nx, float ny, float nz, float r, float g, float b, float a, float u, float v) {
-    vertices.push_back(x);
-    vertices.push_back(y);
-    vertices.push_back(z);
+void MeshFactory::vertex(float x, float y, float z, float nx, float ny, float nz, float r, float g, float b, float u, float v) {
+    vertices.push_back({x, y, z});
 
-    vertices.push_back(nx);
-    vertices.push_back(ny);
-    vertices.push_back(nz);
+    normals.push_back({nx, ny, nz});
 
-    vertices.push_back(r);
-    vertices.push_back(g);
-    vertices.push_back(b);
-    vertices.push_back(a);
+    colors.push_back({r, g, b});
 
-    vertices.push_back(u);
-    vertices.push_back(v);
+    uvs.push_back({u, v});
     count++;
 }
 
 void MeshFactory::vertex(float x, float y, float z, float nx, float ny, float nz, float u, float v) {
-    vertex(x, y, z, nx, ny, nz, 0.0f, 0.0f, 0.0f, 0.0f, u, v);
+    vertex(x, y, z, nx, ny, nz, 0.0f, 0.0f, 0.0f, u, v);
 }
 
 void MeshFactory::toMesh(Mesh &mesh) {
-    mesh.initialize(vertices.data(), count, MeshMode::BLOCKS, GL_DYNAMIC_DRAW);
+    mesh.positions = vertices;
+    mesh.normals = normals;
+    mesh.colors = colors;
+    mesh.uvs = uvs;
+    mesh.generate();
 }
 
 void MeshFactory::clear() {
- vertices.clear();
- count = 0;
+    vertices.clear();
+    normals.clear();
+    colors.clear();
+    uvs.clear();
+    count = 0;
 }

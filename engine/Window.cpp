@@ -50,18 +50,16 @@ bool Window::isOpen() {
 }
 
 void Window::begin() {
-    glClearColor(0.5f ,0.6f , 0.7f, 1.0f);
+    glClearColor(0.0f ,0.0f , 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     ImGui_ImplGlfwGL3_NewFrame();
-}
 
-void Window::pollEvents() {
     Input::update();
     glfwPollEvents();
 }
 
-void Window::update() {
+void Window::end() {
     ImGui::Render();
 
     glfwSwapBuffers(window);
