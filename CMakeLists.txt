@@ -1,51 +1,35 @@
 cmake_minimum_required(VERSION 3.0)
 project(voxel-game)
 
-option(GLFW_BUILD_DOCS OFF)
-option(GLFW_BUILD_EXAMPLES OFF)
-option(GLFW_BUILD_TESTS OFF)
-add_subdirectory(lib/glfw)
-
 add_subdirectory(lib/sfml)
+add_subdirectory(lib/crucible)
 
-link_directories(lib/luajit/lib
-                 )
+link_directories(lib/luajit/lib)
 
-include_directories(lib/glfw/include/
-                    lib/stb/
-                    lib/imgui/
-                    lib/sfml/include
+include_directories(lib/crucible/lib/glfw/include/
+                    lib/crucible/lib/stb/
+                    lib/crucible/lib/imgui/
+					lib/crucible/lib/glad/include/
+                    lib/crucible/src/
+                    lib/sfml/include/
                     lib/luajit/include/
-					lib/glad/include/
-                    engine/
                     )
 
 file(GLOB PROJECT_SOURCES src/*.cpp
                           src/*.c
-                          engine/*.cpp
-                          engine/*.c
-                          lib/imgui/*.cpp
-                          lib/imgui/*.c
-						  lib/glad/src/glad.c
                           )
 file(GLOB PROJECT_HEADERS src/*.h
                           src/*.hpp
                           )
 
-add_definitions(-DGLFW_INCLUDE_NONE
-                -DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\"
-                -DSFML_STATIC
-				-DGLFW_STATIC)
-add_executable(${PROJECT_NAME} ${PROJECT_SOURCES}
-                               ${PROJECT_HEADERS} src/Test.cpp src/Test.hpp)
+add_definitions(-DSFML_STATIC)
 
-set_target_properties(${PROJECT_NAME} PROPERTIES
-	RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS})
 
 if(WIN32)
-    target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES} opengl32 sfml-network sfml-graphics sfml-window sfml-system luajit lua51)
+    target_link_libraries(${PROJECT_NAME} crucible sfml-network sfml-graphics sfml-window sfml-system luajit lua51)
 elseif(UNIX AND NOT APPLE)
-    target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES} GL sfml-network sfml-graphics sfml-window sfml-system luajit-5.1)
+    target_link_libraries(${PROJECT_NAME} crucible sfml-network sfml-graphics sfml-window sfml-system luajit-5.1)
 endif(WIN32)
 
 if(MSVC)

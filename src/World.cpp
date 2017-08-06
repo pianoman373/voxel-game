@@ -201,13 +201,13 @@ void World::render(Camera &cam, Shader nearshader, Shader farshader, Texture tex
                     nearMat.setShader(nearshader);
                     nearMat.setUniformTexture("tex4", tex, 4);
 
-                    Renderer::render(&c->mesh, &nearMat, Transform(chunkPos, vec3(), vec3()), AABB(chunkPos , chunkPos + vec3(CHUNK_SIZE)));
+                    Renderer::render(&c->mesh, &nearMat, Transform(chunkPos, vec3(), vec3(1.0f)), AABB(chunkPos , chunkPos + vec3(CHUNK_SIZE)));
                 }
                 else if (squareDistanceToChunk < (Settings::render_distance * Settings::render_distance)) {
                     farMat.setShader(farshader);
                     farMat.setUniformTexture("tex4", tex, 4);
 
-                    Renderer::render(&c->mesh, &farMat, Transform(chunkPos, vec3(), vec3()), AABB(chunkPos , chunkPos + vec3(CHUNK_SIZE)));
+                    Renderer::render(&c->mesh, &farMat, Transform(chunkPos, vec3(), vec3(1.0f)), AABB(chunkPos , chunkPos + vec3(CHUNK_SIZE)));
                 }
             }
         }
