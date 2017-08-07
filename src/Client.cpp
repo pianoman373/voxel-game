@@ -21,6 +21,7 @@
 
 static Shader blockShader;
 static Shader blockShaderFar;
+static Shader skyboxShader;
 static Texture texture;
 static Camera camera;
 static Player *player;
@@ -127,7 +128,10 @@ void Client::init() {
 
     blockShader.loadFile("resources/blockShader.vsh", "resources/blockShader.fsh");
     blockShaderFar.loadFile("resources/blockShader.vsh", "resources/blockShaderSimple.fsh");
+    skyboxShader.loadFile("resources/skybox.vsh", "resources/skybox.fsh");
     texture.load("resources/terrain.png");
+
+    Renderer::setSkyboxShader(skyboxShader);
 
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
