@@ -11,6 +11,7 @@ out vec3 fragColor;
 out vec2 uv;
 out vec4 fragLightSpace[4];
 out vec3 fragPosition;
+out float AO;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -20,7 +21,8 @@ uniform mat4 lightSpaceMatrix[4];
 uniform vec3 cameraPos;
 
 void main() {
-	fragNormal = (model * vec4(normal, 0.0)).xyz;
+	fragNormal = (model * vec4(normalize(normal), 0.0)).xyz;
+	AO = length(normal);
 	uv = texCoord;
 	fragColor = color;
 
