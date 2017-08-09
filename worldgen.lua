@@ -10,6 +10,21 @@ fillerBlock = 2 --stone
 function generateChunk(chunk_x, chunk_y, chunk_z)
 	--print("generating chunk", chunk_x, chunk_y, chunk_z)
 	local chunk = array3D(32)
+
+--	for x = 1, 32 do
+--		for z = 1, 32 do
+--			for y = 1, 32 do
+--				local actualHeight = y + (chunk_y * 32)
+--				if actualHeight < 32 then
+--					chunk[x][y][z] = fillerBlock
+--				end
+--			end
+--		end
+--	end
+--
+--	return chunk
+
+
 	local heights = array2D(34) --heightmap includes adjacent chunk blocks
 
 	for x = 1, 34 do

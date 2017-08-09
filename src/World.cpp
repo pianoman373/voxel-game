@@ -187,7 +187,7 @@ void World::render(Camera &cam, Shader nearshader, Shader farshader, Texture tex
 
 
             vec3 chunkPos = vec3(c->chunk_x * CHUNK_SIZE, (c->chunk_y * CHUNK_SIZE), c->chunk_z * CHUNK_SIZE);
-            Renderer::renderDebugAABB(AABB(chunkPos , chunkPos + vec3(CHUNK_SIZE)), vec3(1.0f, 0.0f, 0.0f));
+            //Renderer::renderDebugAABB(AABB(chunkPos , chunkPos + vec3(CHUNK_SIZE)), vec3(1.0f, 0.0f, 0.0f));
 
 
             vec3 chunkCenterPos = chunkPos + vec3(CHUNK_SIZE / 2.0f);

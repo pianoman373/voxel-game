@@ -1,9 +1,6 @@
 #version 330 core
 
-uniform sampler2DShadow tex0;
-uniform sampler2DShadow tex1;
-uniform sampler2DShadow tex2;
-uniform sampler2DShadow tex3;
+uniform sampler2DShadow shadowTextures[4];
 uniform float cascadeDistances[4];
 uniform vec3 cameraPos;
 uniform vec3 sunDirection;
@@ -45,9 +42,9 @@ float ShadowCalculation(vec4 fragPosLightSpace, sampler2DShadow shadowMap)
 
 void main() {
 	float distance = length(cameraPos - fragPosition);
-	float shadow1 = mix(1.0, ShadowCalculation(fragLightSpace[1], tex1), distance < cascadeDistances[1]);
-	float shadow2 = mix(1.0, ShadowCalculation(fragLightSpace[2], tex2), distance > cascadeDistances[1] && distance < cascadeDistances[2]);
-	float shadow3 = mix(1.0, ShadowCalculation(fragLightSpace[3], tex3), distance > cascadeDistances[2] && distance < cascadeDistances[3]);
+	float shadow1 = mix(1.0, ShadowCalculation(fragLightSpace[1], shadowTextures[1]), distance < cascadeDistances[1]);
+	float shadow2 = mix(1.0, ShadowCalculation(fragLightSpace[2], shadowTextures[2]), distance > cascadeDistances[1] && distance < cascadeDistances[2]);
+	float shadow3 = mix(1.0, ShadowCalculation(fragLightSpace[3], shadowTextures[3]), distance > cascadeDistances[2] && distance < cascadeDistances[3]);
 	float shadow = shadow1 * shadow2 * shadow3;
 
 	vec3 diffuse = max(dot(fragNormal, sunDirection), 0.0) * sunColor * shadow;
