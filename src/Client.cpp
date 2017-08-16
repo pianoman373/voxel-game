@@ -29,6 +29,9 @@ static Console console;
 
 Frustum Client::frustum;
 
+static Material nearMaterial;
+static Material farMaterial;
+
 static bool p_open = false;
 
 static std::map<int, vec3> playerPositions;
@@ -131,6 +134,11 @@ void Client::init() {
     skyboxShader.loadFile("resources/skybox.vsh", "resources/skybox.fsh");
     texture.load("resources/terrain.png");
 
+    nearMaterial.setShader(blockShader);
+    nearMaterial.setUniformTexture("tex4", texture, 4);
+
+    farMaterial.setShader(blockShaderFar);
+
     Renderer::setSkyboxShader(skyboxShader);
 
     glEnable(GL_CULL_FACE);
@@ -192,7 +200,7 @@ void Client::run(std::string username, std::string ip) {
 
         //<---===rendering===--->//
         Common::world.rebuild();
-        Common::world.render(camera, blockShader, blockShaderFar, texture);
+        Common::world.render(camera, &nearMaterial, &farMaterial);
         //frustum.renderDebug();
 
         for (auto const &ref: playerPositions) {

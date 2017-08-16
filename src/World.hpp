@@ -12,6 +12,7 @@ class Shader;
 class Camera;
 class AABB;
 class Chunk;
+class Material;
 
 
 #define WORLD_SIZE 16
@@ -55,7 +56,7 @@ public:
 
     void rebuild();
 
-    void render(Camera &cam, Shader nearshader, Shader farShader, Texture tex);
+    void render(Camera &cam, Material *nearmaterial, Material *farmaterial);
 
     int getBlock(int x, int y, int z);
 

@@ -22,7 +22,6 @@ static float heightAt(vec3 pos) {
 }
 
 static void placeBlocks(Chunk *chunk) {
-    //std::cout << "generating chunk" << std::endl;
     sol::table t = Common::world.luaState["generateChunk"](chunk->chunk_x, chunk->chunk_y, chunk->chunk_z);
 
 
@@ -38,56 +37,6 @@ static void placeBlocks(Chunk *chunk) {
             }
         }
     }
-
-
-
-    //double time1 = glfwGetTime();
-//    for (int x = 0; x < CHUNK_SIZE; x++) {
-//        //for (int y = 0; y < CHUNK_SIZE; y++) {
-//            for (int z = 0; z < CHUNK_SIZE; z++) {
-//                float height = heightAt(vec3(x + (chunk->chunk_x * CHUNK_SIZE), 0.0f, z + (chunk->chunk_z * CHUNK_SIZE)));
-//
-//                //create vectors which begin at this block and extend to the next block over
-//                vec3 lineNegX =  normalize(vec3(x - 1, heightAt(vec3(x + (chunk->chunk_x * CHUNK_SIZE) - 1, 0.0f, z + (chunk->chunk_z * CHUNK_SIZE))), z) - vec3(x, height, z));
-//                vec3 linePosX =  normalize(vec3(x + 1, heightAt(vec3(x + (chunk->chunk_x * CHUNK_SIZE) + 1, 0.0f, z + (chunk->chunk_z * CHUNK_SIZE))), z) - vec3(x, height, z));
-//
-//                vec3 lineNegY =  normalize(vec3(x, heightAt(vec3(x + (chunk->chunk_x * CHUNK_SIZE), 0.0f, z + (chunk->chunk_z * CHUNK_SIZE) - 1)), z - 1) - vec3(x, height, z));
-//                vec3 linePosY =  normalize(vec3(x, heightAt(vec3(x + (chunk->chunk_x * CHUNK_SIZE), 0.0f, z + (chunk->chunk_z * CHUNK_SIZE) + 1)), z + 1) - vec3(x, height, z));
-//
-//                //cross those vectors to get upwards pointing lines
-//                vec3 norm1 = cross(lineNegY, lineNegX);
-//                vec3 norm2 = cross(linePosX, lineNegY);
-//
-//                vec3 norm3 = cross(linePosY, linePosX);
-//                vec3 norm4 = cross(lineNegX, linePosY);
-//
-//
-//                //average them together to get what is effectively a surface normal if this terrain were to be smoothed out
-//                vec3 finalNorm = (norm1 + norm2 + norm3 + norm4) / 4.0f;
-//
-//
-//                //std::cout << lineNegX << std::endl;
-//
-//                height -= (chunk->chunk_y * 32);
-//                for (int i = 0; i < height; i++) {
-//                    if (dot(finalNorm, vec3(0.0f, 1.0f, 0.0f)) < 0.7f) {
-//                        chunk->setBlock(x, i, z, 2);
-//                    }
-//                    else {
-//                        chunk->setBlock(x, i, z, 3);
-//                    }
-//                }
-//                if (dot(finalNorm, vec3(0.0f, 1.0f, 0.0f)) < 0.7f) {
-//                    chunk->setBlock(x, floor(height), z, 2);
-//                }
-//                else {
-//                    chunk->setBlock(x, floor(height), z, 1);
-//                }
-//            }
-//        //}
-//    }
-    //std::cout << "generated chunk in: " << glfwGetTime() - time1 << std::endl;
-    //chunk->generateMesh();
 }
 
 World::~World() {
@@ -116,16 +65,7 @@ World::World() {
 }
 
 void World::generate(bool empty) {
-    for (int x = 0; x < WORLD_SIZE; x++) {
-        for (int y = 0; y < WORLD_HEIGHT; y++) {
-            for (int z = 0; z < WORLD_SIZE; z++) {
-//                Chunk *c = new Chunk(x, y, z, this);
-//                if (!empty)
-//                    placeBlocks(c);
-//                addChunk(x, y, z, c);
-            }
-        }
-    }
+
 }
 
 void World::addChunk(int x, int y, int z, Chunk *c) {
@@ -176,10 +116,7 @@ void World::rebuild() {
     }
 }
 
-Material nearMat;
-Material farMat;
-
-void World::render(Camera &cam, Shader nearshader, Shader farshader, Texture tex) {
+void World::render(Camera &cam, Material *nearmaterial, Material *farmaterial) {
     for (auto const &ref: chunks) {
         Chunk *c = ref.second;
 
@@ -198,16 +135,10 @@ void World::render(Camera &cam, Shader nearshader, Shader farshader, Texture tex
             if (Client::frustum.isBoxInside(AABB(chunkPos , chunkPos + vec3(CHUNK_SIZE))) || AABB(chunkPos , chunkPos + vec3(CHUNK_SIZE)).isVecInside(cam.getPosition())) {
                 //it is much faster to square our render distance rather than square rooting our chunk distance
                 if (squareDistanceToChunk < (128.0f) * (128.0f) && squareDistanceToChunk < (Settings::render_distance * Settings::render_distance)) {
-                    nearMat.setShader(nearshader);
-                    nearMat.setUniformTexture("tex4", tex, 4);
-
-                    Renderer::render(&c->mesh, &nearMat, Transform(chunkPos, vec3(), vec3(1.0f)), AABB(chunkPos , chunkPos + vec3(CHUNK_SIZE)));
+                    Renderer::render(&c->mesh, nearmaterial, Transform(chunkPos, vec3(), vec3(1.0f)), AABB(chunkPos , chunkPos + vec3(CHUNK_SIZE)));
                 }
                 else if (squareDistanceToChunk < (Settings::render_distance * Settings::render_distance)) {
-                    farMat.setShader(farshader);
-                    farMat.setUniformTexture("tex4", tex, 4);
-
-                    Renderer::render(&c->mesh, &farMat, Transform(chunkPos, vec3(), vec3(1.0f)), AABB(chunkPos , chunkPos + vec3(CHUNK_SIZE)));
+                    Renderer::render(&c->mesh, farmaterial, Transform(chunkPos, vec3(), vec3(1.0f)), AABB(chunkPos , chunkPos + vec3(CHUNK_SIZE)));
                 }
             }
         }
@@ -328,9 +259,6 @@ bool World::raycastBlocks(vec3 origin, vec3 direction, float maxDistance, vec3i 
 
     if (nearestBlockDistance != 10000000000000.0f) {
         vec3i chunkPos = vec3i(nearestBlockChunk->chunk_x * CHUNK_SIZE, (nearestBlockChunk->chunk_y * CHUNK_SIZE), nearestBlockChunk->chunk_z * CHUNK_SIZE);
-        //vec3 bias = vec3(0.001f);
-        //vec3 blockPos = vec3(nearestBlockPos.x, nearestBlockPos.y, nearestBlockPos.z);
-        //Renderer::renderDebugAABB(chunkPos + blockPos - bias, chunkPos + blockPos + 1.0f + bias, vec3());
 
         blockNormalReturn = nearestBlockNormal;
         blockPosReturn = nearestBlockPos + chunkPos;

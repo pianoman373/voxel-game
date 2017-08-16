@@ -57,7 +57,7 @@ void main() {
 	diffuse2 += max(dot(fragNormal, normalize(vec3(1.1, 0.9, 1.0))), 0.0) * vec3(1.0, 1.0, 1.0);
 
 	vec3 finalColor = AO * fragColor.rgb * (diffuse + diffuse2);
-	finalColor = applyFog(finalColor, distance, normalize(cameraPos - fragPosition), -sun.direction);
+	finalColor = applyFog(finalColor, distance, normalize(cameraPos - fragPosition), sun.direction);
 
 	color = vec4(finalColor, 1.0);
 }
