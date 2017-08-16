@@ -5,10 +5,10 @@
 #include "NetworkManagerClient.hpp"
 #include "Common.hpp"
 
-#include <AABB.hpp>
-#include <Renderer.hpp>
-#include <Camera.hpp>
-#include <Input.hpp>
+#include <crucible/AABB.hpp>
+#include <crucible/Renderer.hpp>
+#include <crucible/Camera.hpp>
+#include <crucible/Input.hpp>
 
 #include <SFML/Network.hpp>
 #include <imgui.h>

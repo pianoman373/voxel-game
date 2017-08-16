@@ -3,7 +3,7 @@
 #include <map>
 #include <vector>
 #include <string>
-#include <Math.hpp>
+#include <crucible/Math.hpp>
 
 #include "sol.hpp"
 

@@ -1,6 +1,6 @@
 #include "Util.hpp"
 
-#include <Math.hpp>
+#include <crucible/Math.hpp>
 
 #ifdef WIN32
 #define LUA_API __declspec(dllexport)

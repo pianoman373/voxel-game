@@ -5,7 +5,6 @@ layout (location = 1) in vec3 normal;
 layout (location = 2) in vec2 texCoord;
 layout (location = 3) in vec3 color;
 
-
 out vec3 fragNormal;
 out vec3 fragColor;
 out vec2 uv;

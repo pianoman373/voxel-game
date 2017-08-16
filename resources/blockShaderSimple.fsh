@@ -1,10 +1,14 @@
 #version 330 core
 
+struct DirectionalLight {
+  vec3 direction;
+  vec3 color;
+};
+
 uniform sampler2DShadow shadowTextures[4];
 uniform float cascadeDistances[4];
 uniform vec3 cameraPos;
-uniform vec3 sunDirection;
-uniform vec3 sunColor;
+uniform DirectionalLight sun;
 
 in vec3 fragNormal;
 in vec4 fragColor;
@@ -47,13 +51,13 @@ void main() {
 	float shadow3 = mix(1.0, ShadowCalculation(fragLightSpace[3], shadowTextures[3]), distance > cascadeDistances[2] && distance < cascadeDistances[3]);
 	float shadow = shadow1 * shadow2 * shadow3;
 
-	vec3 diffuse = max(dot(fragNormal, sunDirection), 0.0) * sunColor * shadow;
+	vec3 diffuse = max(dot(fragNormal, -sun.direction), 0.0) * sun.color * shadow;
 
 	vec3 diffuse2 = max(dot(fragNormal, normalize(vec3(-1.1, -0.9, -1.0))), 0.0) * vec3(1.0, 1.0, 1.0);
 	diffuse2 += max(dot(fragNormal, normalize(vec3(1.1, 0.9, 1.0))), 0.0) * vec3(1.0, 1.0, 1.0);
 
 	vec3 finalColor = AO * fragColor.rgb * (diffuse + diffuse2);
-	finalColor = applyFog(finalColor, distance, normalize(cameraPos - fragPosition), -sunDirection);
+	finalColor = applyFog(finalColor, distance, normalize(cameraPos - fragPosition), -sun.direction);
 
 	color = vec4(finalColor, 1.0);
 }

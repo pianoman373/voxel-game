@@ -8,11 +8,11 @@
 #include "sol.hpp"
 #include "Common.hpp"
 
-#include <Renderer.hpp>
-#include <Input.hpp>
-#include <Camera.hpp>
-#include <AABB.hpp>
-#include <Frustum.hpp>
+#include <crucible/Renderer.hpp>
+#include <crucible/Input.hpp>
+#include <crucible/Camera.hpp>
+#include <crucible/AABB.hpp>
+#include <crucible/Frustum.hpp>
 
 #include <iostream>
 #include <mutex>

@@ -1,11 +1,15 @@
 #version 330 core
 
+struct DirectionalLight {
+  vec3 direction;
+  vec3 color;
+};
+
 uniform sampler2DShadow shadowTextures[4];
 uniform sampler2D tex4;
 uniform float cascadeDistances[4];
 uniform vec3 cameraPos;
-uniform vec3 sunDirection;
-uniform vec3 sunColor;
+uniform DirectionalLight sun;
 
 in vec3 fragNormal;
 in vec3 fragColor;
@@ -82,18 +86,18 @@ void main() {
 
 	vec4 blockTex = texture(tex4, uv);
 
-	vec3 diffuse = max(dot(fragNormal, sunDirection), 0.0) * sunColor * shadow;
+	vec3 diffuse = max(dot(fragNormal, -sun.direction), 0.0) * sun.color * shadow;
 
 	vec3 viewDir = normalize(cameraPos - fragPosition);
-    vec3 reflectDir = reflect(-sunDirection, fragNormal);
+    vec3 reflectDir = reflect(-sun.direction, fragNormal);
 
-    vec3 specular = 0.1f * pow(max(dot(viewDir, reflectDir), 0.0), 8) * sunColor * shadow;
+    vec3 specular = 0.1f * pow(max(dot(viewDir, reflectDir), 0.0), 8) * sun.color * shadow;
 
 	vec3 diffuse2 = max(dot(fragNormal, normalize(vec3(-1.1, -0.9, -1.0))), 0.0) * vec3(1.0, 1.0, 1.0);
 	diffuse2 += max(dot(fragNormal, normalize(vec3(1.1, 0.9, 1.0))), 0.0) * vec3(1.0, 1.0, 1.0);
 
     vec3 finalColor = AO * blockTex.rgb * (diffuse + diffuse2 + specular);
-    finalColor = applyFog(finalColor, distance, normalize(cameraPos - fragPosition), -sunDirection);
+    finalColor = applyFog(finalColor, distance, normalize(cameraPos - fragPosition), -sun.direction);
 
 	if (blockTex.a > 0) {
 		color = vec4(finalColor, 1.0);

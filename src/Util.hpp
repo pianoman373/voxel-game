@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Math.hpp"
+#include "crucible/Math.hpp"
 #include "json.hpp"
 
 #include <string>

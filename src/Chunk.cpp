@@ -2,10 +2,10 @@
 #include "World.hpp"
 #include "Block.hpp"
 
-#include <MeshFactory.hpp>
-#include <Renderer.hpp>
-#include <Mesh.hpp>
-#include <Math.hpp>
+#include <crucible/MeshFactory.hpp>
+#include <crucible/Renderer.hpp>
+#include <crucible/Mesh.hpp>
+#include <crucible/Math.hpp>
 
 #include <math.h>
 

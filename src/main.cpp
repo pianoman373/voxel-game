@@ -1,8 +1,8 @@
 #include <iostream>
 #include <thread>
-#include <Window.hpp>
-#include <Renderer.hpp>
-#include <Camera.hpp>
+#include <crucible/Window.hpp>
+#include <crucible/Renderer.hpp>
+#include <crucible/Camera.hpp>
 
 #include "Server.hpp"
 #include "Client.hpp"

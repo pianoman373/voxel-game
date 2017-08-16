@@ -9,15 +9,15 @@
 #include "World.hpp"
 #include "Chunk.hpp"
 
-#include <Shader.hpp>
-#include <Texture.hpp>
-#include <Renderer.hpp>
-#include <Window.hpp>
-#include <Frustum.hpp>
+#include <crucible/Shader.hpp>
+#include <crucible/Texture.hpp>
+#include <crucible/Renderer.hpp>
+#include <crucible/Window.hpp>
+#include <crucible/Frustum.hpp>
 #include <glad/glad.h>
-#include <Camera.hpp>
+#include <crucible/Camera.hpp>
 #include <SFML/Network.hpp>
-#include <Input.hpp>
+#include <crucible/Input.hpp>
 
 static Shader blockShader;
 static Shader blockShaderFar;
