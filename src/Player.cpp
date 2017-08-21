@@ -288,48 +288,12 @@ void Player::update(Camera &cam, float delta) {
     velocity.x = 0.0f;
     velocity.z = 0.0f;
 
-    int x = (int)(position.x / 32.0f);
-    if (position.x < 0) x -= 1;
-    int y = (int)(position.y / 32.0f);
-    if (position.y < 0) y -= 1;
-    int z = (int)(position.z / 32.0f);
-    if (position.z < 0) z -= 1;
+    vec3i chunkPos = World::worldToChunkPos(position);
 
-    if (!world.chunkExists(x, y, z)) {
+    if (!world.chunkExists(chunkPos.x, chunkPos.y, chunkPos.z)) {
         position = oldPosition;
         velocity.y = 0.0f;
     }
-
-    std::vector<vec3i> positions;
-
-    int range = 8;
-    for (int i = -range; i < range; i++) {
-        for (int j = -range; j < range; j++) {
-            for (int k = -range; k < range; k++) {
-                positions.push_back(vec3i(i, j, k));
-
-//                if (!world.chunkExists(i, j, k)) {
-//                    world.generateNewChunk(i, j, k);
-//                    goto end;
-//                }
-            }
-        }
-    }
-
-
-    std::sort(positions.begin(), positions.end());
-
-    for (int i = 0; i < positions.size(); i++) {
-        vec3i pos = positions[i];
-
-        if (!world.chunkExists(pos.x+x, pos.y+y, pos.z+z)) {
-            world.generateNewChunk(pos.x+x, pos.y+y, pos.z+z);
-
-
-            goto end;
-        }
-    }
-    end:
 
     if (oldPosition.x != position.x || oldPosition.y != position.y || oldPosition.z != position.z) {
         int id = 2;

@@ -10,12 +10,14 @@ class World;
 
 class Chunk {
 private:
-    char blocks[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
+
     World *world;
 
     int getBlockFromWorld(int x, int y, int z);
 
 public:
+    char blocks[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
+
     Mesh mesh;
     bool empty = true;
 

@@ -1,9 +1,10 @@
 #pragma once
 
-#include <map>
+#include <unordered_map>
 #include <vector>
 #include <string>
 #include <crucible/Math.hpp>
+#include <functional>
 
 #include "sol.hpp"
 
@@ -23,11 +24,25 @@ struct chunk_position {
     int y;
     int z;
 
-    //hashing algorithm stolen frome minetest
-    bool operator<(const chunk_position& other) const {
-        return 	(x<other.x && !(x == other.x)) ||
-                ((x == other.x) && y<other.y && !(y == other.y)) ||
-                ((x == other.x) && (y == other.y) && z<other.z && !(z == other.z));
+};
+
+struct key_hash : public std::unary_function<chunk_position, std::size_t>
+{
+    std::size_t operator()(const chunk_position& k) const
+    {
+        return k.x ^ k.y ^ k.z;
+    }
+};
+
+struct key_equal : public std::binary_function<chunk_position, chunk_position, bool>
+{
+    bool operator()(const chunk_position& v0, const chunk_position& v1) const
+    {
+        return (
+                v0.x == v1.x &&
+                v0.y == v1.y &&
+                v0.z == v1.z
+        );
     }
 };
 
@@ -36,17 +51,16 @@ private:
     void updatePlayerActions(Camera &cam, float delta);
 
     bool isDedicatedServer;
+    std::vector<vec3i> chunkLoadingPositions;
 
 public:
     sol::state luaState;
 
-    std::map<chunk_position, Chunk*> chunks;
+    std::unordered_map<chunk_position, Chunk*, key_hash, key_equal> chunks;
 
     ~World();
 
     World();
-
-    void generate(bool empty);
 
     void addChunk(int x, int y, int z, Chunk *c);
 
@@ -66,7 +80,7 @@ public:
 
     void setBlock(int x, int y, int z, int block);
 
-    void update(Camera &cam, float delta);
+    void update(const Camera &cam, float delta);
 
     /**
      * Returns the nearest block the specified ray intercepts.
@@ -81,4 +95,6 @@ public:
      * Returns all AABB's in the world that collide with the given test AABB
      */
     std::vector<AABB> getCollisions(AABB test);
+
+    static vec3i worldToChunkPos(vec3 pos);
 };

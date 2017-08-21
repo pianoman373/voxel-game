@@ -47,6 +47,7 @@ void Client::renderGUI(float deltaTime) {
     }
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     ImGui::Text("Delta %.3f", deltaTime);
+    ImGui::Text("PlayerPos: %.2f %.2f %.2f", player->position.x, player->position.y, player->position.z);
     std::string s = "Held block: " + BlockRegistry::getBlock(player->heldBlock)->name;
     ImGui::Text("%s", s.c_str());
 
@@ -128,6 +129,7 @@ void Client::init() {
 
     Common::init();
     Renderer::init(Settings::shadows, Settings::shadow_resolution);
+    Renderer::setSun({normalize(vec3(-0.4f, -0.7f, -1.0f)), vec3(1.4f, 1.3f, 1.0f)});
 
     blockShader.loadFile("resources/blockShader.vsh", "resources/blockShader.fsh");
     blockShaderFar.loadFile("resources/blockShader.vsh", "resources/blockShaderSimple.fsh");
@@ -147,7 +149,7 @@ void Client::init() {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     player = new Player(Common::world);
-    player->position = vec3(WORLD_SIZE * CHUNK_SIZE / 2.0f, 64.0f, WORLD_SIZE * CHUNK_SIZE / 2.0f);
+    player->position = vec3(16.0f, 130.0f, 16.0f);
 }
 
 void Client::run(std::string username, std::string ip) {
@@ -155,23 +157,10 @@ void Client::run(std::string username, std::string ip) {
 
     init();
 
+
     NetworkManagerClient::connectToServer(username, ip);
 
-    if (!NetworkManagerClient::isLocal) {
-        for (int x = 0; x < WORLD_SIZE; x++) {
-            for (int y = 0; y < WORLD_HEIGHT; y++) {
-                for (int z = 0; z < WORLD_SIZE; z++) {
-                    sf::Packet p;
-                    int id = 4;
-                    p << id << x << y << z;
-                    NetworkManagerClient::send(p);
-                    std::cout << "sending chunk request" << std::endl;
-                }
-            }
-        }
-    }
-
-    while(Window::isOpen()) {
+    while (Window::isOpen()) {
         static float deltaTime;
         static float lastFrameTime = Window::getTime();
 
@@ -185,6 +174,7 @@ void Client::run(std::string username, std::string ip) {
         scrollBlocks(Input::getScroll());
 
         player->update(camera, deltaTime);
+        Common::world.update(camera, deltaTime);
 
         //receive packets
         handlePackets();
@@ -228,7 +218,6 @@ void Client::scrollBlocks(int direction) {
     else if (player->heldBlock < 1) {
         player->heldBlock = BlockRegistry::registeredBlocks() - 1;
     }
-    std::cout << player->heldBlock << std::endl;
 }
 
 void Client::shutdown() {

@@ -18,7 +18,6 @@ void Server::broadcastChat(std::string message) {
 
 void Server::run() {
     Common::init();
-    Common::world.generate(false);
 
     NetworkManagerServer::bind();
 
