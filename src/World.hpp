@@ -5,6 +5,7 @@
 #include <string>
 #include <crucible/Math.hpp>
 #include <functional>
+#include <mutex>
 
 #include "sol.hpp"
 
@@ -53,6 +54,9 @@ private:
     bool isDedicatedServer;
     std::vector<vec3i> chunkLoadingPositions;
 
+    std::vector<Chunk*> chunksToUpdate;
+    std::mutex chunksToUpdateMutex;
+
 public:
     sol::state luaState;
 
@@ -79,6 +83,8 @@ public:
     bool chunkExists(int x, int y, int z);
 
     void setBlock(int x, int y, int z, int block);
+
+    void notifyChunkChange(int x, int y, int z);
 
     void update(const Camera &cam, float delta);
 

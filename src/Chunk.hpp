@@ -3,8 +3,8 @@
 #define CHUNK_SIZE 32
 
 #include <crucible/Mesh.hpp>
+#include <crucible/MeshFactory.hpp>
 
-class MeshFactory;
 class World;
 
 
@@ -19,6 +19,7 @@ public:
     char blocks[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE];
 
     Mesh mesh;
+    MeshFactory ms;
     bool empty = true;
 
     //TODO: should be a vec3i

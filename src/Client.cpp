@@ -18,6 +18,7 @@
 #include <crucible/Camera.hpp>
 #include <SFML/Network.hpp>
 #include <crucible/Input.hpp>
+#include <thread>
 
 static Shader blockShader;
 static Shader blockShaderFar;
@@ -123,6 +124,12 @@ void Client::handlePackets() {
     NetworkManagerClient::serverToClientMutex.unlock();
 }
 
+void chunkUpdateThread() {
+    while (true) {
+        Common::world.rebuild();
+    }
+}
+
 void Client::init() {
     json j = Util::loadJsonFile("settings.json");
     Settings::load(j);
@@ -150,6 +157,9 @@ void Client::init() {
 
     player = new Player(Common::world);
     player->position = vec3(16.0f, 130.0f, 16.0f);
+
+    std::thread thread(chunkUpdateThread);
+    thread.detach();
 }
 
 void Client::run(std::string username, std::string ip) {
@@ -189,7 +199,7 @@ void Client::run(std::string username, std::string ip) {
         }
 
         //<---===rendering===--->//
-        Common::world.rebuild();
+        //Common::world.rebuild();
         Common::world.render(camera, &nearMaterial, &farMaterial);
         //frustum.renderDebug();
 

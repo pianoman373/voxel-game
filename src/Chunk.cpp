@@ -62,7 +62,7 @@ const float AO = 0.3333f;
 
 void Chunk::generateMesh() {
     if (!empty) {
-        MeshFactory ms;
+        ms.clear();
         float bias = 0.00001f;
 
         for (int x = 0; x < CHUNK_SIZE; x++) {
@@ -331,9 +331,8 @@ void Chunk::generateMesh() {
                 }
             }
         }
-        ms.toMesh(this->mesh);
-        ms.clear();
+
     }
 
-    this->rebuild = false;
+    this->rebuild = true;
 }

@@ -290,10 +290,11 @@ void Player::update(Camera &cam, float delta) {
 
     vec3i chunkPos = World::worldToChunkPos(position);
 
-    if (!world.chunkExists(chunkPos.x, chunkPos.y, chunkPos.z)) {
-        position = oldPosition;
-        velocity.y = 0.0f;
-    }
+    // freezes player if not in chunk
+//    if (!world.chunkExists(chunkPos.x, chunkPos.y, chunkPos.z)) {
+//        position = oldPosition;
+//        velocity.y = 0.0f;
+//    }
 
     if (oldPosition.x != position.x || oldPosition.y != position.y || oldPosition.z != position.z) {
         int id = 2;

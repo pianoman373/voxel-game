@@ -67,7 +67,7 @@ World::World() {
     luaState.script_file("api.lua");
     luaState.script_file("worldgen.lua");
 
-    int range = 5;
+    int range = 1;
     for (int i = -range; i < range; i++) {
         for (int j = -range; j < range; j++) {
             for (int k = -range; k < range; k++) {
@@ -90,8 +90,9 @@ void World::generateNewChunk(int x, int y, int z) {
 
     placeBlocks(c);
 
-    c->generateMesh();
     Common::world.addChunk(x, y, z, c);
+
+    notifyChunkChange(x, y, z);
 }
 
 void World::deleteChunk(int x, int y, int z) {
@@ -102,15 +103,24 @@ void World::deleteChunk(int x, int y, int z) {
 }
 
 void World::rebuild() {
-    for (auto const ref: chunks) {
-        Chunk *c = ref.second;
+    chunksToUpdateMutex.lock();
+    std::vector<Chunk*> localChunks = chunksToUpdate;
+    chunksToUpdate.clear();
+    chunksToUpdateMutex.unlock();
 
-        chunk_position pos = ref.first;
-
-        if (c->rebuild) {
-            c->generateMesh();
-        }
+    for (int i = 0; i < localChunks.size(); i++) {
+        localChunks[i]->generateMesh();
     }
+
+//    for (auto const ref: chunks) {
+//        Chunk *c = ref.second;
+//
+//        chunk_position pos = ref.first;
+//
+//        if (c->rebuild) {
+//            c->generateMesh();
+//        }
+//    }
 }
 
 void World::render(Camera &cam, Material *nearmaterial, Material *farmaterial) {
@@ -119,9 +129,14 @@ void World::render(Camera &cam, Material *nearmaterial, Material *farmaterial) {
 
         if (!c->empty || true) {
 
+            if (c->rebuild) {
+                c->ms.toMesh(c->mesh);
+                c->rebuild = false;
+            }
+
 
             vec3 chunkPos = vec3(c->chunk_x * CHUNK_SIZE, (c->chunk_y * CHUNK_SIZE), c->chunk_z * CHUNK_SIZE);
-            //Renderer::renderDebugAABB(AABB(chunkPos , chunkPos + vec3(CHUNK_SIZE)), vec3(1.0f, 0.0f, 0.0f));
+            Renderer::renderDebugAABB(AABB(chunkPos , chunkPos + vec3(CHUNK_SIZE)), vec3(1.0f, 0.0f, 0.0f));
 
 
             vec3 chunkCenterPos = chunkPos + vec3(CHUNK_SIZE / 2.0f);
@@ -178,12 +193,20 @@ void World::setBlock(int x, int y, int z, int block) {
 
         c->setBlock(x & 31, y & 31, z & 31, block);
 
-        for (int i = -1; i < 2; i++) {
-            for (int j = -1; j < 2; j++) {
-                for (int k = -1; k < 2; k++) {
-                    if (chunkExists(pos.x + i, pos.y + j, pos.z + k)) {
-                        getChunk(pos.x + i, pos.y + j, pos.z + k)->rebuild = true;
-                    }
+        notifyChunkChange(pos.x, pos.y, pos.z);
+    }
+}
+
+void World::notifyChunkChange(int x, int y, int z) {
+    for (int i = -1; i <= 1; i++) {
+        for (int j = -1; j <= 1; j++) {
+            for (int k = -1; k <= 1; k++) {
+                if (chunkExists(x + i, y + j, z + k)) {
+                    getChunk(x + i, y + j, z + k)->rebuild = true;
+
+                    chunksToUpdateMutex.lock();
+                    chunksToUpdate.push_back(getChunk(x + i, y + j, z + k));
+                    chunksToUpdateMutex.unlock();
                 }
             }
         }
@@ -194,17 +217,13 @@ void World::update(const Camera &cam, float delta) {
     vec3i chunkPos = World::worldToChunkPos(cam.position);
 
     for (int i = 0; i < chunkLoadingPositions.size(); i++) {
-        vec3i pos = chunkLoadingPositions[i];
+        vec3i position = chunkLoadingPositions[i];
 
-        if (!chunkExists(pos.x+chunkPos.x, pos.y+chunkPos.y, pos.z+chunkPos.z)) {
-            generateNewChunk(pos.x+chunkPos.x, pos.y+chunkPos.y, pos.z+chunkPos.z);
+        if (!chunkExists(position.x + chunkPos.x, position.y + chunkPos.y, position.z + chunkPos.z)) {
+            generateNewChunk(position.x + chunkPos.x, position.y + chunkPos.y, position.z + chunkPos.z);
 
-
-            goto end;
         }
     }
-    end:
-    ;
 }
 
 bool World::raycastBlocks(vec3 origin, vec3 direction, float maxDistance, vec3i &blockPosReturn, vec3 &blockNormalReturn) {
