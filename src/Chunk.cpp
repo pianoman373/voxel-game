@@ -331,7 +331,6 @@ void Chunk::generateMesh() {
                 }
             }
         }
-
     }
 
     this->rebuild = true;

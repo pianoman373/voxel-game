@@ -35,3 +35,4 @@
 imgui.ini
 cmake-build-*
 .idea
+.vs

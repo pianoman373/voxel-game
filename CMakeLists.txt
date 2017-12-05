@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.0)
 project(voxel-game)
 
+option(CRUCIBLE_BUILD_EXAMPLES OFF)
 add_subdirectory(lib/crucible)
 
 link_directories(lib/luajit/lib)
@@ -16,7 +17,7 @@ file(GLOB PROJECT_HEADERS src/*.h
                           src/*.hpp
                           )
 
-add_definitions(-DSFML_STATIC)
+add_definitions(-DSFML_STATIC -DGLFW_STATIC)
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS})
 
@@ -25,6 +26,8 @@ if(WIN32)
 elseif(UNIX AND NOT APPLE)
     target_link_libraries(${PROJECT_NAME} crucible luajit-5.1)
 endif(WIN32)
+
+set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")

@@ -178,7 +178,7 @@ void Client::run(std::string username, std::string ip) {
         deltaTime = currentFrameTime - lastFrameTime;
         lastFrameTime = currentFrameTime;
 
-        camera.dimensions = {Window::getWindowSize().x, Window::getWindowSize().y};
+        camera.dimensions = {(float)Window::getWindowSize().x, (float)Window::getWindowSize().y};
 
         Window::begin();
         scrollBlocks(Input::getScroll());
