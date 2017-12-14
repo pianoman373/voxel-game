@@ -24,6 +24,7 @@ static Shader blockShader;
 static Shader blockShaderFar;
 static Shader skyboxShader;
 static Texture texture;
+static Texture texture_r;
 static Camera camera;
 static Player *player;
 static Console console;
@@ -141,19 +142,21 @@ void Client::init() {
     blockShader.loadFile("resources/blockShader.vsh", "resources/blockShader.fsh");
     blockShaderFar.loadFile("resources/blockShader.vsh", "resources/blockShaderSimple.fsh");
     skyboxShader.loadFile("resources/skybox.vsh", "resources/skybox.fsh");
-    texture.load("resources/terrain.png");
+    texture.load("resources/terrain.png", true);
+	texture_r.load("resources/terrain_r.png", true);
 
-    nearMaterial.setShader(blockShader);
-    nearMaterial.setUniformTexture("tex4", texture, 4);
+    nearMaterial.setShader(Renderer::standardShader);
+	nearMaterial.setPBRUniforms(texture, texture_r, 0.0f);
 
-    farMaterial.setShader(blockShaderFar);
+    farMaterial.setShader(Renderer::standardShader);
+	farMaterial.setPBRUniforms(texture, 0.9f, 0.0f);
 
     Renderer::setSkyboxShader(skyboxShader);
 
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    //glEnable(GL_BLEND);
+    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     player = new Player(Common::world);
     player->position = vec3(16.0f, 130.0f, 16.0f);
