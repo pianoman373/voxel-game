@@ -1,21 +1,19 @@
 #version 330 core
-
-layout (location = 0) in vec3 position;
-layout (location = 1) in vec3 normal;
-layout (location = 2) in vec4 color;
-layout (location = 3) in vec2 texCoord;
+layout (location = 0) in vec3 aPos;
 
 out vec3 direction;
+out float height;
 
-uniform mat4 model;
-uniform mat4 view;
 uniform mat4 projection;
+uniform mat4 view;
 
-uniform vec3 cameraPos;
+void main()
+{
+    direction = aPos;  
+	
+	mat4 newView = mat4(mat3(view));
 
-void main() {
-	direction = position;
+	height = view[3][1];
 
-	//gl_Position = projection * view * vec4(newpos, 1.0);
-	gl_Position = projection * view * model * vec4(position, 1.0);
+    gl_Position =  projection * newView * vec4(direction, 1.0);
 }

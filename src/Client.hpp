@@ -1,6 +1,8 @@
 #pragma once
 
 #include <string>
+#include "World.hpp"
+#include "sol.hpp"
 
 class Frustum;
 namespace sf {
@@ -17,13 +19,14 @@ class Client {
 private:
     static void init();
 
-    static void handlePackets();
-
     static void renderGUI(float deltaTime);
 public:
     static Frustum frustum;
     static sf::UdpSocket socket;
     static sf::IpAddress connectedServer;
+
+	static World world;
+	static sol::state luaState;
 
     static void run(std::string username, std::string ip);
 

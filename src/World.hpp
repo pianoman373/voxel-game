@@ -2,10 +2,12 @@
 
 #include <unordered_map>
 #include <vector>
+#include <deque>
 #include <string>
 #include <crucible/Math.hpp>
 #include <functional>
 #include <mutex>
+#include <thread>
 
 #include "sol.hpp"
 
@@ -52,23 +54,27 @@ private:
     void updatePlayerActions(Camera &cam, float delta);
 
     bool isDedicatedServer;
-    std::vector<vec3i> chunkLoadingPositions;
+	bool running = true;
 
-    std::vector<Chunk*> chunksToUpdate;
-    std::mutex chunksToUpdateMutex;
+	std::thread updateThread;
+
+    std::vector<vec3i> chunkLoadingPositions;
+	float time = 60 * 2;
 
 public:
-    sol::state luaState;
+	static constexpr float DAYLIGHT_CYCLE = 60.0f * 20.0f; //20 minutes
 
     std::unordered_map<chunk_position, Chunk*, key_hash, key_equal> chunks;
+    std::mutex chunksMutex;
 
-    ~World();
+    std::deque<Chunk*> chunksToRebuild;
+	std::mutex chunksToRebuildMutex;
+		
+	std::vector<chunk_position> chunksToDelete;
 
-    World();
+	void init(const Camera& camera);
 
-    void addChunk(int x, int y, int z, Chunk *c);
-
-    void generateNewChunk(int x, int y, int z);
+	void shutdown();
 
     void deleteChunk(int x, int y, int z);
 
@@ -87,6 +93,16 @@ public:
     void notifyChunkChange(int x, int y, int z);
 
     void update(const Camera &cam, float delta);
+
+	void loadChunks(const Camera &cam);
+
+	float getTime();
+
+	void setTime(float time);
+
+	vec3 getSunDirection();
+
+	vec3 getSunColor();
 
     /**
      * Returns the nearest block the specified ray intercepts.

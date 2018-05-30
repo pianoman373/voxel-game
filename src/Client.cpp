@@ -2,7 +2,6 @@
 #include "Settings.hpp"
 #include "Util.hpp"
 #include "Player.hpp"
-#include "Common.hpp"
 #include "NetworkManagerClient.hpp"
 #include "Console.hpp"
 #include "Block.hpp"
@@ -34,6 +33,9 @@ Frustum Client::frustum;
 static Material nearMaterial;
 static Material farMaterial;
 
+World Client::world;
+sol::state Client::luaState;
+
 static bool p_open = false;
 
 static std::map<int, vec3> playerPositions;
@@ -49,6 +51,7 @@ void Client::renderGUI(float deltaTime) {
     }
     ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
     ImGui::Text("Delta %.3f", deltaTime);
+	ImGui::Text("World time %.3f", world.getTime());
     ImGui::Text("PlayerPos: %.2f %.2f %.2f", player->position.x, player->position.y, player->position.z);
     std::string s = "Held block: " + BlockRegistry::getBlock(player->heldBlock)->name;
     ImGui::Text("%s", s.c_str());
@@ -58,120 +61,78 @@ void Client::renderGUI(float deltaTime) {
     ImGui::End();
 }
 
-void Client::handlePackets() {
-    NetworkManagerClient::serverToClientMutex.lock();
-    for (unsigned int i = 0; i < NetworkManagerClient::serverToClient.size(); i++) {
-        sf::Packet p = NetworkManagerClient::serverToClient[i];
+static void registerBlockNew(int id) {
+	std::cout << "registering block id " << id << std::endl;
 
-        int id;
-        p >> id;
-
-        if (id == -1) {
-            int userID;
-            p >> userID;
-
-            std::cout << "got message from server that user #" << userID << " disconnected" << std::endl;
-            playerPositions.erase(userID);
-        }
-        if (id == 1) {
-            int x, y, z, blockID;
-            p >> x >> y >> z >> blockID;
-            Common::world.setBlock(x, y, z, blockID);
-        }
-        if (id == 2) {
-            float x, y, z;
-            int userID;
-
-            p >> x >> y >> z >> userID;
-
-            playerPositions[userID] = vec3(x, y, z);
-        }
-        if (id == 3) {
-            std::string message;
-            p >> message;
-
-            console.AddLog("%s", message.c_str());
-        }
-        if (id == 4) {
-            std::cout << "received chunk from server" << std::endl;
-
-            bool isEmpty;
-            int x, y, z;
-
-            p >> isEmpty >> x >> y >> z;
-
-             Chunk *c = new Chunk(x, y, z, &Common::world);
-
-            if (!isEmpty) {
-
-
-                for (int i = 0; i < CHUNK_SIZE; i++) {
-                    for (int j = 0; j < CHUNK_SIZE; j++) {
-                        for (int k = 0; k < CHUNK_SIZE; k++) {
-                            sf::Int8 b;
-                            p >> b;
-
-                            c->setBlock(i, j, k, b);
-                        }
-                    }
-                }
-                c->rebuild = true;
-            }
-
-            Common::world.addChunk(x, y, z, c);
-        }
-    }
-    NetworkManagerClient::serverToClient.clear();
-    NetworkManagerClient::serverToClientMutex.unlock();
-}
-
-void chunkUpdateThread() {
-    while (true) {
-        Common::world.rebuild();
-    }
+	BlockRegistry::registerBlock(id, new LuaBlock(id));
 }
 
 void Client::init() {
+	// open some common libraries
+	luaState.open_libraries(sol::lib::base,
+		sol::lib::bit32,
+		sol::lib::coroutine,
+		sol::lib::count,
+		sol::lib::io,
+		sol::lib::math,
+		sol::lib::os,
+		sol::lib::package,
+		sol::lib::string,
+		sol::lib::table,
+		sol::lib::utf8,
+		sol::lib::ffi
+	);
+	//luaState.require_script("inspect", luaState.script_file("inspect.lua"));
+	luaState["registerBlockNew"] = registerBlockNew;
+	luaState.script_file("api.lua", &sol::default_on_error);
+	luaState.script_file("init.lua", &sol::default_on_error);
+
     json j = Util::loadJsonFile("settings.json");
     Settings::load(j);
 
-    Common::init();
     Renderer::init(Settings::shadows, Settings::shadow_resolution);
-    Renderer::setSun({normalize(vec3(-0.4f, -0.7f, -1.0f)), vec3(1.4f, 1.3f, 1.0f)});
+    Renderer::setSun({normalize(vec3(-0.4f, -0.7f, -1.0f)), vec3(1.4f, 1.3f, 1.0f) * 3.0f});
+	Renderer::ambient = vec3(0.5, 0.6, 1.0) * 0.1f;
 
     blockShader.loadFile("resources/blockShader.vsh", "resources/blockShader.fsh");
-    blockShaderFar.loadFile("resources/blockShader.vsh", "resources/blockShaderSimple.fsh");
+    //blockShaderFar.loadFile("resources/blockShader.vsh", "resources/blockShaderSimple.fsh");
     skyboxShader.loadFile("resources/skybox.vsh", "resources/skybox.fsh");
     texture.load("resources/terrain.png", true);
 	texture_r.load("resources/terrain_r.png", true);
 
-    nearMaterial.setShader(Renderer::standardShader);
-	nearMaterial.setPBRUniforms(texture, texture_r, 0.0f);
+    nearMaterial.setShader(blockShader);
+	nearMaterial.setPBRUniforms(texture, 0.9f, 0.0f);
 
-    farMaterial.setShader(Renderer::standardShader);
+    farMaterial.setShader(blockShader);
 	farMaterial.setPBRUniforms(texture, 0.9f, 0.0f);
 
-    Renderer::setSkyboxShader(skyboxShader);
+   
 
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_CULL_FACE);
+    //glEnable(GL_DEPTH_TEST);
     //glEnable(GL_BLEND);
     //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    player = new Player(Common::world);
-    player->position = vec3(16.0f, 130.0f, 16.0f);
+    player = new Player(world);
+    player->position = vec3(16.0f, 100.0f, 16.0f);
 
-    std::thread thread(chunkUpdateThread);
-    thread.detach();
+	Cubemap cubemap;
+	cubemap.loadEquirectangular("resources/skybox.jpg", 1024);
+
+	Renderer::setSkyboxShader(skyboxShader);
+	Renderer::environment = cubemap;
+	Renderer::generateIBLmaps();
 }
 
+
+
 void Client::run(std::string username, std::string ip) {
+
     Window::create({1400, 800}, "Voxel Game");
 
+
     init();
-
-
-    NetworkManagerClient::connectToServer(username, ip);
+	world.init(camera);
 
     while (Window::isOpen()) {
         static float deltaTime;
@@ -187,10 +148,7 @@ void Client::run(std::string username, std::string ip) {
         scrollBlocks(Input::getScroll());
 
         player->update(camera, deltaTime);
-        Common::world.update(camera, deltaTime);
-
-        //receive packets
-        handlePackets();
+        
 
         vec2i size = Window::getWindowSize();
 
@@ -203,7 +161,10 @@ void Client::run(std::string username, std::string ip) {
 
         //<---===rendering===--->//
         //Common::world.rebuild();
-        Common::world.render(camera, &nearMaterial, &farMaterial);
+		
+		world.update(camera, deltaTime);
+		//Common::world.rebuild();
+        world.render(camera, &nearMaterial, &farMaterial);
         //frustum.renderDebug();
 
         for (auto const &ref: playerPositions) {
@@ -216,6 +177,11 @@ void Client::run(std::string username, std::string ip) {
 
         //render scene and update window
         Renderer::flush(camera);
+
+		
+
+		Renderer::setSun({ world.getSunDirection(), world.getSunColor() });
+
         Window::end();
     }
 
@@ -234,7 +200,8 @@ void Client::scrollBlocks(int direction) {
 }
 
 void Client::shutdown() {
-    NetworkManagerClient::disconnect();
+	world.shutdown();
+	NetworkManagerClient::disconnect();
     Window::terminate();
     exit(0);
 }

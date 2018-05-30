@@ -24,9 +24,6 @@ int main(int argc, char *argv[]) {
         NetworkManagerClient::isLocal = true;
         NetworkManagerServer::isLocal = true;
 
-        std::thread thread(Server::run);
-        thread.detach();
-
         Client::run("Player", "localhost");
     }
 }

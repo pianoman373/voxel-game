@@ -1,5 +1,5 @@
 #include "Block.hpp"
-#include "Common.hpp"
+#include "Client.hpp"
 
 static Block defaultBlock;
 
@@ -20,7 +20,7 @@ bool Block::isSolid() {
 LuaBlock::LuaBlock(int id) {
     this->id = id;
 
-    sol::table table = Common::luaState["__blocks"][id];
+    sol::table table = Client::luaState["__blocks"][id];
     this->name = table["name"];
     this->color = vec3(table["color"][1], table["color"][2], table["color"][3]);
 
@@ -29,7 +29,7 @@ LuaBlock::LuaBlock(int id) {
 }
 
 vec2i LuaBlock::getTextureCoord(EnumDirection dir) {
-    sol::table table = Common::luaState["__blocks"][id];
+    sol::table table = Client::luaState["__blocks"][id];
     sol::safe_function f = table.get<sol::safe_function>("getTextureCoord");
     std::tuple<int, int> coord = f(static_cast<int>(dir));
 
@@ -49,12 +49,12 @@ void BlockRegistry::registerBlock(int id, Block *block) {
 }
 
 Block *BlockRegistry::getBlock(int id) {
-    //try {
+   try {
         return registry.at(id);
-//    }
-//    catch (std::out_of_range exception) {
-//        return &defaultBlock;
-//    }
+    }
+    catch (std::out_of_range exception) {
+        return &defaultBlock;
+    }
 }
 
 int BlockRegistry::registeredBlocks() {

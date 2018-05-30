@@ -1,5 +1,4 @@
 #include "Server.hpp"
-#include "Common.hpp"
 #include "NetworkManagerServer.hpp"
 #include "World.hpp"
 #include "Chunk.hpp"
@@ -17,7 +16,6 @@ void Server::broadcastChat(std::string message) {
 }
 
 void Server::run() {
-    Common::init();
 
     NetworkManagerServer::bind();
 
@@ -73,7 +71,7 @@ void Server::run() {
 
                     //std::cout << senderString << " -> " << "PlaceBlock(" << x << ", " << y << ", " << z << ", " << blockID << ")" << std::endl;
 
-                    Common::world.setBlock(x, y, z, blockID);
+                    ///Common::world.setBlock(x, y, z, blockID);
 
                     sf::Packet replyPacket;
                     replyPacket << id;
@@ -111,15 +109,15 @@ void Server::run() {
                     int x, y, z;
                     packet >> x >> y >> z;
 
-                    Chunk *c = Common::world.getChunk(x, y, z);
+                    //Chunk *c = Common::world.getChunk(x, y, z);
 
                     bool isEmpty;
                     sf::Packet replyPacket;
                     replyPacket << id;
-                    replyPacket << c->empty << x << y << z;
+                   // replyPacket << c->empty << x << y << z;
 
 
-                    if (!c->empty) {
+                    /*if (!c->empty) {
                         for (int i = 0; i < CHUNK_SIZE; i++) {
                             for (int j = 0; j < CHUNK_SIZE; j++) {
                                 for (int k = 0; k < CHUNK_SIZE; k++) {
@@ -128,7 +126,7 @@ void Server::run() {
                                 }
                             }
                         }
-                    }
+                    }*/
 
                     std::cout << "sending chunk" << std::endl;
                     NetworkManagerServer::send(replyPacket, userID);

@@ -3,7 +3,6 @@
 #include "World.hpp"
 #include "Client.hpp"
 #include "NetworkManagerClient.hpp"
-#include "Common.hpp"
 
 #include <crucible/AABB.hpp>
 #include <crucible/Renderer.hpp>
@@ -14,7 +13,7 @@
 #include <imgui.h>
 #include <GLFW/glfw3.h>
 
-static const float movementSpeed = 6.0f;
+static const float movementSpeed = 7.0f;
 static const float mouseSensitivity = 8.0f;
 static const float gravity = 22.8f;
 static const float jumpPower = 7.3f;
@@ -255,32 +254,68 @@ void Player::update(Camera &cam, float delta) {
         //block outline for the block the player is looking at
         Renderer::renderDebugAABB(vec3(blockpos.x, blockpos.y, blockpos.z) - bias, vec3(blockpos.x + 1, blockpos.y + 1, blockpos.z + 1) + bias, vec3());
 
-        if (breakBlock) {
-            int x = blockpos.x;
-            int y = blockpos.y;
-            int z = blockpos.z;
+        if (Input::isKeyDown(GLFW_KEY_P)) {
+			int x = blockpos.x & 31;
+			int y = blockpos.y & 31;
+			int z = blockpos.z & 31;
+            int cx = blockpos.x >> 5;
+            int cy = blockpos.y >> 5;
+            int cz = blockpos.z >> 5;
             int blockID = 0;
-            int id = 1;
+            
+			world.getChunk(cx, cy, cz)->removeTorch(x, y, z);
 
-            sf::Packet packet;
-            packet << id;
-            packet << x << y << z << blockID;
+			world.notifyChunkChange(blockpos.x, blockpos.y, blockpos.z);
 
-            NetworkManagerClient::send(packet);
+			//world.setBlock(x, y, z, blockID);
         }
+		if (breakBlock) {
+			int x = blockpos.x;
+			int y = blockpos.y;
+			int z = blockpos.z;
+
+
+            if (world.getBlock(x, y, z) == 5) {
+                int cx = blockpos.x >> 5;
+                int cy = blockpos.y >> 5;
+                int cz = blockpos.z >> 5;
+
+                world.setBlock(x, y, z, 0);
+                world.getChunk(cx, cy, cz)->removeTorch(x, y, z);
+            }
+            else {
+                world.setBlock(x, y, z, 0);
+            }
+
+		}
+
         if (placeBlock) {
             //if (!playerBoundingBox.intersectsWith(AABB(vec3(blockpos.x + blocknormal.x, blockpos.y + blocknormal.y, blockpos.z + blocknormal.z), vec3(blockpos.x  + blocknormal.x + 1, blockpos.y  + blocknormal.y + 1, blockpos.z  + blocknormal.z + 1)))) {
                 int x = blockpos.x + blocknormal.x;
                 int y = blockpos.y + blocknormal.y;
                 int z = blockpos.z + blocknormal.z;
                 int blockID = heldBlock;
-                int id = 1;
 
-                sf::Packet packet;
-                packet << id;
-                packet << x << y << z << blockID;
+                int wx = x & 31;
+                int wy = y & 31;
+                int wz = z & 31;
+                int cx = x >> 5;
+                int cy = y >> 5;
+                int cz = z >> 5;
 
-                NetworkManagerClient::send(packet);
+                std::cout << world.getChunk(cx, cy, cz)->getTorchlight(wx, wy, wz);
+
+                if (blockID == 5) {
+                    std::cout << "placing planks" << std::endl;
+
+                    world.setBlock(x, y, z, blockID);
+                    world.getChunk(cx, cy, cz)->placeTorch(wx, wy, wz);
+                } else {
+                    world.setBlock(x, y, z, blockID);
+                    world.getChunk(cx, cy, cz)->removeTorch(x, y, z);
+                }
+
+
             //}
         }
     }
@@ -295,14 +330,4 @@ void Player::update(Camera &cam, float delta) {
 //        position = oldPosition;
 //        velocity.y = 0.0f;
 //    }
-
-    if (oldPosition.x != position.x || oldPosition.y != position.y || oldPosition.z != position.z) {
-        int id = 2;
-
-        sf::Packet packet;
-        packet << id;
-        packet << position.x << position.y << position.z;
-
-        NetworkManagerClient::send(packet);
-    }
 }
