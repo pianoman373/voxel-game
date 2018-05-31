@@ -67,6 +67,6 @@ void main()
     }
 
   gNormal = normalize(normal);
-  gAlbedo = vec4(albedo.rgb * length(normal) * fragColor, 1.0);
-  gRoughnessMetallic = vec4(roughness, metallic, 0.0, 1.0);
+  gAlbedo = vec4(albedo.rgb * fragColor, 1.0);
+  gRoughnessMetallic = vec4(roughness, metallic, 1.0, 0.0);
 }  

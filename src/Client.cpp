@@ -2,7 +2,6 @@
 #include "Settings.hpp"
 #include "Util.hpp"
 #include "Player.hpp"
-#include "NetworkManagerClient.hpp"
 #include "Console.hpp"
 #include "Block.hpp"
 #include "World.hpp"
@@ -15,8 +14,8 @@
 #include <crucible/Frustum.hpp>
 #include <glad/glad.h>
 #include <crucible/Camera.hpp>
-#include <SFML/Network.hpp>
 #include <crucible/Input.hpp>
+#include <imgui.h>
 #include <thread>
 
 static Shader blockShader;
@@ -26,7 +25,7 @@ static Texture texture;
 static Texture texture_r;
 static Camera camera;
 static Player *player;
-static Console console;
+//static Console console;
 
 Frustum Client::frustum;
 
@@ -55,8 +54,6 @@ void Client::renderGUI(float deltaTime) {
     ImGui::Text("PlayerPos: %.2f %.2f %.2f", player->position.x, player->position.y, player->position.z);
     std::string s = "Held block: " + BlockRegistry::getBlock(player->heldBlock)->name;
     ImGui::Text("%s", s.c_str());
-
-    console.Draw();
 
     ImGui::End();
 }
@@ -90,8 +87,14 @@ void Client::init() {
     json j = Util::loadJsonFile("settings.json");
     Settings::load(j);
 
-    Renderer::init(Settings::shadows, Settings::shadow_resolution);
+    Renderer::init(Settings::shadows, Settings::shadow_resolution, 1400, 800);
     Renderer::setSun({normalize(vec3(-0.4f, -0.7f, -1.0f)), vec3(1.4f, 1.3f, 1.0f) * 3.0f});
+    Renderer::settings.bloom = false;
+    Renderer::settings.fxaa = true;
+    Renderer::settings.ssao = true;
+    Renderer::settings.tonemap = true;
+    Renderer::settings.vignette = true;
+
 	Renderer::ambient = vec3(0.5, 0.6, 1.0) * 0.1f;
 
     blockShader.loadFile("resources/blockShader.vsh", "resources/blockShader.fsh");
@@ -120,7 +123,7 @@ void Client::init() {
 	cubemap.loadEquirectangular("resources/skybox.jpg", 1024);
 
 	Renderer::setSkyboxShader(skyboxShader);
-	Renderer::environment = cubemap;
+	//Renderer::environment = cubemap;
 	Renderer::generateIBLmaps();
 }
 
@@ -128,11 +131,17 @@ void Client::init() {
 
 void Client::run(std::string username, std::string ip) {
 
-    Window::create({1400, 800}, "Voxel Game");
+    Window::create({1400, 800}, "Voxel Game", false);
 
 
     init();
 	world.init(camera);
+
+    Renderer::setSun({ world.getSunDirection(), world.getSunColor() });
+    Renderer::generateIBLmaps();
+    Renderer::environment = Renderer::specular;
+    Renderer::setSkyboxShader(Renderer::cubemapShader);
+
 
     while (Window::isOpen()) {
         static float deltaTime;
@@ -170,7 +179,7 @@ void Client::run(std::string username, std::string ip) {
         for (auto const &ref: playerPositions) {
             vec3 v = ref.second;
 
-            Renderer::renderDebugAABB(v - vec3(0.3f, 0.9f, 0.3f), v + vec3(0.3f, 0.9f, 0.3f), vec3(1.0f, 0.0f, 0.0f));
+            Renderer::debug.renderDebugAABB(v - vec3(0.3f, 0.9f, 0.3f), v + vec3(0.3f, 0.9f, 0.3f), vec3(1.0f, 0.0f, 0.0f));
         }
 
         renderGUI(deltaTime);
@@ -201,7 +210,6 @@ void Client::scrollBlocks(int direction) {
 
 void Client::shutdown() {
 	world.shutdown();
-	NetworkManagerClient::disconnect();
     Window::terminate();
     exit(0);
 }

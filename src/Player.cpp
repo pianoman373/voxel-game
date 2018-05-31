@@ -2,14 +2,12 @@
 #include "Chunk.hpp"
 #include "World.hpp"
 #include "Client.hpp"
-#include "NetworkManagerClient.hpp"
 
 #include <crucible/AABB.hpp>
 #include <crucible/Renderer.hpp>
 #include <crucible/Camera.hpp>
 #include <crucible/Input.hpp>
 
-#include <SFML/Network.hpp>
 #include <imgui.h>
 #include <GLFW/glfw3.h>
 
@@ -252,7 +250,7 @@ void Player::update(Camera &cam, float delta) {
     if (world.raycastBlocks(cam.getPosition(), cam.getDirection(), 10.0f, blockpos, blocknormal)) {
         float bias = 0.01f;
         //block outline for the block the player is looking at
-        Renderer::renderDebugAABB(vec3(blockpos.x, blockpos.y, blockpos.z) - bias, vec3(blockpos.x + 1, blockpos.y + 1, blockpos.z + 1) + bias, vec3());
+        Renderer::debug.renderDebugAABB(vec3(blockpos.x, blockpos.y, blockpos.z) - bias, vec3(blockpos.x + 1, blockpos.y + 1, blockpos.z + 1) + bias, vec3());
 
         if (Input::isKeyDown(GLFW_KEY_P)) {
 			int x = blockpos.x & 31;
