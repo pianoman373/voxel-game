@@ -4,8 +4,6 @@
 #include <map>
 #include <string>
 
-#include "sol.hpp"
-
 class Block {
 public:
     std::string name = "";
@@ -18,16 +16,23 @@ public:
     virtual bool isSolid();
 };
 
-class LuaBlock : public Block {
-    int id;
+class SimpleBlock : public Block {
+    vec2i textureCoord;
     bool solid;
 
 public:
-    LuaBlock(int id);
+    SimpleBlock(vec2i textureCoord, std::string name, bool solid);
 
     vec2i getTextureCoord(EnumDirection dir);
 
     bool isSolid();
+};
+
+class GrassBlock : public Block {
+public:
+    GrassBlock();
+
+    vec2i getTextureCoord(EnumDirection dir);
 };
 
 class BlockRegistry {

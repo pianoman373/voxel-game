@@ -9,6 +9,7 @@ public:
     static int render_distance;
     static bool shadows;
     static float fov;
+    static bool fancy_graphics;
 
     static void load(json j);
 };

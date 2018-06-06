@@ -4,6 +4,8 @@
 #define iSteps 16
 #define jSteps 8
 
+uniform float bloomStrength;
+
 vec2 rsi(vec3 r0, vec3 rd, float sr) {
     // ray-sphere intersection that assumes
     // the sphere is centered at the origin.
@@ -120,7 +122,8 @@ uniform samplerCube stars;
 in vec3 direction;
 in float height;
 
-out vec4 fragColor;
+layout (location = 0) out vec4 outColor;
+layout (location = 1) out vec4 outColor1;
 
 void main() {
     vec3 dir = -normalize(direction);
@@ -160,5 +163,6 @@ void main() {
     color += sunLevel;
     color += (texture(stars, -dir).rgb);// * clamp(dot(-sun.direction, vec3(0, -1, 0)) + 0.3, 0, 1);
 
-    fragColor = vec4(color, 1.0);
+    outColor = vec4(color, 1.0);
+    outColor1 = vec4(color * bloomStrength, 1.0);
 }

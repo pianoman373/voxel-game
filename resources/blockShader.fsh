@@ -38,6 +38,10 @@ void main()
     if (albedoTextured) {
       vec4 texel = texture(albedoTex, uv);
         albedo = vec4(pow(texel.rgb, vec3(2.2)), texel.a);
+
+      if (texel.a < 0.1) {
+        discard;
+      }
     }
     else {
         albedo = vec4(albedoColor, 1.0);
@@ -67,6 +71,6 @@ void main()
     }
 
   gNormal = normalize(normal);
-  gAlbedo = vec4(albedo.rgb * fragColor, 1.0);
+  gAlbedo = vec4(albedo.rgb * length(normal) * (fragColor*0.9 + 0.1), 1.0);
   gRoughnessMetallic = vec4(roughness, metallic, 1.0, 0.0);
 }  

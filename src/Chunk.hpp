@@ -6,13 +6,14 @@
 #include <crucible/MeshFactory.hpp>
 #include <crucible/Material.hpp>
 
-class World;
+#include <mutex>
+
+class ChunkManager;
 
 
 class Chunk {
 private:
-
-    World *world;
+    ChunkManager *cm;
 
     int getBlockFromWorld(int x, int y, int z);
 	bool rebuild = false;
@@ -25,8 +26,8 @@ public:
     Mesh mesh;
     MeshFactory ms;
     bool empty = true;
-	bool isMeshGenerated = false;
     bool isDirty = false;
+    bool generated = false;
 
     //TODO: should be a vec3i
     int chunk_x;
@@ -45,7 +46,7 @@ public:
 
 	void removeTorch(int x, int y, int z);
 
-    Chunk(int x, int y, int z, World* world);
+    Chunk(int x, int y, int z, ChunkManager* cm);
 
     ~Chunk();
 
@@ -58,8 +59,6 @@ public:
      * changes to appear.
      */
     void generateMesh();
-
-	void applyMesh();
 
 	void render(Material *mat);
 };

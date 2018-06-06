@@ -1,6 +1,7 @@
 #include "Chunk.hpp"
 #include "World.hpp"
 #include "Block.hpp"
+#include "ChunkManager.hpp"
 
 #include <crucible/MeshFactory.hpp>
 #include <crucible/Renderer.hpp>
@@ -10,12 +11,12 @@
 #include <math.h>
 #include <queue>
 
-Chunk::Chunk(int x, int y, int z, World* world) {
+Chunk::Chunk(int x, int y, int z, ChunkManager* cm) {
     chunk_x = x;
     chunk_y = y;
     chunk_z = z;
 
-    this->world = world;
+    this->cm = cm;
 }
 
 Chunk::~Chunk() {
@@ -38,15 +39,15 @@ void Chunk::setSunlight(int x, int y, int z, int val) {
 // Get the bits 0000XXXX
 
 int Chunk::getTorchlight(int x, int y, int z) {
-    isDirty = true;
 
 	if (x < CHUNK_SIZE && x >= 0 && y < CHUNK_SIZE && y >= 0 && z < CHUNK_SIZE && z >= 0) {
 		return lightMap[y][z][x] & 0xF;
 	}
     else {
-        vec3i worldPosition = vec3i((chunk_x * CHUNK_SIZE) + x, (chunk_y * CHUNK_SIZE) + y, (chunk_z * CHUNK_SIZE) + z);
-        Chunk *c = world->getChunk(worldPosition.x >> 5, worldPosition.y >> 5, worldPosition.z >> 5);
-         return c->getTorchlight(worldPosition.x & 31, worldPosition.y & 31, worldPosition.z & 31);
+//        vec3i worldPosition = vec3i((chunk_x * CHUNK_SIZE) + x, (chunk_y * CHUNK_SIZE) + y, (chunk_z * CHUNK_SIZE) + z);
+//        Chunk *c = cm->getChunk(worldPosition.x >> 5, worldPosition.y >> 5, worldPosition.z >> 5);
+//        return c->getTorchlight(worldPosition.x & 31, worldPosition.y & 31, worldPosition.z & 31);
+        return 15;
     }
 }
 
@@ -57,8 +58,9 @@ void Chunk::setTorchlight(int x, int y, int z, int val) {
 	}
     else {
         vec3i worldPosition = vec3i((chunk_x * CHUNK_SIZE) + x, (chunk_y * CHUNK_SIZE) + y, (chunk_z * CHUNK_SIZE) + z);
-        Chunk *c = world->getChunk(worldPosition.x >> 5, worldPosition.y >> 5, worldPosition.z >> 5);
+        Chunk *c = cm->getChunk(worldPosition.x >> 5, worldPosition.y >> 5, worldPosition.z >> 5);
         c->setTorchlight(worldPosition.x & 31, worldPosition.y & 31, worldPosition.z & 31, val);
+        c->isDirty = true;
     }
 }
 
@@ -239,12 +241,12 @@ char Chunk::getBlock(int x, int y, int z) {
     if (x < CHUNK_SIZE && x >= 0 && y < CHUNK_SIZE && y >= 0 && z < CHUNK_SIZE && z >= 0) {
 		return blocks[x + CHUNK_SIZE * (y + CHUNK_SIZE * z)];
     }
-	return world->getBlock((this->chunk_x * CHUNK_SIZE) + x, (this->chunk_y * CHUNK_SIZE) + y, (this->chunk_z * CHUNK_SIZE) + z);
+	return cm->getBlock((this->chunk_x * CHUNK_SIZE) + x, (this->chunk_y * CHUNK_SIZE) + y, (this->chunk_z * CHUNK_SIZE) + z);
 }
 
 //WIP
 int Chunk::getBlockFromWorld(int x, int y, int z) {
-    //return world->getBlock((this->chunk_x * CHUNK_SIZE) + x, (this->chunk_y * CHUNK_SIZE) + y, (this->chunk_z * CHUNK_SIZE) + z);
+    //return cm->getBlock((this->chunk_x * CHUNK_SIZE) + x, (this->chunk_y * CHUNK_SIZE) + y, (this->chunk_z * CHUNK_SIZE) + z);
     return getBlock(x, y, z);
 }
 
@@ -265,56 +267,71 @@ const float AO = 0.3333f;
 
 
 void Chunk::generateMesh() {
-	isMeshGenerated = true;
+//    std::queue <vec3i> lightBfsQueue;
+//
+//    for (int x = 0; x < 32; x++) {
+//        for (int z = 0; z < 32; z++) {
+//
+//
+//            if (!cm->getChunk(chunk_x, chunk_y + 1, chunk_z)->isMeshGenerated) {
+//                lightBfsQueue.emplace(x, 32, z);
+//                setTorchlight(x, 32, z, 15);
+//            }
+//            else {
+//                lightBfsQueue.emplace(x, 33, z);
+//
+//            }
+//
+//        }
+//    }
+//
+//
+//    while (!lightBfsQueue.empty()) {
+//        // Get a reference to the front node.
+//        vec3i node = lightBfsQueue.front();
+//        lightBfsQueue.pop();
+//
+//        int lightLevel = getTorchlight(node.x, node.y, node.z);
+//
+//        if (getBlock(node.x - 1, node.y, node.z) == 0 && getTorchlight(node.x - 1, node.y, node.z) + 2 <= lightLevel) {
+//            setTorchlight(node.x - 1, node.y, node.z, lightLevel - 1);
+//
+//            lightBfsQueue.emplace(node.x - 1, node.y, node.z);
+//        }
+//        if (getBlock(node.x + 1, node.y, node.z) == 0 && getTorchlight(node.x + 1, node.y, node.z) + 2 <= lightLevel) {
+//            setTorchlight(node.x + 1, node.y, node.z, lightLevel - 1);
+//
+//            lightBfsQueue.emplace(node.x + 1, node.y, node.z);
+//        }
+//
+//        if (getBlock(node.x, node.y - 1, node.z) == 0 && getTorchlight(node.x, node.y - 1, node.z) + 2 <= lightLevel) {
+//            setTorchlight(node.x, node.y - 1, node.z, lightLevel);
+//
+//            lightBfsQueue.emplace(node.x, node.y - 1, node.z);
+//        }
+//        if (getBlock(node.x, node.y + 1, node.z) == 0 && getTorchlight(node.x, node.y + 1, node.z) + 2 <= lightLevel) {
+//            setTorchlight(node.x, node.y + 1, node.z, lightLevel - 1);
+//
+//            lightBfsQueue.emplace(node.x, node.y + 1, node.z);
+//        }
+//
+//        if (getBlock(node.x, node.y, node.z - 1) == 0 && getTorchlight(node.x, node.y, node.z - 1) + 2 <= lightLevel) {
+//            setTorchlight(node.x, node.y, node.z - 1, lightLevel - 1);
+//
+//            lightBfsQueue.emplace(node.x, node.y, node.z - 1);
+//        }
+//        if (getBlock(node.x, node.y, node.z + 1) == 0 && getTorchlight(node.x, node.y, node.z + 1) + 2 <= lightLevel) {
+//            setTorchlight(node.x, node.y, node.z + 1, lightLevel - 1);
+//
+//            lightBfsQueue.emplace(node.x, node.y, node.z + 1);
+//        }
+//    }
 
-    std::queue <vec3i> lightBfsQueue;
-
-    for (int x = 0; x < 32; x++) {
-        for (int z = 0; z < 32; z++) {
-            lightBfsQueue.emplace(x, 32, z);
-            setTorchlight(x, 32, z, 15);
-        }
-    }
-
-
-    while (!lightBfsQueue.empty()) {
-        // Get a reference to the front node.
-        vec3i node = lightBfsQueue.front();
-        lightBfsQueue.pop();
-
-        int lightLevel = getTorchlight(node.x, node.y, node.z);
-
-        if (getBlock(node.x - 1, node.y, node.z) == 0 && getTorchlight(node.x - 1, node.y, node.z) + 2 <= lightLevel) {
-            setTorchlight(node.x - 1, node.y, node.z, lightLevel - 1);
-
-            lightBfsQueue.emplace(node.x - 1, node.y, node.z);
-        }
-        if (getBlock(node.x + 1, node.y, node.z) == 0 && getTorchlight(node.x + 1, node.y, node.z) + 2 <= lightLevel) {
-            setTorchlight(node.x + 1, node.y, node.z, lightLevel - 1);
-
-            lightBfsQueue.emplace(node.x + 1, node.y, node.z);
-        }
-
-        if (getBlock(node.x, node.y - 1, node.z) == 0 && getTorchlight(node.x, node.y - 1, node.z) + 2 <= lightLevel) {
-            setTorchlight(node.x, node.y - 1, node.z, lightLevel);
-
-            lightBfsQueue.emplace(node.x, node.y - 1, node.z);
-        }
-        if (getBlock(node.x, node.y + 1, node.z) == 0 && getTorchlight(node.x, node.y + 1, node.z) + 2 <= lightLevel) {
-            setTorchlight(node.x, node.y + 1, node.z, lightLevel - 1);
-
-            lightBfsQueue.emplace(node.x, node.y + 1, node.z);
-        }
-
-        if (getBlock(node.x, node.y, node.z - 1) == 0 && getTorchlight(node.x, node.y, node.z - 1) + 2 <= lightLevel) {
-            setTorchlight(node.x, node.y, node.z - 1, lightLevel - 1);
-
-            lightBfsQueue.emplace(node.x, node.y, node.z - 1);
-        }
-        if (getBlock(node.x, node.y, node.z + 1) == 0 && getTorchlight(node.x, node.y, node.z + 1) + 2 <= lightLevel) {
-            setTorchlight(node.x, node.y, node.z + 1, lightLevel - 1);
-
-            lightBfsQueue.emplace(node.x, node.y, node.z + 1);
+    for (int x = 0; x < CHUNK_SIZE; x++) {
+        for (int z = 0; z < CHUNK_SIZE; z++) {
+            for (int y = 0; y < CHUNK_SIZE; y++) {
+                lightMap[x][y][z] = 15;
+            }
         }
     }
 
@@ -325,6 +342,7 @@ void Chunk::generateMesh() {
         for (int x = 0; x < CHUNK_SIZE; x++) {
             for (int z = 0; z < CHUNK_SIZE; z++) {
                 for (int y = 0; y < CHUNK_SIZE; y++) {
+
                     int block_X_Y_Z = getBlockFromWorld(x, y, z);
 
                     if (block_X_Y_Z == 0)
@@ -615,6 +633,9 @@ void Chunk::render(Material *mat) {
 		this->rebuild = false;
 	}
 
-	vec3 chunkPos = vec3(chunk_x * CHUNK_SIZE, (chunk_y * CHUNK_SIZE), chunk_z * CHUNK_SIZE);
-	Renderer::render(&this->mesh, mat, Transform(chunkPos, vec3(), vec3(1.0f)), AABB(chunkPos, chunkPos + vec3(CHUNK_SIZE)));
+	if (this->mesh.positions.size() > 0) {
+        vec3 chunkPos = vec3(chunk_x * CHUNK_SIZE, (chunk_y * CHUNK_SIZE), chunk_z * CHUNK_SIZE);
+        Renderer::render(&this->mesh, mat, Transform(chunkPos, vec3(), vec3(1.0f)), AABB(chunkPos, chunkPos + vec3(CHUNK_SIZE)));
+        //Renderer::debug.renderDebugAABB(AABB(chunkPos, chunkPos + vec3(CHUNK_SIZE)), vec3(1.0f, 0.0f, 0.0f));
+	}
 }

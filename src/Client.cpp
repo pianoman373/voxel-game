@@ -2,7 +2,6 @@
 #include "Settings.hpp"
 #include "Util.hpp"
 #include "Player.hpp"
-#include "Console.hpp"
 #include "Block.hpp"
 #include "World.hpp"
 #include "Chunk.hpp"
@@ -19,13 +18,11 @@
 #include <thread>
 
 static Shader blockShader;
-static Shader blockShaderFar;
 static Shader skyboxShader;
 static Texture texture;
 static Texture texture_r;
-static Camera camera;
+Camera Client::camera;
 static Player *player;
-//static Console console;
 
 Frustum Client::frustum;
 
@@ -33,7 +30,6 @@ static Material nearMaterial;
 static Material farMaterial;
 
 World Client::world;
-sol::state Client::luaState;
 
 static bool p_open = false;
 
@@ -58,47 +54,32 @@ void Client::renderGUI(float deltaTime) {
     ImGui::End();
 }
 
-static void registerBlockNew(int id) {
-	std::cout << "registering block id " << id << std::endl;
-
-	BlockRegistry::registerBlock(id, new LuaBlock(id));
-}
-
 void Client::init() {
-	// open some common libraries
-	luaState.open_libraries(sol::lib::base,
-		sol::lib::bit32,
-		sol::lib::coroutine,
-		sol::lib::count,
-		sol::lib::io,
-		sol::lib::math,
-		sol::lib::os,
-		sol::lib::package,
-		sol::lib::string,
-		sol::lib::table,
-		sol::lib::utf8,
-		sol::lib::ffi
-	);
-	//luaState.require_script("inspect", luaState.script_file("inspect.lua"));
-	luaState["registerBlockNew"] = registerBlockNew;
-	luaState.script_file("api.lua", &sol::default_on_error);
-	luaState.script_file("init.lua", &sol::default_on_error);
+    BlockRegistry::registerBlock(0, new SimpleBlock({0, 0}, "Air", false));
+    BlockRegistry::registerBlock(1, new GrassBlock());
+    BlockRegistry::registerBlock(2, new SimpleBlock({1, 0}, "Stone", true));
+    BlockRegistry::registerBlock(3, new SimpleBlock({2, 0}, "Dirt", true));
+    BlockRegistry::registerBlock(4, new SimpleBlock({0, 1}, "Cobblestone", true));
+    BlockRegistry::registerBlock(5, new SimpleBlock({4, 0}, "Planks", true));
+    BlockRegistry::registerBlock(6, new SimpleBlock({4, 1}, "Wood", true));
+    BlockRegistry::registerBlock(7, new SimpleBlock({4, 3}, "Leaves", false));
+    BlockRegistry::registerBlock(8, new SimpleBlock({9, 6}, "Glowstone", true));
 
     json j = Util::loadJsonFile("settings.json");
     Settings::load(j);
 
     Renderer::init(Settings::shadows, Settings::shadow_resolution, 1400, 800);
     Renderer::setSun({normalize(vec3(-0.4f, -0.7f, -1.0f)), vec3(1.4f, 1.3f, 1.0f) * 3.0f});
-    Renderer::settings.bloom = false;
-    Renderer::settings.fxaa = true;
-    Renderer::settings.ssao = true;
-    Renderer::settings.tonemap = true;
-    Renderer::settings.vignette = true;
 
-	Renderer::ambient = vec3(0.5, 0.6, 1.0) * 0.1f;
+    Renderer::settings.bloom = false;
+    Renderer::settings.bloomStrength = 0.1f;
+    Renderer::settings.fxaa = Settings::fancy_graphics;
+    Renderer::settings.ssao = Settings::fancy_graphics;
+    Renderer::settings.ssaoKernelSize = 8;
+    Renderer::settings.tonemap = true;
+    Renderer::settings.vignette = false;
 
     blockShader.loadFile("resources/blockShader.vsh", "resources/blockShader.fsh");
-    //blockShaderFar.loadFile("resources/blockShader.vsh", "resources/blockShaderSimple.fsh");
     skyboxShader.loadFile("resources/skybox.vsh", "resources/skybox.fsh");
     texture.load("resources/terrain.png", true);
 	texture_r.load("resources/terrain_r.png", true);
@@ -109,39 +90,25 @@ void Client::init() {
     farMaterial.setShader(blockShader);
 	farMaterial.setPBRUniforms(texture, 0.9f, 0.0f);
 
-   
-
-    //glEnable(GL_CULL_FACE);
-    //glEnable(GL_DEPTH_TEST);
-    //glEnable(GL_BLEND);
-    //glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
     player = new Player(world);
-    player->position = vec3(16.0f, 100.0f, 16.0f);
+    player->position = vec3(16.0f, 0.0f, 16.0f);
 
-	Cubemap cubemap;
-	cubemap.loadEquirectangular("resources/skybox.jpg", 1024);
+    if (Settings::fancy_graphics) {
+        Cubemap cubemap;
+        cubemap.loadEquirectangular("resources/skybox.png", 1024);
 
-	Renderer::setSkyboxShader(skyboxShader);
-	//Renderer::environment = cubemap;
-	Renderer::generateIBLmaps();
+        Renderer::setSkyboxShader(skyboxShader);
+        Renderer::environment = cubemap;
+    }
+
+    frustum.setupInternals(Settings::fov, (float)Window::getWindowSize().x/(float)Window::getWindowSize().y, 0.1f, 1000.0f);
 }
 
-
-
 void Client::run(std::string username, std::string ip) {
-
     Window::create({1400, 800}, "Voxel Game", false);
-
 
     init();
 	world.init(camera);
-
-    Renderer::setSun({ world.getSunDirection(), world.getSunColor() });
-    Renderer::generateIBLmaps();
-    Renderer::environment = Renderer::specular;
-    Renderer::setSkyboxShader(Renderer::cubemapShader);
-
 
     while (Window::isOpen()) {
         static float deltaTime;
@@ -151,45 +118,26 @@ void Client::run(std::string username, std::string ip) {
         deltaTime = currentFrameTime - lastFrameTime;
         lastFrameTime = currentFrameTime;
 
+
         camera.dimensions = {(float)Window::getWindowSize().x, (float)Window::getWindowSize().y};
 
         Window::begin();
         scrollBlocks(Input::getScroll());
 
         player->update(camera, deltaTime);
-        
+        frustum.updateCamPosition(camera);
 
-        vec2i size = Window::getWindowSize();
-
-        if (Input::isKeyDown(GLFW_KEY_F) || true) {
-            frustum.setupInternals(Settings::fov, (float) size.x / (float) size.y, 0.1f, 1000.0f);
-            float radius = 20.0f;
-            //frustum.setupInternalsOrthographic(-radius, radius, -radius, radius, -radius * 8, radius * 8);
-            frustum.updateCamPosition(camera);
-        }
-
-        //<---===rendering===--->//
-        //Common::world.rebuild();
-		
 		world.update(camera, deltaTime);
-		//Common::world.rebuild();
-        world.render(camera, &nearMaterial, &farMaterial);
-        //frustum.renderDebug();
+        Renderer::setSun({ world.getSunDirection(), world.getSunColor() });
+		Renderer::ambient = world.getAmbient();
 
-        for (auto const &ref: playerPositions) {
-            vec3 v = ref.second;
-
-            Renderer::debug.renderDebugAABB(v - vec3(0.3f, 0.9f, 0.3f), v + vec3(0.3f, 0.9f, 0.3f), vec3(1.0f, 0.0f, 0.0f));
-        }
+        world.render(camera, &nearMaterial);
 
         renderGUI(deltaTime);
 
+
         //render scene and update window
-        Renderer::flush(camera);
-
-		
-
-		Renderer::setSun({ world.getSunDirection(), world.getSunColor() });
+        Renderer::flush(camera, frustum);
 
         Window::end();
     }

@@ -10,11 +10,11 @@ A yet unnamed project which aims to be a fully open source and moddable voxel ga
 # Building
 
 This project uses [cmake](http://www.cmake.org/download/) as it's build system. Setting up a project for your particular IDE via cmake is pretty simple
-and instructions can be founs on the cmake website.
+and instructions can be found on the cmake website.
 
 # Running
 
-Voxel-game requires several files that are available from the root folder of the project and the resources folder. If you attempt to run
+Voxel-Game requires several files that are available from the root folder of the project and the resources folder. If you attempt to run
 the program after a build the program will crash because it can't find the resources folder. To fix this set your working directory to the
 project root folder for debugging/running.
 

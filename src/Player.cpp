@@ -116,6 +116,9 @@ void Player::update(Camera &cam, float delta) {
         if (Input::isKeyDown(GLFW_KEY_R)) {
             velocity.y = 8.4f;
         }
+        if (Input::isKeyDown(GLFW_KEY_F)) {
+            velocity.y = -8.4f;
+        }
     }
 
     //apply gravity
@@ -128,11 +131,11 @@ void Player::update(Camera &cam, float delta) {
     AABB playerBoundingBox = AABB(vec3(), vec3());
 
     //the collider for narrowing down all the world's blocks to a smaller area
-    AABB playerBoundingBoxLarge = AABB(position - vec3(10.0f), position + vec3(10.0f));
+    AABB playerBoundingBoxLarge = AABB(position - vec3(5.0f), position + vec3(5.0f));
 
     //Renderer::renderDebugAABB(playerBoundingBoxLarge, vec3(1.0f, 0.0f, 0.0f));
 
-    std::vector<AABB> collisions = world.getCollisions(playerBoundingBoxLarge);
+    std::vector<AABB> collisions = world.manager.getCollisions(playerBoundingBoxLarge);
 
     //collision detection
 
@@ -247,7 +250,7 @@ void Player::update(Camera &cam, float delta) {
     //block placing
     vec3i blockpos;
     vec3 blocknormal;
-    if (world.raycastBlocks(cam.getPosition(), cam.getDirection(), 10.0f, blockpos, blocknormal)) {
+    if (world.manager.raycastBlocks(cam.getPosition(), cam.getDirection(), 10.0f, blockpos, blocknormal)) {
         float bias = 0.01f;
         //block outline for the block the player is looking at
         Renderer::debug.renderDebugAABB(vec3(blockpos.x, blockpos.y, blockpos.z) - bias, vec3(blockpos.x + 1, blockpos.y + 1, blockpos.z + 1) + bias, vec3());
@@ -260,10 +263,8 @@ void Player::update(Camera &cam, float delta) {
             int cy = blockpos.y >> 5;
             int cz = blockpos.z >> 5;
             int blockID = 0;
-            
-			world.getChunk(cx, cy, cz)->removeTorch(x, y, z);
 
-			world.notifyChunkChange(blockpos.x, blockpos.y, blockpos.z);
+			//world.manager.getChunk(cx, cy, cz)->removeTorch(x, y, z);
 
 			//world.setBlock(x, y, z, blockID);
         }
@@ -273,16 +274,16 @@ void Player::update(Camera &cam, float delta) {
 			int z = blockpos.z;
 
 
-            if (world.getBlock(x, y, z) == 5) {
+            if (world.manager.getBlock(x, y, z) == 5) {
                 int cx = blockpos.x >> 5;
                 int cy = blockpos.y >> 5;
                 int cz = blockpos.z >> 5;
 
-                world.setBlock(x, y, z, 0);
-                world.getChunk(cx, cy, cz)->removeTorch(x, y, z);
+                world.manager.setBlock(x, y, z, 0);
+                //world.manager.getChunk(cx, cy, cz)->removeTorch(x, y, z);
             }
             else {
-                world.setBlock(x, y, z, 0);
+                world.manager.setBlock(x, y, z, 0);
             }
 
 		}
@@ -301,16 +302,16 @@ void Player::update(Camera &cam, float delta) {
                 int cy = y >> 5;
                 int cz = z >> 5;
 
-                std::cout << world.getChunk(cx, cy, cz)->getTorchlight(wx, wy, wz);
+                //std::cout << world.manager.getChunk(cx, cy, cz)->getTorchlight(wx, wy, wz);
 
                 if (blockID == 5) {
                     std::cout << "placing planks" << std::endl;
 
-                    world.setBlock(x, y, z, blockID);
-                    world.getChunk(cx, cy, cz)->placeTorch(wx, wy, wz);
+                    world.manager.setBlock(x, y, z, blockID);
+                    //world.manager.getChunk(cx, cy, cz)->placeTorch(wx, wy, wz);
                 } else {
-                    world.setBlock(x, y, z, blockID);
-                    world.getChunk(cx, cy, cz)->removeTorch(x, y, z);
+                    world.manager.setBlock(x, y, z, blockID);
+                    //world.manager.getChunk(cx, cy, cz)->removeTorch(x, y, z);
                 }
 
 
@@ -319,6 +320,7 @@ void Player::update(Camera &cam, float delta) {
     }
 
     velocity.x = 0.0f;
+    //velocity.y = 0.0f;
     velocity.z = 0.0f;
 
     vec3i chunkPos = World::worldToChunkPos(position);
