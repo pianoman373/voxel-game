@@ -148,7 +148,7 @@ void main() {
 
     color = atmosphere(
         -dir,           // normalized ray direction
-        vec3(0,6372e3,0),               // ray origin
+        vec3(0,6372e3 + 1000,0),               // ray origin
         -sun.direction,                        // position of the sun
         22.0,                           // intensity of the sun
         6371e3,                         // radius of the planet in meters

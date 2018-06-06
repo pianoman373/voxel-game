@@ -20,7 +20,8 @@ Chunk::Chunk(int x, int y, int z, ChunkManager* cm) {
 }
 
 Chunk::~Chunk() {
-	
+    ms.clear();
+	mesh.destroy();
 }
 
 // Get the bits XXXX0000
@@ -626,7 +627,7 @@ void Chunk::generateMesh() {
 }
 
 void Chunk::render(Material *mat) {
-	if (this->rebuild == true) {
+	if (this->rebuild) {
 		ms.toMesh(this->mesh);
 		ms.clear();
 

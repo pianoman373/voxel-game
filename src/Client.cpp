@@ -137,7 +137,7 @@ void Client::run(std::string username, std::string ip) {
 
 
         //render scene and update window
-        Renderer::flush(camera, frustum);
+       Renderer::flush(camera, frustum);
 
         Window::end();
     }

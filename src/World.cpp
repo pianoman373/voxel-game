@@ -277,8 +277,8 @@ vec3 World::getSunColor() {
 	if (sunIntensity < 0.0f) {
 		sunIntensity = 0.0f;
 	}
-	if (sunIntensity > 3.0f) {
-		sunIntensity = 3.0f;
+	if (sunIntensity > 2.0f) {
+		sunIntensity = 2.0f;
 	}
 
 	return vec3(1.4f, 1.3f, 1.0f) * sunIntensity;
@@ -290,8 +290,11 @@ vec3 World::getAmbient() {
 	if (sunIntensity < 0.0f) {
 		sunIntensity = 0.0f;
 	}
+    if (sunIntensity > 2.0f) {
+        sunIntensity = 2.0f;
+    }
 
-	return (vec3(0.5, 0.6, 1.0) * 0.3f * sunIntensity) + (vec3(0.5, 0.6, 1.0) * 0.05f);
+	return (vec3(0.5, 0.6, 1.0) * 0.5f * sunIntensity) + (vec3(0.5, 0.6, 1.0) * 0.05f);
 }
 
 vec3i World::worldToChunkPos(vec3 pos) {
