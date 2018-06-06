@@ -9,6 +9,7 @@ in vec3 fragNormal;
 in vec2 uv;
 in vec3 fragColor;
 in mat3 TBN;
+in float ao;
 
 uniform sampler2D albedoTex;
 uniform bool albedoTextured;
@@ -24,6 +25,8 @@ uniform float metallicColor;
 
 uniform sampler2D normalTex;
 uniform bool normalTextured;
+
+uniform sampler2D emissionTex;
 
 void main()
 {    
@@ -71,6 +74,6 @@ void main()
     }
 
   gNormal = normalize(normal);
-  gAlbedo = vec4(albedo.rgb * length(normal) * (fragColor*0.9 + 0.1), 1.0);
-  gRoughnessMetallic = vec4(roughness, metallic, 1.0, 0.0);
+  gAlbedo = vec4(albedo.rgb * ao, 1.0);
+  gRoughnessMetallic = vec4(roughness, metallic, 1.0, texture(emissionTex, uv).r);
 }  

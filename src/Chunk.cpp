@@ -423,13 +423,13 @@ void Chunk::generateMesh() {
 
 						vec3 blockColor = vec3(1.0f) * ((float)getTorchlight(x + 1, y, z) / 15.0f);
 
-                        ms.vertex(1.0f+x,  0.0f+y,  0.0f+z,  1.0f*ao100, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao100,*/  uv1.x, uv2.y);
-                        ms.vertex(1.0f+x,  1.0f+y,  0.0f+z,  1.0f*ao110, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao110,*/  uv1.x, uv1.y);
-                        ms.vertex(1.0f+x,  1.0f+y,  1.0f+z,  1.0f*ao111, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao111,*/  uv2.x, uv1.y);
+                        ms.vertex(1.0f+x,  0.0f+y,  0.0f+z,  1.0f*ao100, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f, /*ao100,*/  uv1.x, uv2.y);
+                        ms.vertex(1.0f+x,  1.0f+y,  0.0f+z,  1.0f*ao110, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f, /*ao110,*/  uv1.x, uv1.y);
+                        ms.vertex(1.0f+x,  1.0f+y,  1.0f+z,  1.0f*ao111, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f, /*ao111,*/  uv2.x, uv1.y);
 
-                        ms.vertex(1.0f+x,  1.0f+y,  1.0f+z,  1.0f*ao111, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao111,*/  uv2.x, uv1.y);
-                        ms.vertex(1.0f+x,  0.0f+y,  1.0f+z,  1.0f*ao101, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao101,*/  uv2.x, uv2.y);
-                        ms.vertex(1.0f+x,  0.0f+y,  0.0f+z,  1.0f*ao100, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao100,*/  uv1.x, uv2.y);
+                        ms.vertex(1.0f+x,  1.0f+y,  1.0f+z,  1.0f*ao111, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f, /*ao111,*/  uv2.x, uv1.y);
+                        ms.vertex(1.0f+x,  0.0f+y,  1.0f+z,  1.0f*ao101, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f, /*ao101,*/  uv2.x, uv2.y);
+                        ms.vertex(1.0f+x,  0.0f+y,  0.0f+z,  1.0f*ao100, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f, /*ao100,*/  uv1.x, uv2.y);
                     }
                     if (block_negX_Y_Z) { //-x face
                         vec2i textureCoord = block->getTextureCoord(EnumDirection::NEGATIVE_X);
@@ -460,13 +460,13 @@ void Chunk::generateMesh() {
 
 						 vec3 blockColor = vec3(1.0f) * ((float)getTorchlight(x - 1, y, z) / 15.0f);
 
-                        ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  -1.0f*ao011, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao011,*/  uv1.x, uv1.y);
-                        ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  -1.0f*ao010, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao010,*/  uv2.x, uv1.y);
-                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  -1.0f*ao000, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao000,*/  uv2.x, uv2.y);
+                        ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  -1.0f*ao011, 0.0f, 0.0f,  0.0f, 0.0f, -1.0f, /*ao011,*/  uv1.x, uv1.y);
+                        ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  -1.0f*ao010, 0.0f, 0.0f,  0.0f, 0.0f, -1.0f, /*ao010,*/  uv2.x, uv1.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  -1.0f*ao000, 0.0f, 0.0f,  0.0f, 0.0f, -1.0f, /*ao000,*/  uv2.x, uv2.y);
 
-                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  -1.0f*ao000, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao000,*/  uv2.x, uv2.y);
-                        ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  -1.0f*ao001, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao001,*/  uv1.x, uv2.y);
-                        ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  -1.0f*ao011, 0.0f, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao011,*/  uv1.x, uv1.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  -1.0f*ao000, 0.0f, 0.0f,  0.0f, 0.0f, -1.0f, /*ao000,*/  uv2.x, uv2.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  -1.0f*ao001, 0.0f, 0.0f,  0.0f, 0.0f, -1.0f, /*ao001,*/  uv1.x, uv2.y);
+                        ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  -1.0f*ao011, 0.0f, 0.0f,  0.0f, 0.0f, -1.0f, /*ao011,*/  uv1.x, uv1.y);
                     }
 
                     if (block_X_posY_Z) { //top face
@@ -498,13 +498,13 @@ void Chunk::generateMesh() {
 
 						 vec3 blockColor = vec3(1.0f) * ((float)getTorchlight(x, y + 1, z) / 15.0f);
 
-                        ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 1.0f*ao111, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao111,*/  uv2.x, uv1.y);
-                        ms.vertex( 1.0f+x,  1.0f+y,  0.0f+z,  0.0f, 1.0f*ao110, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao110,*/  uv2.x, uv2.y);
-                        ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  0.0f, 1.0f*ao010, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao010,*/  uv1.x, uv2.y);
+                        ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 1.0f*ao111, 0.0f,  -1.0f, 0.0f, 0.0f, /*ao111,*/  uv2.x, uv1.y);
+                        ms.vertex( 1.0f+x,  1.0f+y,  0.0f+z,  0.0f, 1.0f*ao110, 0.0f,  -1.0f, 0.0f, 0.0f, /*ao110,*/  uv2.x, uv2.y);
+                        ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  0.0f, 1.0f*ao010, 0.0f,  -1.0f, 0.0f, 0.0f, /*ao010,*/  uv1.x, uv2.y);
 
-                        ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  0.0f, 1.0f*ao010, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao010,*/  uv1.x, uv2.y);
-                        ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  0.0f, 1.0f*ao011, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao011,*/  uv1.x, uv1.y);
-                        ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 1.0f*ao111, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao111,*/  uv2.x, uv1.y);
+                        ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  0.0f, 1.0f*ao010, 0.0f,  -1.0f, 0.0f, 0.0f, /*ao010,*/  uv1.x, uv2.y);
+                        ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  0.0f, 1.0f*ao011, 0.0f,  -1.0f, 0.0f, 0.0f, /*ao011,*/  uv1.x, uv1.y);
+                        ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 1.0f*ao111, 0.0f,  -1.0f, 0.0f, 0.0f, /*ao111,*/  uv2.x, uv1.y);
                     }
                     if (block_X_negY_Z) { //bottom face
                         vec2i textureCoord = block->getTextureCoord(EnumDirection::NEGATIVE_Y);
@@ -535,13 +535,13 @@ void Chunk::generateMesh() {
 
 						 vec3 blockColor = vec3(1.0f) * ((float)getTorchlight(x, y - 1, z) / 15.0f);
 
-                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, -1.0f*ao000, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao000,*/  uv1.x, uv2.y);
-                        ms.vertex( 1.0f+x,  0.0f+y,  0.0f+z,  0.0f, -1.0f*ao100, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao100,*/  uv2.x, uv2.y);
-                        ms.vertex( 1.0f+x,  0.0f+y,  1.0f+z,  0.0f, -1.0f*ao101, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao101,*/  uv2.x, uv1.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, -1.0f*ao000, 0.0f,  1.0f, 0.0f, 0.0f, /*ao000,*/  uv1.x, uv2.y);
+                        ms.vertex( 1.0f+x,  0.0f+y,  0.0f+z,  0.0f, -1.0f*ao100, 0.0f,  1.0f, 0.0f, 0.0f, /*ao100,*/  uv2.x, uv2.y);
+                        ms.vertex( 1.0f+x,  0.0f+y,  1.0f+z,  0.0f, -1.0f*ao101, 0.0f,  1.0f, 0.0f, 0.0f, /*ao101,*/  uv2.x, uv1.y);
 
-                        ms.vertex( 1.0f+x,  0.0f+y,  1.0f+z,  0.0f, -1.0f*ao101, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao101,*/  uv2.x, uv1.y);
-                        ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  0.0f, -1.0f*ao001, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao001,*/  uv1.x, uv1.y);
-                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, -1.0f*ao000, 0.0f,  blockColor.x, blockColor.y, blockColor.z, /*ao000,*/  uv1.x, uv2.y);
+                        ms.vertex( 1.0f+x,  0.0f+y,  1.0f+z,  0.0f, -1.0f*ao101, 0.0f,  1.0f, 0.0f, 0.0f, /*ao101,*/  uv2.x, uv1.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  0.0f, -1.0f*ao001, 0.0f,  1.0f, 0.0f, 0.0f, /*ao001,*/  uv1.x, uv1.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, -1.0f*ao000, 0.0f,  1.0f, 0.0f, 0.0f, /*ao000,*/  uv1.x, uv2.y);
                     }
 
                     if (block_X_Y_negZ) { //-z face
@@ -573,13 +573,13 @@ void Chunk::generateMesh() {
 
 						 vec3 blockColor = vec3(1.0f) * ((float)getTorchlight(x, y, z - 1) / 15.0f);
 
-                        ms.vertex( 1.0f+x,  1.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f*ao110,  blockColor.x, blockColor.y, blockColor.z, /*ao110,*/  uv2.x, uv1.y);
-                        ms.vertex( 1.0f+x,  0.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f*ao100,  blockColor.x, blockColor.y, blockColor.z, /*ao100,*/  uv2.x, uv2.y);
-                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f*ao000,  blockColor.x, blockColor.y, blockColor.z, /*ao000,*/  uv1.x, uv2.y);
+                        ms.vertex( 1.0f+x,  1.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f*ao110,  -1.0f, 0.0f, 0.0f, /*ao110,*/  uv2.x, uv1.y);
+                        ms.vertex( 1.0f+x,  0.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f*ao100,  -1.0f, 0.0f, 0.0f, /*ao100,*/  uv2.x, uv2.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f*ao000,  -1.0f, 0.0f, 0.0f, /*ao000,*/  uv1.x, uv2.y);
 
-                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f*ao000,  blockColor.x, blockColor.y, blockColor.z, /*ao000,*/  uv1.x, uv2.y);
-                        ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f*ao010,  blockColor.x, blockColor.y, blockColor.z, /*ao010,*/  uv1.x, uv1.y);
-                        ms.vertex( 1.0f+x,  1.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f*ao110,  blockColor.x, blockColor.y, blockColor.z, /*ao110,*/  uv2.x, uv1.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f*ao000,  -1.0f, 0.0f, 0.0f, /*ao000,*/  uv1.x, uv2.y);
+                        ms.vertex( 0.0f+x,  1.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f*ao010,  -1.0f, 0.0f, 0.0f, /*ao010,*/  uv1.x, uv1.y);
+                        ms.vertex( 1.0f+x,  1.0f+y,  0.0f+z,  0.0f, 0.0f, -1.0f*ao110,  -1.0f, 0.0f, 0.0f, /*ao110,*/  uv2.x, uv1.y);
                     }
                     if (block_X_Y_posZ) { //+z face
                         vec2i textureCoord = block->getTextureCoord(EnumDirection::POSITIVE_Z);
@@ -610,13 +610,13 @@ void Chunk::generateMesh() {
 
 						 vec3 blockColor = vec3(1.0f) * ((float)getTorchlight(x, y, z + 1) / 15.0f);
 
-                        ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f*ao001,  blockColor.x, blockColor.y, blockColor.z, /*ao001,*/  uv1.x, uv2.y);
-                        ms.vertex( 1.0f+x,  0.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f*ao101,  blockColor.x, blockColor.y, blockColor.z, /*ao101,*/  uv2.x, uv2.y);
-                        ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f*ao111,  blockColor.x, blockColor.y, blockColor.z, /*ao111,*/  uv2.x, uv1.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f*ao001,  1.0f, 0.0f, 0.0f, /*ao001,*/  uv1.x, uv2.y);
+                        ms.vertex( 1.0f+x,  0.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f*ao101,  1.0f, 0.0f, 0.0f, /*ao101,*/  uv2.x, uv2.y);
+                        ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f*ao111,  1.0f, 0.0f, 0.0f, /*ao111,*/  uv2.x, uv1.y);
 
-                        ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f*ao111,  blockColor.x, blockColor.y, blockColor.z, /*ao111,*/  uv2.x, uv1.y);
-                        ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f*ao011,  blockColor.x, blockColor.y, blockColor.z, /*ao011,*/  uv1.x, uv1.y);
-                        ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f*ao001,  blockColor.x, blockColor.y, blockColor.z, /*ao001,*/  uv1.x, uv2.y);
+                        ms.vertex( 1.0f+x,  1.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f*ao111,  1.0f, 0.0f, 0.0f, /*ao111,*/  uv2.x, uv1.y);
+                        ms.vertex( 0.0f+x,  1.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f*ao011,  1.0f, 0.0f, 0.0f, /*ao011,*/  uv1.x, uv1.y);
+                        ms.vertex( 0.0f+x,  0.0f+y,  1.0f+z,  0.0f, 0.0f, 1.0f*ao001,  1.0f, 0.0f, 0.0f, /*ao001,*/  uv1.x, uv2.y);
                     }
                 }
             }

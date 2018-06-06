@@ -21,6 +21,9 @@ static Shader blockShader;
 static Shader skyboxShader;
 static Texture texture;
 static Texture texture_r;
+static Texture texture_m;
+static Texture texture_e;
+static Texture texture_n;
 Camera Client::camera;
 static Player *player;
 
@@ -64,6 +67,8 @@ void Client::init() {
     BlockRegistry::registerBlock(6, new SimpleBlock({4, 1}, "Wood", true));
     BlockRegistry::registerBlock(7, new SimpleBlock({4, 3}, "Leaves", false));
     BlockRegistry::registerBlock(8, new SimpleBlock({9, 6}, "Glowstone", true));
+    BlockRegistry::registerBlock(9, new SimpleBlock({6, 1}, "Iron", true));
+    BlockRegistry::registerBlock(10, new SimpleBlock({7, 1}, "Gold", true));
 
     json j = Util::loadJsonFile("settings.json");
     Settings::load(j);
@@ -71,7 +76,7 @@ void Client::init() {
     Renderer::init(Settings::shadows, Settings::shadow_resolution, 1400, 800);
     Renderer::setSun({normalize(vec3(-0.4f, -0.7f, -1.0f)), vec3(1.4f, 1.3f, 1.0f) * 3.0f});
 
-    Renderer::settings.bloom = false;
+    Renderer::settings.bloom = Settings::fancy_graphics;
     Renderer::settings.bloomStrength = 0.1f;
     Renderer::settings.fxaa = Settings::fancy_graphics;
     Renderer::settings.ssao = Settings::fancy_graphics;
@@ -83,9 +88,13 @@ void Client::init() {
     skyboxShader.loadFile("resources/skybox.vsh", "resources/skybox.fsh");
     texture.load("resources/terrain.png", true);
 	texture_r.load("resources/terrain_r.png", true);
+    texture_m.load("resources/terrain_m.png", true);
+    texture_e.load("resources/terrain_e.png", true);
+    texture_n.load("resources/terrain_n.png", true);
 
     nearMaterial.setShader(blockShader);
-	nearMaterial.setPBRUniforms(texture, 0.9f, 0.0f);
+	nearMaterial.setPBRUniforms(texture, texture_r, texture_m, texture_n);
+	nearMaterial.setUniformTexture("emissionTex", texture_e, 5);
 
     farMaterial.setShader(blockShader);
 	farMaterial.setPBRUniforms(texture, 0.9f, 0.0f);
@@ -117,7 +126,6 @@ void Client::run(std::string username, std::string ip) {
         float currentFrameTime = Window::getTime();
         deltaTime = currentFrameTime - lastFrameTime;
         lastFrameTime = currentFrameTime;
-
 
         camera.dimensions = {(float)Window::getWindowSize().x, (float)Window::getWindowSize().y};
 
