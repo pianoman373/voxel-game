@@ -5,6 +5,7 @@
 #include <crucible/Mesh.hpp>
 #include <crucible/MeshFactory.hpp>
 #include <crucible/Material.hpp>
+#include <crucible/AABB.hpp>
 
 #include "ChunkMesh.hpp"
 
@@ -29,6 +30,8 @@ public:
     bool empty = true;
     bool isDirty = false;
     bool generated = false;
+
+    AABB aabb;
 
     //TODO: should be a vec3i
     int chunk_x;

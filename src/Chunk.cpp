@@ -328,16 +328,11 @@ void Chunk::generateMesh() {
 //        }
 //    }
 
-    for (int x = 0; x < CHUNK_SIZE; x++) {
-        for (int z = 0; z < CHUNK_SIZE; z++) {
-            for (int y = 0; y < CHUNK_SIZE; y++) {
-                lightMap[x][y][z] = 15;
-            }
-        }
-    }
-
     if (!empty) {
         float bias = 0.00001f;
+
+        vec3i min = vec3i(32, 32, 32);
+        vec3i max = vec3i(0, 0, 0);
 
         for (int x = 0; x < CHUNK_SIZE; x++) {
             for (int z = 0; z < CHUNK_SIZE; z++) {
@@ -345,8 +340,42 @@ void Chunk::generateMesh() {
 
                     int block_X_Y_Z = getBlockFromWorld(x, y, z);
 
-                    if (block_X_Y_Z == 0)
-                       continue;
+                    if (block_X_Y_Z == 0) {
+                        continue;
+                    }
+                    else {
+                        if (x < min.x) {
+                            min.x = x;
+                        }
+
+
+                        if (y < min.y) {
+                            min.y = y;
+                        }
+
+
+                        if (z < min.z) {
+                            min.z = z;
+                        }
+
+
+
+
+                        if (x > max.x) {
+                            max.x = x;
+                        }
+
+
+                        if (y > max.y) {
+                            max.y = y;
+                        }
+
+
+                        if (z > max.z) {
+                            max.z = z;
+                        }
+                    }
+
 
 					float lightLevel = 0.0f;
 
@@ -619,6 +648,8 @@ void Chunk::generateMesh() {
                 }
             }
         }
+
+        aabb = AABB(vec3(min.x + (chunk_x * CHUNK_SIZE), min.y + (chunk_y * CHUNK_SIZE), min.z + (chunk_z * CHUNK_SIZE)), vec3(max.x+1 + (chunk_x * CHUNK_SIZE), max.y+1 + (chunk_y * CHUNK_SIZE), max.z+1 + (chunk_z * CHUNK_SIZE)));
     }
 
     this->rebuild = true;
@@ -634,7 +665,8 @@ void Chunk::render(Material *mat) {
 
 	if (this->mesh.data.size() > 0) {
         vec3 chunkPos = vec3(chunk_x * CHUNK_SIZE, (chunk_y * CHUNK_SIZE), chunk_z * CHUNK_SIZE);
-        Renderer::render(&this->mesh, mat, Transform(chunkPos, vec3(), vec3(1.0f)), AABB(chunkPos, chunkPos + vec3(CHUNK_SIZE)));
-        //Renderer::debug.renderDebugAABB(AABB(chunkPos, chunkPos + vec3(CHUNK_SIZE)), vec3(1.0f, 0.0f, 0.0f));
+        Renderer::render(&this->mesh, mat, Transform(chunkPos, vec3(), vec3(1.0f)), aabb);
+        //Renderer::debug.renderDebugAABB(aabb, vec3(1.0f, 0.0f, 0.0f));
+        //Renderer::debug.renderDebugAABB(AABB(chunkPos, chunkPos + vec3(CHUNK_SIZE)), vec3(0.0f, 0.0f, 1.0f));
 	}
 }

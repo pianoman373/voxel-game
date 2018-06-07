@@ -159,7 +159,11 @@ void Client::run(std::string username, std::string ip) {
         scrollBlocks(Input::getScroll());
 
         player->update(camera, deltaTime);
-        frustum.updateCamPosition(camera);
+
+
+        //if (Input::isKeyDown(Input::KEY_LEFT_CONTROL))
+            frustum.updateCamPosition(camera);
+        //frustum.renderDebug();
 
 		world.update(camera, deltaTime);
         Renderer::setSun({ world.getSunDirection(), world.getSunColor() });

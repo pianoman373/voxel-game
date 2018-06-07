@@ -117,8 +117,8 @@ static void generateChunk(ChunkManager &manager, Chunk *chunk) {
                 int actualY = y - 1 + (chunk->chunk_y * 32);
 
 
-                if (SimplexNoise::noise((float)actualX / 70.0f, (float)actualY / 70.0f, (float)actualZ / 50.0f) > -0.5f) {
 
+                if (SimplexNoise::noise((float)actualX / 70.0f, (float)actualY / 70.0f, (float)actualZ / 50.0f) > -0.5f) {
 					int actualHeight = y + (chunk->chunk_y * 32);
 
 					if (actualHeight < height) {
@@ -193,7 +193,7 @@ void World::chunkUpdateThread() {
 				}
 
 
-				chunk->generateMesh();
+                chunk->generateMesh();
 				chunk->isDirty = false;
 
 				break;
@@ -237,7 +237,7 @@ void World::render(Camera &cam, Material *nearmaterial) {
         vec3i chunkPos = ref.first;
 
         if (abs(chunkPos.x - camPos.x) > Settings::render_distance+1 || abs(chunkPos.y - camPos.y) > Settings::render_distance+1 || abs(chunkPos.z - camPos.z) > Settings::render_distance+1) {
-        	manager.deleteChunk(chunkPos.x, chunkPos.y, chunkPos.z);
+        	//manager.deleteChunk(chunkPos.x, chunkPos.y, chunkPos.z);
         	continue;
         }
 
