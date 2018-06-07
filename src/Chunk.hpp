@@ -6,6 +6,8 @@
 #include <crucible/MeshFactory.hpp>
 #include <crucible/Material.hpp>
 
+#include "ChunkMesh.hpp"
+
 #include <mutex>
 
 class ChunkManager;
@@ -23,8 +25,7 @@ public:
 	unsigned char blocks[CHUNK_SIZE * CHUNK_SIZE * CHUNK_SIZE] = { 0 };
 	unsigned char lightMap[CHUNK_SIZE][CHUNK_SIZE][CHUNK_SIZE] = { 0 };
 
-    Mesh mesh;
-    MeshFactory ms;
+    ChunkMesh mesh;
     bool empty = true;
     bool isDirty = false;
     bool generated = false;

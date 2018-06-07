@@ -57,7 +57,26 @@ void Client::renderGUI(float deltaTime) {
     ImGui::End();
 }
 
+static const std::vector<vec3> normalLookup = {
+        {1.0f, 0.0f, 0.0f},
+        {-1.0f, 0.0f, 0.0f},
+        {0.0f, 1.0f, 0.0f},
+        {0.0f, -1.0f, 0.0f},
+        {0.0f, 0.0f, 1.0f},
+        {0.0f, 0.0f, -1.0f}
+};
+
+static const std::vector<vec3> tangentLookup = {
+        {0.0f, 0.0f, 1.0f},
+        {0.0f, 0.0f, -1.0f},
+        {-1.0f, 0.0f, 0.0f},
+        {1.0f, 0.0f, 0.0f},
+        {1.0f, 0.0f, 0.0f},
+        {-1.0f, 0.0f, 0.0f}
+};
+
 void Client::init() {
+
     BlockRegistry::registerBlock(0, new SimpleBlock({0, 0}, "Air", false));
     BlockRegistry::registerBlock(1, new GrassBlock());
     BlockRegistry::registerBlock(2, new SimpleBlock({1, 0}, "Stone", true));
@@ -82,7 +101,7 @@ void Client::init() {
     Renderer::settings.ssao = Settings::fancy_graphics;
     Renderer::settings.ssaoKernelSize = 8;
     Renderer::settings.tonemap = true;
-    Renderer::settings.vignette = false;
+    Renderer::settings.vignette = true;
 
     blockShader.loadFile("resources/blockShader.vsh", "resources/blockShader.fsh");
     skyboxShader.loadFile("resources/skybox.vsh", "resources/skybox.fsh");
@@ -95,6 +114,13 @@ void Client::init() {
     nearMaterial.setShader(blockShader);
 	nearMaterial.setPBRUniforms(texture, texture_r, texture_m, texture_n);
 	nearMaterial.setUniformTexture("emissionTex", texture_e, 5);
+
+	for (int i = 0; i < normalLookup.size(); i++) {
+	    nearMaterial.setUniformVec3("normalLookup[" + std::to_string(i) + "]", normalLookup[i]);
+	}
+    for (int i = 0; i < tangentLookup.size(); i++) {
+        nearMaterial.setUniformVec3("tangentLookup[" + std::to_string(i) + "]", tangentLookup[i]);
+    }
 
     farMaterial.setShader(blockShader);
 	farMaterial.setPBRUniforms(texture, 0.9f, 0.0f);
