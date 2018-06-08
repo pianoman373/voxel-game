@@ -1,0 +1,13 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\c61992fd2c578113e81d8c3106b48135\generate.stamp.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{393729AD-A376-3F48-9BCF-FA52764D56D9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

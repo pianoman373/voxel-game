@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="C:\Users\Joseph\Desktop\luajit-master\luajit-master\src\host\buildvm.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Joseph\Desktop\luajit-master\luajit-master\src\host\buildvm_asm.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Joseph\Desktop\luajit-master\luajit-master\src\host\buildvm_fold.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Joseph\Desktop\luajit-master\luajit-master\src\host\buildvm_lib.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="C:\Users\Joseph\Desktop\luajit-master\luajit-master\src\host\buildvm_peobj.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="C:\Users\Joseph\Desktop\luajit-master\luajit-master\src\host\buildvm_arch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\e409d4febf520afeabb0a8818b7f4146\buildvm_arch.h.rule">
+      <Filter>CMake Rules</Filter>
+    </CustomBuild>
+    <CustomBuild Include="C:\Users\Joseph\Desktop\luajit-master\luajit-master\CMakeLists.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="CMake Rules">
+      <UniqueIdentifier>{393729AD-A376-3F48-9BCF-FA52764D56D9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{8C45458D-C415-32D4-A22F-69B0D43B4FB9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{ED64F8E5-D8DB-3391-97F5-ABE9640DA1AB}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>

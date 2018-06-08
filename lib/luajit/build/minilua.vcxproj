@@ -1,0 +1,323 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="MinSizeRel|Win32">
+      <Configuration>MinSizeRel</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="RelWithDebInfo|Win32">
+      <Configuration>RelWithDebInfo</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{3E96003D-33F6-3542-B331-85AFF7324FA5}</ProjectGuid>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <Keyword>Win32Proj</Keyword>
+    <Platform>Win32</Platform>
+    <ProjectName>minilua</ProjectName>
+    <VCProjectUpgraderObjectName>NoUpgrade</VCProjectUpgraderObjectName>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <CharacterSet>MultiByte</CharacterSet>
+    <PlatformToolset>v141</PlatformToolset>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>10.0.20506.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\Debug\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">minilua.dir\Debug\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">minilua</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\Release\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">minilua.dir\Release\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">minilua</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\MinSizeRel\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">minilua.dir\MinSizeRel\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">minilua</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">true</GenerateManifest>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\RelWithDebInfo\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">minilua.dir\RelWithDebInfo\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">minilua</TargetName>
+    <TargetExt Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">.exe</TargetExt>
+    <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">true</LinkIncremental>
+    <GenerateManifest Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">true</GenerateManifest>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\Joseph\Desktop\luajit-master\luajit-master\build;C:\Users\Joseph\Desktop\luajit-master\luajit-master\dynasm;C:\Users\Joseph\Desktop\luajit-master\luajit-master\src;C:\Users\Joseph\Desktop\luajit-master\luajit-master\src\host;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Debug/</AssemblerListingLocation>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <CompileAs>CompileAsC</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;_CRT_SECURE_NO_WARNINGS;LUA_BUILD_AS_DLL;LUAJIT_OS=LUAJIT_OS_WINDOWS;CMAKE_INTDIR="Debug";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;LUA_BUILD_AS_DLL;LUAJIT_OS=LUAJIT_OS_WINDOWS;CMAKE_INTDIR=\"Debug\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\Joseph\Desktop\luajit-master\luajit-master\build;C:\Users\Joseph\Desktop\luajit-master\luajit-master\dynasm;C:\Users\Joseph\Desktop\luajit-master\luajit-master\src;C:\Users\Joseph\Desktop\luajit-master\luajit-master\src\host;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\Joseph\Desktop\luajit-master\luajit-master\build;C:\Users\Joseph\Desktop\luajit-master\luajit-master\dynasm;C:\Users\Joseph\Desktop\luajit-master\luajit-master\src;C:\Users\Joseph\Desktop\luajit-master\luajit-master\src\host;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/Debug/minilua.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/Debug/minilua.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\Joseph\Desktop\luajit-master\luajit-master\build;C:\Users\Joseph\Desktop\luajit-master\luajit-master\dynasm;C:\Users\Joseph\Desktop\luajit-master\luajit-master\src;C:\Users\Joseph\Desktop\luajit-master\luajit-master\src\host;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>Release/</AssemblerListingLocation>
+      <CompileAs>CompileAsC</CompileAs>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;LUA_BUILD_AS_DLL;LUAJIT_OS=LUAJIT_OS_WINDOWS;CMAKE_INTDIR="Release";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;LUA_BUILD_AS_DLL;LUAJIT_OS=LUAJIT_OS_WINDOWS;CMAKE_INTDIR=\"Release\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\Joseph\Desktop\luajit-master\luajit-master\build;C:\Users\Joseph\Desktop\luajit-master\luajit-master\dynasm;C:\Users\Joseph\Desktop\luajit-master\luajit-master\src;C:\Users\Joseph\Desktop\luajit-master\luajit-master\src\host;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\Joseph\Desktop\luajit-master\luajit-master\build;C:\Users\Joseph\Desktop\luajit-master\luajit-master\dynasm;C:\Users\Joseph\Desktop\luajit-master\luajit-master\src;C:\Users\Joseph\Desktop\luajit-master\luajit-master\src\host;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/Release/minilua.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/Release/minilua.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\Joseph\Desktop\luajit-master\luajit-master\build;C:\Users\Joseph\Desktop\luajit-master\luajit-master\dynasm;C:\Users\Joseph\Desktop\luajit-master\luajit-master\src;C:\Users\Joseph\Desktop\luajit-master\luajit-master\src\host;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>MinSizeRel/</AssemblerListingLocation>
+      <CompileAs>CompileAsC</CompileAs>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MinSpace</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;LUA_BUILD_AS_DLL;LUAJIT_OS=LUAJIT_OS_WINDOWS;CMAKE_INTDIR="MinSizeRel";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;LUA_BUILD_AS_DLL;LUAJIT_OS=LUAJIT_OS_WINDOWS;CMAKE_INTDIR=\"MinSizeRel\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\Joseph\Desktop\luajit-master\luajit-master\build;C:\Users\Joseph\Desktop\luajit-master\luajit-master\dynasm;C:\Users\Joseph\Desktop\luajit-master\luajit-master\src;C:\Users\Joseph\Desktop\luajit-master\luajit-master\src\host;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\Joseph\Desktop\luajit-master\luajit-master\build;C:\Users\Joseph\Desktop\luajit-master\luajit-master\dynasm;C:\Users\Joseph\Desktop\luajit-master\luajit-master\src;C:\Users\Joseph\Desktop\luajit-master\luajit-master\src\host;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/MinSizeRel/minilua.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/MinSizeRel/minilua.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\Users\Joseph\Desktop\luajit-master\luajit-master\build;C:\Users\Joseph\Desktop\luajit-master\luajit-master\dynasm;C:\Users\Joseph\Desktop\luajit-master\luajit-master\src;C:\Users\Joseph\Desktop\luajit-master\luajit-master\src\host;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AssemblerListingLocation>RelWithDebInfo/</AssemblerListingLocation>
+      <CompileAs>CompileAsC</CompileAs>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <ExceptionHandling>
+      </ExceptionHandling>
+      <InlineFunctionExpansion>OnlyExplicitInline</InlineFunctionExpansion>
+      <Optimization>MaxSpeed</Optimization>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;LUA_BUILD_AS_DLL;LUAJIT_OS=LUAJIT_OS_WINDOWS;CMAKE_INTDIR="RelWithDebInfo";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ObjectFileName>$(IntDir)</ObjectFileName>
+    </ClCompile>
+    <ResourceCompile>
+      <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;_CRT_SECURE_NO_WARNINGS;LUA_BUILD_AS_DLL;LUAJIT_OS=LUAJIT_OS_WINDOWS;CMAKE_INTDIR=\"RelWithDebInfo\";%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>C:\Users\Joseph\Desktop\luajit-master\luajit-master\build;C:\Users\Joseph\Desktop\luajit-master\luajit-master\dynasm;C:\Users\Joseph\Desktop\luajit-master\luajit-master\src;C:\Users\Joseph\Desktop\luajit-master\luajit-master\src\host;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
+    <Midl>
+      <AdditionalIncludeDirectories>C:\Users\Joseph\Desktop\luajit-master\luajit-master\build;C:\Users\Joseph\Desktop\luajit-master\luajit-master\dynasm;C:\Users\Joseph\Desktop\luajit-master\luajit-master\src;C:\Users\Joseph\Desktop\luajit-master\luajit-master\src\host;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <OutputDirectory>$(ProjectDir)/$(IntDir)</OutputDirectory>
+      <HeaderFileName>%(Filename).h</HeaderFileName>
+      <TypeLibraryName>%(Filename).tlb</TypeLibraryName>
+      <InterfaceIdentifierFileName>%(Filename)_i.c</InterfaceIdentifierFileName>
+      <ProxyFileName>%(Filename)_p.c</ProxyFileName>
+    </Midl>
+    <Link>
+      <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;comdlg32.lib;advapi32.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalOptions>%(AdditionalOptions) /machine:X86</AdditionalOptions>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <ImportLibrary>C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/RelWithDebInfo/minilua.lib</ImportLibrary>
+      <ProgramDataBaseFile>C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/RelWithDebInfo/minilua.pdb</ProgramDataBaseFile>
+      <SubSystem>Console</SubSystem>
+    </Link>
+    <ProjectReference>
+      <LinkLibraryDependencies>false</LinkLibraryDependencies>
+    </ProjectReference>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <CustomBuild Include="C:\Users\Joseph\Desktop\luajit-master\luajit-master\CMakeLists.txt">
+      <Message Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Building Custom Rule C:/Users/Joseph/Desktop/luajit-master/luajit-master/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -HC:/Users/Joseph/Desktop/luajit-master/luajit-master -BC:/Users/Joseph/Desktop/luajit-master/luajit-master/build --check-stamp-file C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:/Users/Joseph/Desktop/luajit-master/luajit-master/CMakeLists.txt;C:\Users\Joseph\Desktop\luajit-master\luajit-master\CMakeLists.txt;C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\3.11.3\CMakeSystem.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeSystemSpecificInitialize.cmake;C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\3.11.3\CMakeCCompiler.cmake;C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\3.11.3\CMakeASMCompiler.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\3.11.3\CMakeRCCompiler.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeASMInformation.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\Compiler\MSVC-ASM.cmake;C:\Users\Joseph\Desktop\luajit-master\luajit-master\cmake\dist.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CPack.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CPackComponent.cmake;C:\Program Files\CMake\share\cmake-3.11\Templates\CPackConfig.cmake.in;C:\Program Files\CMake\share\cmake-3.11\Templates\CPackConfig.cmake.in;C:\Users\Joseph\Desktop\luajit-master\luajit-master\cmake\lua.cmake;C:\Users\Joseph\Desktop\luajit-master\luajit-master\cmake\FindReadline.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindPkgConfig.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindCurses.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CheckLibraryExists.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\Users\Joseph\Desktop\luajit-master\luajit-master\src\luaconf.h.in;C:\Users\Joseph\Desktop\luajit-master\luajit-master\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Building Custom Rule C:/Users/Joseph/Desktop/luajit-master/luajit-master/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -HC:/Users/Joseph/Desktop/luajit-master/luajit-master -BC:/Users/Joseph/Desktop/luajit-master/luajit-master/build --check-stamp-file C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:/Users/Joseph/Desktop/luajit-master/luajit-master/CMakeLists.txt;C:\Users\Joseph\Desktop\luajit-master\luajit-master\CMakeLists.txt;C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\3.11.3\CMakeSystem.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeSystemSpecificInitialize.cmake;C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\3.11.3\CMakeCCompiler.cmake;C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\3.11.3\CMakeASMCompiler.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\3.11.3\CMakeRCCompiler.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeASMInformation.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\Compiler\MSVC-ASM.cmake;C:\Users\Joseph\Desktop\luajit-master\luajit-master\cmake\dist.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CPack.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CPackComponent.cmake;C:\Program Files\CMake\share\cmake-3.11\Templates\CPackConfig.cmake.in;C:\Program Files\CMake\share\cmake-3.11\Templates\CPackConfig.cmake.in;C:\Users\Joseph\Desktop\luajit-master\luajit-master\cmake\lua.cmake;C:\Users\Joseph\Desktop\luajit-master\luajit-master\cmake\FindReadline.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindPkgConfig.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindCurses.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CheckLibraryExists.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\Users\Joseph\Desktop\luajit-master\luajit-master\src\luaconf.h.in;C:\Users\Joseph\Desktop\luajit-master\luajit-master\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">Building Custom Rule C:/Users/Joseph/Desktop/luajit-master/luajit-master/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -HC:/Users/Joseph/Desktop/luajit-master/luajit-master -BC:/Users/Joseph/Desktop/luajit-master/luajit-master/build --check-stamp-file C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:/Users/Joseph/Desktop/luajit-master/luajit-master/CMakeLists.txt;C:\Users\Joseph\Desktop\luajit-master\luajit-master\CMakeLists.txt;C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\3.11.3\CMakeSystem.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeSystemSpecificInitialize.cmake;C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\3.11.3\CMakeCCompiler.cmake;C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\3.11.3\CMakeASMCompiler.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\3.11.3\CMakeRCCompiler.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeASMInformation.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\Compiler\MSVC-ASM.cmake;C:\Users\Joseph\Desktop\luajit-master\luajit-master\cmake\dist.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CPack.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CPackComponent.cmake;C:\Program Files\CMake\share\cmake-3.11\Templates\CPackConfig.cmake.in;C:\Program Files\CMake\share\cmake-3.11\Templates\CPackConfig.cmake.in;C:\Users\Joseph\Desktop\luajit-master\luajit-master\cmake\lua.cmake;C:\Users\Joseph\Desktop\luajit-master\luajit-master\cmake\FindReadline.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindPkgConfig.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindCurses.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CheckLibraryExists.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\Users\Joseph\Desktop\luajit-master\luajit-master\src\luaconf.h.in;C:\Users\Joseph\Desktop\luajit-master\luajit-master\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='MinSizeRel|Win32'">false</LinkObjects>
+      <Message Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">Building Custom Rule C:/Users/Joseph/Desktop/luajit-master/luajit-master/CMakeLists.txt</Message>
+      <Command Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">setlocal
+"C:\Program Files\CMake\bin\cmake.exe" -HC:/Users/Joseph/Desktop/luajit-master/luajit-master -BC:/Users/Joseph/Desktop/luajit-master/luajit-master/build --check-stamp-file C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/CMakeFiles/generate.stamp
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal &amp; call :cmErrorLevel %errorlevel% &amp; goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd</Command>
+      <AdditionalInputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:/Users/Joseph/Desktop/luajit-master/luajit-master/CMakeLists.txt;C:\Users\Joseph\Desktop\luajit-master\luajit-master\CMakeLists.txt;C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\3.11.3\CMakeSystem.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeSystemSpecificInitialize.cmake;C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\3.11.3\CMakeCCompiler.cmake;C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\3.11.3\CMakeASMCompiler.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeSystemSpecificInformation.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeGenericSystem.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeInitializeConfigs.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\Platform\Windows.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\Platform\WindowsPaths.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeCInformation.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeLanguageInformation.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\Platform\Windows-MSVC-C.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\Platform\Windows-MSVC.cmake;C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\3.11.3\CMakeRCCompiler.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeRCInformation.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeCommonLanguageInclude.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeASMInformation.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\Compiler\MSVC-ASM.cmake;C:\Users\Joseph\Desktop\luajit-master\luajit-master\cmake\dist.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CPack.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CPackComponent.cmake;C:\Program Files\CMake\share\cmake-3.11\Templates\CPackConfig.cmake.in;C:\Program Files\CMake\share\cmake-3.11\Templates\CPackConfig.cmake.in;C:\Users\Joseph\Desktop\luajit-master\luajit-master\cmake\lua.cmake;C:\Users\Joseph\Desktop\luajit-master\luajit-master\cmake\FindReadline.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindPkgConfig.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindCurses.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\CheckLibraryExists.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindPackageHandleStandardArgs.cmake;C:\Program Files\CMake\share\cmake-3.11\Modules\FindPackageMessage.cmake;C:\Users\Joseph\Desktop\luajit-master\luajit-master\src\luaconf.h.in;C:\Users\Joseph\Desktop\luajit-master\luajit-master\CMakeLists.txt;%(AdditionalInputs)</AdditionalInputs>
+      <Outputs Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\generate.stamp</Outputs>
+      <LinkObjects Condition="'$(Configuration)|$(Platform)'=='RelWithDebInfo|Win32'">false</LinkObjects>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="C:\Users\Joseph\Desktop\luajit-master\luajit-master\src\host\minilua.c" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\ZERO_CHECK.vcxproj">
+      <Project>{2233BC21-162E-3466-B7CE-FE7226663625}</Project>
+      <Name>ZERO_CHECK</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

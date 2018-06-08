@@ -1,0 +1,9 @@
+C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/CMakeFiles/luajit.dir
+C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/CMakeFiles/minilua.dir
+C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/CMakeFiles/buildvm.dir
+C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/CMakeFiles/liblua.dir
+C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/CMakeFiles/PACKAGE.dir
+C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/CMakeFiles/wluajit.dir
+C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/CMakeFiles/INSTALL.dir
+C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/CMakeFiles/ALL_BUILD.dir
+C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/CMakeFiles/ZERO_CHECK.dir

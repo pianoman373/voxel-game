@@ -1,0 +1,37 @@
+# CMake generation dependency list for this directory.
+C:/Users/Joseph/Desktop/luajit-master/luajit-master/CMakeLists.txt
+C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/CMakeFiles/3.11.3/CMakeSystem.cmake
+C:/Program Files/CMake/share/cmake-3.11/Modules/CMakeSystemSpecificInitialize.cmake
+C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/CMakeFiles/3.11.3/CMakeCCompiler.cmake
+C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/CMakeFiles/3.11.3/CMakeASMCompiler.cmake
+C:/Program Files/CMake/share/cmake-3.11/Modules/CMakeSystemSpecificInformation.cmake
+C:/Program Files/CMake/share/cmake-3.11/Modules/CMakeGenericSystem.cmake
+C:/Program Files/CMake/share/cmake-3.11/Modules/CMakeInitializeConfigs.cmake
+C:/Program Files/CMake/share/cmake-3.11/Modules/Platform/Windows.cmake
+C:/Program Files/CMake/share/cmake-3.11/Modules/Platform/WindowsPaths.cmake
+C:/Program Files/CMake/share/cmake-3.11/Modules/CMakeCInformation.cmake
+C:/Program Files/CMake/share/cmake-3.11/Modules/CMakeLanguageInformation.cmake
+C:/Program Files/CMake/share/cmake-3.11/Modules/Platform/Windows-MSVC-C.cmake
+C:/Program Files/CMake/share/cmake-3.11/Modules/Platform/Windows-MSVC.cmake
+C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/CMakeFiles/3.11.3/CMakeRCCompiler.cmake
+C:/Program Files/CMake/share/cmake-3.11/Modules/CMakeRCInformation.cmake
+C:/Program Files/CMake/share/cmake-3.11/Modules/CMakeCommonLanguageInclude.cmake
+C:/Program Files/CMake/share/cmake-3.11/Modules/CMakeASMInformation.cmake
+C:/Program Files/CMake/share/cmake-3.11/Modules/Compiler/MSVC-ASM.cmake
+C:/Users/Joseph/Desktop/luajit-master/luajit-master/cmake/dist.cmake
+C:/Program Files/CMake/share/cmake-3.11/Modules/CPack.cmake
+C:/Program Files/CMake/share/cmake-3.11/Modules/CPackComponent.cmake
+C:/Program Files/CMake/share/cmake-3.11/Templates/CPackConfig.cmake.in
+C:/Program Files/CMake/share/cmake-3.11/Templates/CPackConfig.cmake.in
+C:/Users/Joseph/Desktop/luajit-master/luajit-master/cmake/lua.cmake
+C:/Users/Joseph/Desktop/luajit-master/luajit-master/cmake/FindReadline.cmake
+C:/Program Files/CMake/share/cmake-3.11/Modules/FindPkgConfig.cmake
+C:/Program Files/CMake/share/cmake-3.11/Modules/FindPackageHandleStandardArgs.cmake
+C:/Program Files/CMake/share/cmake-3.11/Modules/FindPackageMessage.cmake
+C:/Program Files/CMake/share/cmake-3.11/Modules/FindPackageHandleStandardArgs.cmake
+C:/Program Files/CMake/share/cmake-3.11/Modules/FindPackageMessage.cmake
+C:/Program Files/CMake/share/cmake-3.11/Modules/FindCurses.cmake
+C:/Program Files/CMake/share/cmake-3.11/Modules/CheckLibraryExists.cmake
+C:/Program Files/CMake/share/cmake-3.11/Modules/FindPackageHandleStandardArgs.cmake
+C:/Program Files/CMake/share/cmake-3.11/Modules/FindPackageMessage.cmake
+C:/Users/Joseph/Desktop/luajit-master/luajit-master/src/luaconf.h.in

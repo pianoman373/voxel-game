@@ -6,6 +6,8 @@
 #include "World.hpp"
 #include "Chunk.hpp"
 
+#include <lua.hpp>
+
 #include <crucible/Shader.hpp>
 #include <crucible/Texture.hpp>
 #include <crucible/Renderer.hpp>
@@ -76,6 +78,32 @@ static const std::vector<vec3> tangentLookup = {
 };
 
 void Client::init() {
+    lua_State *L = lua_open();   /* opens Lua */
+    luaopen_base(L);             /* opens the basic library */
+    luaopen_table(L);            /* opens the table library */
+    luaopen_io(L);               /* opens the I/O library */
+    luaopen_string(L);           /* opens the string lib. */
+    luaopen_math(L);             /* opens the math lib. */
+
+    //sol::state luaState;
+
+    // open some common libraries
+//	luaState.open_libraries(sol::lib::base,
+//                             sol::lib::bit32,
+//                             sol::lib::coroutine,
+//                             sol::lib::count,
+//                             sol::lib::io,
+//                             sol::lib::math,
+//                             sol::lib::os,
+//                             sol::lib::package,
+//                             sol::lib::string,
+//                             sol::lib::table,
+//                             sol::lib::utf8,
+//                             sol::lib::ffi
+//                             );
+	//luaState.require_script("inspect", luaState.script_file("inspect.lua"));
+
+	//luaState.script_file("api.lua");
 
     BlockRegistry::registerBlock(0, new SimpleBlock({0, 0}, "Air", false));
     BlockRegistry::registerBlock(1, new GrassBlock());

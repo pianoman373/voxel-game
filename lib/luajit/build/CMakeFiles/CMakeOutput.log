@@ -1,0 +1,122 @@
+The system is: Windows - 10.0.17134 - AMD64
+Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+Compiler:  
+Build flags: 
+Id flags:  
+
+The output was:
+0
+Microsoft (R) Build Engine version 15.6.82.30579 for .NET Framework
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+Build started 6/7/2018 5:57:07 PM.
+Project "C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\3.11.3\CompilerIdC\CompilerIdC.vcxproj" on node 1 (default targets).
+PrepareForBuild:
+  Creating directory "Debug\".
+  Creating directory "Debug\CompilerIdC.tlog\".
+InitializeBuildStatus:
+  Creating "Debug\CompilerIdC.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+ClCompile:
+  C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.13.26128\bin\HostX86\x86\CL.exe /c /nologo /W0 /WX- /diagnostics:classic /Od /Oy- /D _MBCS /Gm- /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"Debug\\" /Fd"Debug\vc141.pdb" /Gd /TC /analyze- /FC /errorReport:queue CMakeCCompilerId.c
+  CMakeCCompilerId.c
+Link:
+  C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.13.26128\bin\HostX86\x86\link.exe /ERRORREPORT:QUEUE /OUT:".\CompilerIdC.exe" /INCREMENTAL:NO /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /PDB:".\CompilerIdC.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:".\CompilerIdC.lib" /MACHINE:X86 /SAFESEH Debug\CMakeCCompilerId.obj
+  CompilerIdC.vcxproj -> C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\3.11.3\CompilerIdC\.\CompilerIdC.exe
+PostBuildEvent:
+  for %%i in (cl.exe) do @echo CMAKE_C_COMPILER=%%~$PATH:i
+  :VCEnd
+  CMAKE_C_COMPILER=C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.13.26128\bin\Hostx86\x86\cl.exe
+FinalizeBuildStatus:
+  Deleting file "Debug\CompilerIdC.tlog\unsuccessfulbuild".
+  Touching "Debug\CompilerIdC.tlog\CompilerIdC.lastbuildstate".
+Done Building Project "C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\3.11.3\CompilerIdC\CompilerIdC.vcxproj" (default targets).
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.14
+
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.exe"
+
+Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "CompilerIdC.vcxproj"
+
+The C compiler identification is MSVC, found in "C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/CMakeFiles/3.11.3/CompilerIdC/CompilerIdC.exe"
+
+Determining if the C compiler works passed with the following output:
+Change Dir: C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/MSBuild/15.0/Bin/MSBuild.exe" "cmTC_318bf.vcxproj" "/p:Configuration=Debug" "/p:VisualStudioVersion=15.0"
+Microsoft (R) Build Engine version 15.6.82.30579 for .NET Framework
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+Build started 6/7/2018 5:57:10 PM.
+Project "C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\CMakeTmp\cmTC_318bf.vcxproj" on node 1 (default targets).
+PrepareForBuild:
+  Creating directory "cmTC_318bf.dir\Debug\".
+  Creating directory "C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\CMakeTmp\Debug\".
+  Creating directory "cmTC_318bf.dir\Debug\cmTC_318bf.tlog\".
+InitializeBuildStatus:
+  Creating "cmTC_318bf.dir\Debug\cmTC_318bf.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+ClCompile:
+  C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.13.26128\bin\HostX86\x86\CL.exe /c /Zi /W3 /WX- /diagnostics:classic /Od /Ob0 /Oy- /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_318bf.dir\Debug\\" /Fd"cmTC_318bf.dir\Debug\vc141.pdb" /Gd /TC /analyze- /FC /errorReport:queue "C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\CMakeTmp\testCCompiler.c"
+  Microsoft (R) C/C++ Optimizing Compiler Version 19.13.26129 for x86
+  Copyright (C) Microsoft Corporation.  All rights reserved.
+  
+  cl /c /Zi /W3 /WX- /diagnostics:classic /Od /Ob0 /Oy- /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_318bf.dir\Debug\\" /Fd"cmTC_318bf.dir\Debug\vc141.pdb" /Gd /TC /analyze- /FC /errorReport:queue "C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\CMakeTmp\testCCompiler.c"
+  testCCompiler.c
+  
+Link:
+  C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.13.26128\bin\HostX86\x86\link.exe /ERRORREPORT:QUEUE /OUT:"C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\CMakeTmp\Debug\cmTC_318bf.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/CMakeFiles/CMakeTmp/Debug/cmTC_318bf.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/CMakeFiles/CMakeTmp/Debug/cmTC_318bf.lib" /MACHINE:X86 /SAFESEH  /machine:X86 cmTC_318bf.dir\Debug\testCCompiler.obj
+  cmTC_318bf.vcxproj -> C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\CMakeTmp\Debug\cmTC_318bf.exe
+FinalizeBuildStatus:
+  Deleting file "cmTC_318bf.dir\Debug\cmTC_318bf.tlog\unsuccessfulbuild".
+  Touching "cmTC_318bf.dir\Debug\cmTC_318bf.tlog\cmTC_318bf.lastbuildstate".
+Done Building Project "C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\CMakeTmp\cmTC_318bf.vcxproj" (default targets).
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:03.45
+
+
+Detecting C compiler ABI info compiled with the following output:
+Change Dir: C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/CMakeFiles/CMakeTmp
+
+Run Build Command:"C:/Program Files (x86)/Microsoft Visual Studio/2017/Community/MSBuild/15.0/Bin/MSBuild.exe" "cmTC_94715.vcxproj" "/p:Configuration=Debug" "/p:VisualStudioVersion=15.0"
+Microsoft (R) Build Engine version 15.6.82.30579 for .NET Framework
+Copyright (C) Microsoft Corporation. All rights reserved.
+
+Build started 6/7/2018 5:57:15 PM.
+Project "C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\CMakeTmp\cmTC_94715.vcxproj" on node 1 (default targets).
+PrepareForBuild:
+  Creating directory "cmTC_94715.dir\Debug\".
+  Creating directory "C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\CMakeTmp\Debug\".
+  Creating directory "cmTC_94715.dir\Debug\cmTC_94715.tlog\".
+InitializeBuildStatus:
+  Creating "cmTC_94715.dir\Debug\cmTC_94715.tlog\unsuccessfulbuild" because "AlwaysCreate" was specified.
+ClCompile:
+  C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.13.26128\bin\HostX86\x86\CL.exe /c /Zi /W3 /WX- /diagnostics:classic /Od /Ob0 /Oy- /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_94715.dir\Debug\\" /Fd"cmTC_94715.dir\Debug\vc141.pdb" /Gd /TC /analyze- /FC /errorReport:queue "C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeCCompilerABI.c"
+  Microsoft (R) C/C++ Optimizing Compiler Version 19.13.26129 for x86
+  Copyright (C) Microsoft Corporation.  All rights reserved.
+  
+  cl /c /Zi /W3 /WX- /diagnostics:classic /Od /Ob0 /Oy- /D WIN32 /D _WINDOWS /D "CMAKE_INTDIR=\"Debug\"" /D _MBCS /Gm- /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Zc:inline /Fo"cmTC_94715.dir\Debug\\" /Fd"cmTC_94715.dir\Debug\vc141.pdb" /Gd /TC /analyze- /FC /errorReport:queue "C:\Program Files\CMake\share\cmake-3.11\Modules\CMakeCCompilerABI.c"
+  CMakeCCompilerABI.c
+  
+Link:
+  C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.13.26128\bin\HostX86\x86\link.exe /ERRORREPORT:QUEUE /OUT:"C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\CMakeTmp\Debug\cmTC_94715.exe" /INCREMENTAL /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib shell32.lib ole32.lib oleaut32.lib uuid.lib comdlg32.lib advapi32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/CMakeFiles/CMakeTmp/Debug/cmTC_94715.pdb" /SUBSYSTEM:CONSOLE /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"C:/Users/Joseph/Desktop/luajit-master/luajit-master/build/CMakeFiles/CMakeTmp/Debug/cmTC_94715.lib" /MACHINE:X86 /SAFESEH  /machine:X86 cmTC_94715.dir\Debug\CMakeCCompilerABI.obj
+  cmTC_94715.vcxproj -> C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\CMakeTmp\Debug\cmTC_94715.exe
+FinalizeBuildStatus:
+  Deleting file "cmTC_94715.dir\Debug\cmTC_94715.tlog\unsuccessfulbuild".
+  Touching "cmTC_94715.dir\Debug\cmTC_94715.tlog\cmTC_94715.lastbuildstate".
+Done Building Project "C:\Users\Joseph\Desktop\luajit-master\luajit-master\build\CMakeFiles\CMakeTmp\cmTC_94715.vcxproj" (default targets).
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:02.25
+
+
