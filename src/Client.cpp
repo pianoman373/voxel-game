@@ -99,7 +99,8 @@ void Client::init() {
     luaState.script_file("api.lua");
     luaState["api"]["registerBlock"] = BlockRegistry::registerBlockLua;
 
-	luaState.script_file("init.lua", sol::default_on_error);
+	luaState.script_file("init.lua", sol::script_default_on_error);
+
 
     json j = Util::loadJsonFile("settings.json");
     Settings::load(j);

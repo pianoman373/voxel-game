@@ -8,6 +8,7 @@ add_subdirectory(lib/luajit)
 
 include_directories(lib/crucible/include/
                     lib/luajit/src/
+                    ${CMAKE_BINARY_DIR}/lib/luajit
                     )
 
 file(GLOB PROJECT_SOURCES src/*.cpp
