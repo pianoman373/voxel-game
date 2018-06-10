@@ -18,37 +18,41 @@ bool Block::isSolid() {
 
 bool isSolid();
 
-//SimpleBlock
+//LuaBlock
+LuaBlock::LuaBlock(sol::table table) {
+    name = table["name"].get_or(std::string("Untitled"));
+    solid = table["solid"].get_or(true);
 
-SimpleBlock::SimpleBlock(vec2i textureCoord, std::string name, bool solid) {
-    this->textureCoord = textureCoord;
-    this->name = name;
-    this->solid = solid;
+    sol::table textures = table["textures"];
+
+    if (textures == sol::nil) {
+        for (int i = 0; i < 6; i++) {
+            textureCoords.push_back({0, 0});
+        }
+    }
+    else if (textures.size() == 1) {
+        for (int i = 0; i < 6; i++) {
+            textureCoords.push_back({textures[1][1], textures[1][2]});
+        }
+    }
+    else if (textures.size() == 6) {
+        for (int i = 0; i < 6; i++) {
+            textureCoords.push_back({textures[i+1][1], textures[i+1][2]});
+        }
+    }
+    else {
+        for (int i = 0; i < 6; i++) {
+            textureCoords.push_back({0, 0});
+        }
+    }
 }
 
-vec2i SimpleBlock::getTextureCoord(EnumDirection dir) {
-    return textureCoord;
+vec2i LuaBlock::getTextureCoord(EnumDirection dir) {
+    return textureCoords[static_cast<int>(dir)];
 }
 
-bool SimpleBlock::isSolid() {
+bool LuaBlock::isSolid() {
     return solid;
-}
-
-//GrassBlock
-
-GrassBlock::GrassBlock() {
-    this->name = "Grass";
-}
-
-vec2i GrassBlock::getTextureCoord(EnumDirection dir) {
-    if (dir == EnumDirection::POSITIVE_Y) {
-        return {0, 0};
-    }
-    if (dir == EnumDirection::NEGATIVE_Y) {
-        return {2, 0};
-    }
-    return {3, 0};
-
 }
 
 //BlockRegistry
@@ -58,8 +62,12 @@ void BlockRegistry::registerBlock(int id, Block *block) {
     registry.insert(std::make_pair(id, block));
 }
 
+void BlockRegistry::registerBlockLua(int id, sol::table block) {
+    registerBlock(id, new LuaBlock(block));
+}
+
 Block *BlockRegistry::getBlock(int id) {
-   try {
+    try {
         return registry.at(id);
     }
     catch (std::out_of_range exception) {

@@ -1,8 +1,3 @@
-local ffi = require("ffi")
-
-ffi.cdef[[
-float LUA_API_ridgedNoise(float x, float y, int octaves, float frequency, float persistence);
-]]
 
 EnumDirection = {
 	POSITIVE_X = 0,
@@ -13,32 +8,7 @@ EnumDirection = {
     NEGATIVE_Z = 5
 }
 
-__blocks = {}
-
 api = {}
-
-function api.ridgedNoise(x, y, octaves, frequency, persistence)
-	return ffi.C.LUA_API_ridgedNoise(x, y, octaves, frequency, persistence)
-end
-
-function api.simpleBlock(blockName, texX, texY, color)
-	return {
-		name = blockName,
-		color = color,
-		getTextureCoord = function(side)
-			return texX, texY
-		end,
-		isSolid = function()
-			return true
-		end
-	}
-end
-
-function api.registerBlock(id, block)
-
-	__blocks[id] = block;
-	registerBlockNew(id)
-end
 
 function rgb(r, g, b)
 	return {r / 255, g / 255, b / 255}

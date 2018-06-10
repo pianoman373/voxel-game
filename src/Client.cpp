@@ -6,7 +6,7 @@
 #include "World.hpp"
 #include "Chunk.hpp"
 
-#include <lua.hpp>
+#include "sol.hpp"
 
 #include <crucible/Shader.hpp>
 #include <crucible/Texture.hpp>
@@ -16,6 +16,7 @@
 #include <glad/glad.h>
 #include <crucible/Camera.hpp>
 #include <crucible/Input.hpp>
+#include <crucible/Math.hpp>
 #include <imgui.h>
 #include <thread>
 
@@ -77,45 +78,28 @@ static const std::vector<vec3> tangentLookup = {
         {-1.0f, 0.0f, 0.0f}
 };
 
+static sol::state luaState;
+
 void Client::init() {
-    lua_State *L = lua_open();   /* opens Lua */
-    luaopen_base(L);             /* opens the basic library */
-    luaopen_table(L);            /* opens the table library */
-    luaopen_io(L);               /* opens the I/O library */
-    luaopen_string(L);           /* opens the string lib. */
-    luaopen_math(L);             /* opens the math lib. */
-
-    //sol::state luaState;
-
     // open some common libraries
-//	luaState.open_libraries(sol::lib::base,
-//                             sol::lib::bit32,
-//                             sol::lib::coroutine,
-//                             sol::lib::count,
-//                             sol::lib::io,
-//                             sol::lib::math,
-//                             sol::lib::os,
-//                             sol::lib::package,
-//                             sol::lib::string,
-//                             sol::lib::table,
-//                             sol::lib::utf8,
-//                             sol::lib::ffi
-//                             );
-	//luaState.require_script("inspect", luaState.script_file("inspect.lua"));
+	luaState.open_libraries(sol::lib::base,
+                             sol::lib::bit32,
+                             sol::lib::coroutine,
+                             sol::lib::count,
+                             sol::lib::io,
+                             sol::lib::math,
+                             sol::lib::os,
+                             sol::lib::package,
+                             sol::lib::string,
+                             sol::lib::table,
+                             sol::lib::utf8,
+                             sol::lib::ffi
+                             );
 
-	//luaState.script_file("api.lua");
+    luaState.script_file("api.lua");
+    luaState["api"]["registerBlock"] = BlockRegistry::registerBlockLua;
 
-    BlockRegistry::registerBlock(0, new SimpleBlock({0, 0}, "Air", false));
-    BlockRegistry::registerBlock(1, new GrassBlock());
-    BlockRegistry::registerBlock(2, new SimpleBlock({1, 0}, "Stone", true));
-    BlockRegistry::registerBlock(3, new SimpleBlock({2, 0}, "Dirt", true));
-    BlockRegistry::registerBlock(4, new SimpleBlock({0, 1}, "Cobblestone", true));
-    BlockRegistry::registerBlock(5, new SimpleBlock({4, 0}, "Planks", true));
-    BlockRegistry::registerBlock(6, new SimpleBlock({4, 1}, "Wood", true));
-    BlockRegistry::registerBlock(7, new SimpleBlock({4, 3}, "Leaves", false));
-    BlockRegistry::registerBlock(8, new SimpleBlock({9, 6}, "Glowstone", true));
-    BlockRegistry::registerBlock(9, new SimpleBlock({6, 1}, "Iron", true));
-    BlockRegistry::registerBlock(10, new SimpleBlock({7, 1}, "Gold", true));
+	luaState.script_file("init.lua", sol::default_on_error);
 
     json j = Util::loadJsonFile("settings.json");
     Settings::load(j);
