@@ -33,9 +33,12 @@ public:
 
 class BlockRegistry {
 private:
-    static std::map<int, Block*> registry;
+    //static std::map<int, Block*> registry;
+    static std::vector<Block*> registry;
 
 public:
+    static void init();
+
     static void registerBlock(int id, Block *block);
 
     static void registerBlockLua(int id, sol::table block);

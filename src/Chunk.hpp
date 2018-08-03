@@ -30,6 +30,7 @@ public:
     bool empty = true;
     bool isDirty = false;
     bool generated = false;
+    bool changedFromDisk = true;
 
     AABB aabb;
 
@@ -37,6 +38,17 @@ public:
     int chunk_x;
     int chunk_y;
     int chunk_z;
+
+    /**
+     * Serializes the chunk data into the provided array, and returns the actual length of the data.
+     * The input array must be at least 32*32*32*2 elements.
+     */
+    int serialize(uint8_t *dataOut);
+
+    /**
+     * Updates this chunk with the specified serialized data.
+     */
+    void unSerialize(uint8_t *dataIn, int dataLength);
 
 	int getSunlight(int x, int y, int z);
 

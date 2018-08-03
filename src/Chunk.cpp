@@ -24,6 +24,82 @@ Chunk::~Chunk() {
 	mesh.destroy();
 }
 
+int rleEncode(uint8_t *input, int inputLength, uint8_t *output) {
+    int i = 0;
+    int outputIndex = 0;
+
+    bool first = true;
+
+
+    uint8_t lastVal = input[i] + 1;
+    uint8_t count = 1;
+
+    while (true) {
+        uint8_t val = input[i];
+
+        if (val == lastVal && count < 255) {
+            count++;
+        }
+        else {
+            if (first) {
+                first = false;
+            }
+            else {
+                output[outputIndex] = lastVal;
+                output[outputIndex+1] = count;
+                outputIndex += 2;
+            }
+
+            lastVal = val;
+            count = 1;
+        }
+
+        i++;
+        if (i >= inputLength) {
+            output[outputIndex] = lastVal;
+            output[outputIndex+1] = count;
+            outputIndex += 2;
+
+            return outputIndex;
+        }
+    }
+}
+
+int rleDecode(uint8_t *input, int inputLength, uint8_t *output) {
+    int outputIndex = 0;
+
+    for (int i = 0; i < (inputLength - 1); i += 2) {
+        uint8_t number = input[i];
+        uint8_t amount = input[i+1];
+
+        for (int j = 0; j < amount; j++) {
+            output[outputIndex] = number;
+            outputIndex++;
+        }
+    }
+
+    return outputIndex;
+}
+
+int Chunk::serialize(uint8_t *dataOut) {
+    dataOut[0] = this->generated;
+    int length = rleEncode(&blocks[0], 32*32*32, dataOut+1);
+
+    return length + 1;
+}
+
+void Chunk::unSerialize(uint8_t *dataIn, int dataLength) {
+    uint8_t uncompressedChunk[32*32*32*32] = {0};
+
+    this->generated = dataIn[0];
+
+    int length = rleDecode(dataIn+1, dataLength, uncompressedChunk);
+
+    for (int i = 0; i < 32*32*32; i++) {
+        blocks[i] = uncompressedChunk[i];
+    }
+}
+
 // Get the bits XXXX0000
 
 int Chunk::getSunlight(int x, int y, int z) {
@@ -239,8 +315,9 @@ void Chunk::removeTorch(int x, int y, int z) {
 }
 
 char Chunk::getBlock(int x, int y, int z) {
-    if (x < CHUNK_SIZE && x >= 0 && y < CHUNK_SIZE && y >= 0 && z < CHUNK_SIZE && z >= 0) {
-		return blocks[x + CHUNK_SIZE * (y + CHUNK_SIZE * z)];
+    int index = x + CHUNK_SIZE * (y + CHUNK_SIZE * z);
+    if (x > -1 && x < 32 && y > -1 && y < 32 && z > -1 && z < 32) {
+		return blocks[index];
     }
 	return cm->getBlock((this->chunk_x * CHUNK_SIZE) + x, (this->chunk_y * CHUNK_SIZE) + y, (this->chunk_z * CHUNK_SIZE) + z);
 }
@@ -252,6 +329,8 @@ int Chunk::getBlockFromWorld(int x, int y, int z) {
 }
 
 void Chunk::setBlock(int x, int y, int z, char block) {
+    this->changedFromDisk = true;
+
     if (x < CHUNK_SIZE && x >= 0 && y < CHUNK_SIZE && y >= 0 && z < CHUNK_SIZE && z >= 0) {
 		blocks[x + CHUNK_SIZE * (y + CHUNK_SIZE * z)] = block;
 
@@ -381,8 +460,6 @@ void Chunk::generateMesh() {
 
 
                     Block *block = BlockRegistry::getBlock(block_X_Y_Z);
-
-					
 
 
                     bool block_X_posY_Z = !BlockRegistry::getBlock(getBlockFromWorld(x, y + 1, z))->isSolid();
@@ -663,10 +740,14 @@ void Chunk::render(Material *mat) {
 		this->rebuild = false;
 	}
 
+    vec3 chunkPos = vec3(chunk_x * CHUNK_SIZE, (chunk_y * CHUNK_SIZE), chunk_z * CHUNK_SIZE);
+
 	if (this->mesh.data.size() > 0) {
-        vec3 chunkPos = vec3(chunk_x * CHUNK_SIZE, (chunk_y * CHUNK_SIZE), chunk_z * CHUNK_SIZE);
-        Renderer::render(&this->mesh, mat, Transform(chunkPos, vec3(), vec3(1.0f)), aabb);
+
+        Renderer::render(&this->mesh, mat, Transform(chunkPos, quaternion(), vec3(1.0f)), aabb);
         //Renderer::debug.renderDebugAABB(aabb, vec3(1.0f, 0.0f, 0.0f));
-        //Renderer::debug.renderDebugAABB(AABB(chunkPos, chunkPos + vec3(CHUNK_SIZE)), vec3(0.0f, 0.0f, 1.0f));
+        //
 	}
+
+    //Renderer::debug.renderDebugAABB(AABB(chunkPos, chunkPos + vec3(CHUNK_SIZE)), changedFromDisk ? vec3(0.0f, 0.0f, 1.0f) : vec3(0.0f, 1.0f, 0.0f));
 }

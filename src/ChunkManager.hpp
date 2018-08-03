@@ -7,6 +7,7 @@
 #include <mutex>
 
 #include "Chunk.hpp"
+#include "ChunkIO.hpp"
 
 
 // stuff to make sure a vec3i can be used in an unorderered:map
@@ -35,7 +36,10 @@ class ChunkManager {
 private:
     std::unordered_map<vec3i, Chunk*, key_hash, key_equal> chunks;
     std::mutex chunks_mx;
+
+
 public:
+    ChunkIO chunkIO;
 
     ChunkManager();
 
@@ -48,6 +52,8 @@ public:
     bool chunkExists(int x, int y, int z);
 
     void deleteChunk(int x, int y, int z);
+
+    void shutdown();
 
     std::unordered_map<vec3i, Chunk*, key_hash, key_equal> getChunks();
 

@@ -7,6 +7,8 @@ void ChunkMesh::pushVertex(float positionX, float positionY, float positionZ, fl
     buffer.push_back(positionY);
     buffer.push_back(positionZ);
 
+    buffer[(bufferLength*7)+0] = positionX;
+
     buffer.push_back(u);
     buffer.push_back(v);
 
@@ -23,6 +25,7 @@ void ChunkMesh::pushVertex(float positionX, float positionY, float positionZ, fl
 }
 
 void ChunkMesh::generate() {
+
     if (!VBO) {
         glGenVertexArrays(1, &VAO);
         glGenBuffers(1, &VBO);

@@ -6,6 +6,7 @@
 #include "Client.hpp"
 #include "Chunk.hpp"
 #include "SimplexNoise.hpp"
+#include "ChunkIO.hpp"
 
 #include <crucible/Renderer.hpp>
 #include <crucible/Input.hpp>
@@ -21,7 +22,7 @@
 static std::vector<vec3i> chunkLoadingPositions;
 
 static float getHeight(int x, int z) {
-	return Util::ridgedNoise(vec2(x / 10.0f, z / 10.0f), 5, 0.01f, 0.5f) * 50.0f - 50.0f;
+	return Util::ridgedNoise(vec2(x / 10.0f, z / 10.0f), 5, 0.01f, 0.5f) * 30.0f - 50.0f;
 }
 
 char topBlock = 1;    //grass
@@ -80,6 +81,28 @@ static void placeTree(ChunkManager &manager, int x, int y, int z) {
 }
 
 static void generateChunk(ChunkManager &manager, Chunk *chunk) {
+//	for (int x = 0; x < 32; x++) {
+//		for (int z = 0; z < 32; z++) {
+//			for (int y = 0; y < 32; y++) {
+//				int actualY = y - 1 + (chunk->chunk_y * 32);
+//
+//				if (actualY < -50) {
+//					chunk->setBlock(x, y, z, 2);
+//				}
+//			}
+//		}
+//	}
+//	return;
+
+    if (manager.chunkIO.chunkIsSaved(chunk)) {
+        //std::cout << "loading chunk" << std::endl;
+        manager.chunkIO.loadChunk(chunk);
+
+        if (chunk->generated)
+            return;
+    }
+
+
 	float heights[34][34]; //heightmap includes adjacent chunk blocks
 
 	for (int x = 0; x < 34; x++) {
@@ -158,6 +181,7 @@ static void generateChunk(ChunkManager &manager, Chunk *chunk) {
 
 void World::chunkUpdateThread() {
 	while (running) {
+
 		for (int i = 0; i < chunkLoadingPositions.size(); i++) {
 			vec3i cameraChunkPos = worldToChunkPos(Client::camera.position);
 
@@ -174,19 +198,26 @@ void World::chunkUpdateThread() {
 				continue;
 			}
 
-
 			Chunk * chunk = manager.getChunk(pos.x, pos.y, pos.z);
 
+
+
 			if (!chunk->generated || chunk->isDirty) {
+
+				bool flag = false;
 
 				for (int xm = -1; xm < 2; xm++) {
 					for (int ym = -1; ym < 2; ym++) {
 						for (int zm = -1; zm < 2; zm++) {
 							Chunk *c = manager.getChunk(pos.x + xm, pos.y + ym, pos.z + zm);
 							if (!c->generated) {
-								c->generated = true;
-								c->isDirty = true;
+
 								generateChunk(manager, c);
+
+                                c->generated = true;
+                                c->isDirty = true;
+
+								flag = true;
 							}
 						}
 					}
@@ -196,6 +227,9 @@ void World::chunkUpdateThread() {
                 chunk->generateMesh();
 				chunk->isDirty = false;
 
+				if (!manager.chunkIO.chunkIsSaved(chunk))
+					manager.chunkIO.saveChunk(chunk);
+
 				break;
 			}
 		}
@@ -203,7 +237,14 @@ void World::chunkUpdateThread() {
 }
 
 void World::shutdown() {
-	running = false;
+    running = false;
+
+    if (thread0->joinable()) {
+		thread0->join();
+    }
+    delete thread0;
+
+    manager.shutdown();
 }
 
 void World::init(const Camera& camera) {
@@ -219,16 +260,25 @@ void World::init(const Camera& camera) {
 			}
 		}
 	}
+//
+//	for (int x = -Settings::render_distance; x <= Settings::render_distance; x++) {
+//        for (int y = -Settings::render_distance; y <= Settings::render_distance; y++) {
+//            for (int z = -Settings::render_distance; z <= Settings::render_distance; z++) {
+//                chunkLoadingPositions.push_back(vec3i(x, y, z));
+//            }
+//        }
+//	}
 
-	std::thread thread0([&]() {
+	thread0 = new std::thread([&]() {
         chunkUpdateThread();
     });
-	thread0.detach();
+	thread0->detach();
 }
 
 void World::render(Camera &cam, Material *nearmaterial) {
 	vec3i camPos = World::worldToChunkPos(cam.position);
 	bool rebuild = true;
+	bool hasDeleted = false;
 
 	auto chunksCopy = manager.getChunks();
 
@@ -236,10 +286,16 @@ void World::render(Camera &cam, Material *nearmaterial) {
         Chunk *c = ref.second;
         vec3i chunkPos = ref.first;
 
-        if (abs(chunkPos.x - camPos.x) > Settings::render_distance+1 || abs(chunkPos.y - camPos.y) > Settings::render_distance+1 || abs(chunkPos.z - camPos.z) > Settings::render_distance+1) {
-        	//manager.deleteChunk(chunkPos.x, chunkPos.y, chunkPos.z);
-        	continue;
+        if (!hasDeleted) {
+            if (abs(chunkPos.x - camPos.x) > Settings::render_distance+1 || abs(chunkPos.y - camPos.y) > Settings::render_distance+1 || abs(chunkPos.z - camPos.z) > Settings::render_distance+1) {
+                manager.deleteChunk(chunkPos.x, chunkPos.y, chunkPos.z);
+
+                //hasDeleted = true;
+
+                continue;
+            }
         }
+
 
 		vec3 chunkPosWorld = vec3(c->chunk_x * CHUNK_SIZE, (c->chunk_y * CHUNK_SIZE), c->chunk_z * CHUNK_SIZE);
 

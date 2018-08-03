@@ -80,21 +80,100 @@ static const std::vector<vec3> tangentLookup = {
 
 static sol::state luaState;
 
+static int rleEncode(uint8_t *input, int inputLength, uint8_t *output) {
+    int i = 0;
+    int outputIndex = 0;
+
+    bool first = true;
+
+
+    uint8_t lastVal = input[i] + 1;
+    uint8_t count = 1;
+
+    while (true) {
+        uint8_t val = input[i];
+
+        if (val == lastVal && count < 3) {
+            count++;
+        }
+        else {
+            if (first) {
+                first = false;
+            }
+            else {
+                output[outputIndex] = lastVal;
+                output[outputIndex+1] = count;
+                outputIndex += 2;
+            }
+
+            lastVal = val;
+            count = 1;
+        }
+
+        i++;
+        if (i >= inputLength) {
+            output[outputIndex] = lastVal;
+            output[outputIndex+1] = count;
+            outputIndex += 2;
+
+            return outputIndex;
+        }
+    }
+}
+
+static int rleDecode(uint8_t *input, int inputLength, uint8_t *output) {
+    int outputIndex = 0;
+
+    for (int i = 0; i < (inputLength - 1); i += 2) {
+        uint8_t number = input[i];
+        uint8_t amount = input[i+1];
+
+        for (int j = 0; j < amount; j++) {
+            output[outputIndex] = number;
+            outputIndex++;
+        }
+    }
+
+    return outputIndex;
+}
+
 void Client::init() {
+    uint8_t data[5] = {1, 1, 3, 3, 3};
+    uint8_t compressedData[5];
+    uint8_t uncompressedData[5];
+
+    int length = rleEncode(data, 5, compressedData);
+
+    int length2 = rleDecode(compressedData, length, uncompressedData);
+
+    for (int i = 0; i < length; i++) {
+        std::cout << (int)compressedData[i] << ", ";
+    }
+
+    std::cout << std::endl;
+
+    for (int i = 0; i < length2; i++) {
+        std::cout << (int)uncompressedData[i] << ", ";
+    }
+
+    std::cout << std::endl;
+
+    BlockRegistry::init();
+
     // open some common libraries
 	luaState.open_libraries(sol::lib::base,
-                             sol::lib::bit32,
-                             sol::lib::coroutine,
-                             sol::lib::count,
-                             sol::lib::io,
-                             sol::lib::math,
-                             sol::lib::os,
-                             sol::lib::package,
-                             sol::lib::string,
-                             sol::lib::table,
-                             sol::lib::utf8,
-                             sol::lib::ffi
-                             );
+                         sol::lib::bit32,
+                         sol::lib::coroutine,
+                         sol::lib::count,
+                         sol::lib::io,
+                         sol::lib::math,
+                         sol::lib::os,
+                         sol::lib::package,
+                         sol::lib::string,
+                         sol::lib::table,
+                         sol::lib::utf8,
+                         sol::lib::ffi
+                         );
 
     luaState.script_file("api.lua");
     luaState["api"]["registerBlock"] = BlockRegistry::registerBlockLua;
@@ -110,7 +189,7 @@ void Client::init() {
 
     Renderer::settings.bloom = Settings::fancy_graphics;
     Renderer::settings.bloomStrength = 0.1f;
-    Renderer::settings.fxaa = Settings::fancy_graphics;
+    Renderer::settings.fxaa = false;
     Renderer::settings.ssao = Settings::fancy_graphics;
     Renderer::settings.ssaoKernelSize = 8;
     Renderer::settings.tonemap = true;

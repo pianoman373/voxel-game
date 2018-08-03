@@ -2,6 +2,8 @@
 #include "Chunk.hpp"
 #include "World.hpp"
 #include "Client.hpp"
+#include "ChunkManager.hpp"
+#include "ChunkIO.hpp"
 
 #include <crucible/AABB.hpp>
 #include <crucible/Renderer.hpp>
@@ -273,6 +275,10 @@ void Player::update(Camera &cam, float delta) {
 			int y = blockpos.y;
 			int z = blockpos.z;
 
+            int cx = blockpos.x >> 5;
+            int cy = blockpos.y >> 5;
+            int cz = blockpos.z >> 5;
+
 
             if (world.manager.getBlock(x, y, z) == 5) {
                 int cx = blockpos.x >> 5;
@@ -285,6 +291,10 @@ void Player::update(Camera &cam, float delta) {
             else {
                 world.manager.setBlock(x, y, z, 0);
             }
+
+            //ChunkIO::loadChunk(world.manager.getChunk(cx, cy, cz));
+            world.manager.chunkIO.saveChunk(world.manager.getChunk(cx, cy, cz));
+            //ChunkIO::flushSaveBuffer();
 
 		}
 
@@ -314,6 +324,7 @@ void Player::update(Camera &cam, float delta) {
                     //world.manager.getChunk(cx, cy, cz)->removeTorch(x, y, z);
                 }
 
+                //world.manager.chunkIO.saveChunk(world.manager.getChunk(cx, cy, cz));
 
             //}
         }

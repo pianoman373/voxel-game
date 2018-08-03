@@ -56,10 +56,17 @@ bool LuaBlock::isSolid() {
 }
 
 //BlockRegistry
-std::map<int, Block*> BlockRegistry::registry;
+std::vector<Block*> BlockRegistry::registry;
+
+void BlockRegistry::init() {
+    for (int i = 0; i < 255; i++) {
+        registry.push_back(nullptr);
+    }
+}
 
 void BlockRegistry::registerBlock(int id, Block *block) {
-    registry.insert(std::make_pair(id, block));
+    //registry.insert(std::make_pair(id, block));
+    registry[id] = block;
 }
 
 void BlockRegistry::registerBlockLua(int id, sol::table block) {
@@ -67,12 +74,14 @@ void BlockRegistry::registerBlockLua(int id, sol::table block) {
 }
 
 Block *BlockRegistry::getBlock(int id) {
-    try {
-        return registry.at(id);
-    }
-    catch (std::out_of_range exception) {
-        return &defaultBlock;
-    }
+//    try {
+//        return registry.at(id);
+//    }
+//    catch (std::out_of_range exception) {
+//        return &defaultBlock;
+//    }
+
+    return registry[id];
 }
 
 int BlockRegistry::registeredBlocks() {

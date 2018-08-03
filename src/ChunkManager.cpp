@@ -1,6 +1,10 @@
 #include "ChunkManager.hpp"
+#include "ChunkIO.hpp"
 
 #include <crucible/Renderer.hpp>
+
+#include <chrono>
+#include <thread>
 
 ChunkManager::ChunkManager() {
 
@@ -67,13 +71,30 @@ Chunk *ChunkManager::getChunk(int x, int y, int z) {
 
 void ChunkManager::deleteChunk(int x, int y, int z) {
     if (chunkExists(x, y, z)) {
+        //std::cout << "deleting chunk" << std::endl;
+
+        chunkIO.saveChunk(chunks[{x, y, z}]);
+
         chunks_mx.lock();
         delete(chunks[{x, y, z}]);
 
         chunks.erase({x, y, z});
         chunks_mx.unlock();
     }
+}
 
+void ChunkManager::shutdown() {
+    auto chunksCopy = getChunks();
+
+    for (auto const &ref: chunks) {
+        chunkIO.saveChunk(chunks[{ref.first.x, ref.first.y, ref.first.z}]);
+
+        delete chunks[{ref.first.x, ref.first.y, ref.first.z}];
+    }
+
+    chunks.clear();
+
+    chunkIO.flushSaveBuffer();
 }
 
 bool ChunkManager::chunkExists(int x, int y, int z) {
@@ -85,9 +106,9 @@ bool ChunkManager::chunkExists(int x, int y, int z) {
 }
 
 std::unordered_map<vec3i, Chunk*, key_hash, key_equal> ChunkManager::getChunks() {
-    chunks_mx.lock();
+    //chunks_mx.lock();
     std::unordered_map<vec3i, Chunk*, key_hash, key_equal> ret = chunks;
-    chunks_mx.unlock();
+    //chunks_mx.unlock();
 
     return ret;
 }

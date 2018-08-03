@@ -33,6 +33,8 @@ private:
 
 	float time = 60 * 2;
 
+    std::thread *thread0;
+
 
 
 
