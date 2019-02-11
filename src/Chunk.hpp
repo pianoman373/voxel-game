@@ -3,9 +3,8 @@
 #define CHUNK_SIZE 32
 
 #include <crucible/Mesh.hpp>
-#include <crucible/MeshFactory.hpp>
-#include <crucible/Material.hpp>
 #include <crucible/AABB.hpp>
+#include <crucible/Material.hpp>
 
 #include "ChunkMesh.hpp"
 
@@ -20,6 +19,8 @@ private:
 
     int getBlockFromWorld(int x, int y, int z);
 	bool rebuild = false;
+
+	Transform transform;
 
 
 public:

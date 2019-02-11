@@ -203,9 +203,10 @@ void Client::init() {
     texture_e.load("resources/terrain_e.png", true);
     texture_n.load("resources/terrain_n.png", true);
 
-    nearMaterial.setShader(blockShader);
+
 	nearMaterial.setPBRUniforms(texture, texture_r, texture_m, texture_n);
 	nearMaterial.setUniformTexture("emissionTex", texture_e, 5);
+    nearMaterial.setShader(blockShader);
 
 	for (int i = 0; i < normalLookup.size(); i++) {
 	    nearMaterial.setUniformVec3("normalLookup[" + std::to_string(i) + "]", normalLookup[i]);

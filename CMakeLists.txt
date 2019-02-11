@@ -9,6 +9,11 @@ add_subdirectory(lib/luajit)
 include_directories(lib/crucible/include/
                     lib/luajit/src/
                     ${CMAKE_BINARY_DIR}/lib/luajit
+                    lib/crucible/lib/GLFW/include/
+                    lib/crucible/lib/bullet/src/
+                    lib/crucible/lib/assimp/include/
+                    lib/crucible/lib/stb/
+                    lib/crucible/lib/imgui/
                     )
 
 file(GLOB PROJECT_SOURCES src/*.cpp

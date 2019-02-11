@@ -3,7 +3,6 @@
 #include "Block.hpp"
 #include "ChunkManager.hpp"
 
-#include <crucible/MeshFactory.hpp>
 #include <crucible/Renderer.hpp>
 #include <crucible/Mesh.hpp>
 #include <crucible/Math.hpp>
@@ -17,6 +16,7 @@ Chunk::Chunk(int x, int y, int z, ChunkManager* cm) {
     chunk_z = z;
 
     this->cm = cm;
+    this->transform = Transform(vec3(chunk_x * CHUNK_SIZE, (chunk_y * CHUNK_SIZE), chunk_z * CHUNK_SIZE), quaternion(), vec3(1.0f));
 }
 
 Chunk::~Chunk() {
@@ -740,11 +740,10 @@ void Chunk::render(Material *mat) {
 		this->rebuild = false;
 	}
 
-    vec3 chunkPos = vec3(chunk_x * CHUNK_SIZE, (chunk_y * CHUNK_SIZE), chunk_z * CHUNK_SIZE);
-
 	if (this->mesh.data.size() > 0) {
 
-        Renderer::render(&this->mesh, mat, Transform(chunkPos, quaternion(), vec3(1.0f)), aabb);
+        Renderer::render(this->mesh, *mat, transform, aabb);
+        //Renderer::render(Renderer::cubemapMesh, *mat, transform, aabb);
         //Renderer::debug.renderDebugAABB(aabb, vec3(1.0f, 0.0f, 0.0f));
         //
 	}

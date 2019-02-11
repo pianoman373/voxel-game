@@ -73,7 +73,7 @@ void ChunkMesh::clear() {
     bufferLength = 0;
 }
 
-void ChunkMesh::render() {
+void ChunkMesh::render() const {
     glBindVertexArray(VAO);
 
 

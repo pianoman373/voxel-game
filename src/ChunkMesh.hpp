@@ -24,7 +24,7 @@ public:
 
     void clear();
 
-    void render();
+    void render() const;
 
     void destroy();
 };
