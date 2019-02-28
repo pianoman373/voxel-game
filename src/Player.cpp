@@ -2,8 +2,6 @@
 #include "Chunk.hpp"
 #include "World.hpp"
 #include "Client.hpp"
-#include "ChunkManager.hpp"
-#include "ChunkIO.hpp"
 
 #include <crucible/AABB.hpp>
 #include <crucible/Renderer.hpp>
@@ -20,8 +18,7 @@ static const float jumpPower = 7.3f;
 
 static bool p_open = false;
 
-//TODO: maybe this should be a pointer rather than a reference
-Player::Player(World &world): world(world) {
+Player::Player(World &world, Client &client): world(world), client(client) {
 
 }
 
@@ -137,7 +134,7 @@ void Player::update(Camera &cam, float delta) {
 
     //Renderer::renderDebugAABB(playerBoundingBoxLarge, vec3(1.0f, 0.0f, 0.0f));
 
-    std::vector<AABB> collisions = world.manager.getCollisions(playerBoundingBoxLarge);
+    std::vector<AABB> collisions = world.getCollisions(playerBoundingBoxLarge);
 
     //collision detection
 
@@ -252,89 +249,55 @@ void Player::update(Camera &cam, float delta) {
     //block placing
     vec3i blockpos;
     vec3 blocknormal;
-    if (world.manager.raycastBlocks(cam.getPosition(), cam.getDirection(), 10.0f, blockpos, blocknormal)) {
+    if (world.raycastBlocks(cam.getPosition(), cam.getDirection(), 10.0f, blockpos, blocknormal)) {
         float bias = 0.01f;
         //block outline for the block the player is looking at
         Renderer::debug.renderDebugAABB(vec3(blockpos.x, blockpos.y, blockpos.z) - bias, vec3(blockpos.x + 1, blockpos.y + 1, blockpos.z + 1) + bias, vec3());
 
-        if (Input::isKeyDown(GLFW_KEY_P)) {
-			int x = blockpos.x & 31;
-			int y = blockpos.y & 31;
-			int z = blockpos.z & 31;
-            int cx = blockpos.x >> 5;
-            int cy = blockpos.y >> 5;
-            int cz = blockpos.z >> 5;
-            int blockID = 0;
-
-			//world.manager.getChunk(cx, cy, cz)->removeTorch(x, y, z);
-
-			//world.setBlock(x, y, z, blockID);
-        }
 		if (breakBlock) {
 			int x = blockpos.x;
 			int y = blockpos.y;
 			int z = blockpos.z;
 
-            int cx = blockpos.x >> 5;
-            int cy = blockpos.y >> 5;
-            int cz = blockpos.z >> 5;
 
 
-            if (world.manager.getBlock(x, y, z) == 5) {
-                int cx = blockpos.x >> 5;
-                int cy = blockpos.y >> 5;
-                int cz = blockpos.z >> 5;
+            world.setBlock(x, y, z, 0);
 
-                world.manager.setBlock(x, y, z, 0);
-                //world.manager.getChunk(cx, cy, cz)->removeTorch(x, y, z);
-            }
-            else {
-                world.manager.setBlock(x, y, z, 0);
-            }
+            Packet p;
+            uint16_t packetID = 4;
+            int blockID = 0;
 
-            //ChunkIO::loadChunk(world.manager.getChunk(cx, cy, cz));
-            world.manager.chunkIO.saveChunk(world.manager.getChunk(cx, cy, cz));
-            //ChunkIO::flushSaveBuffer();
+            p << packetID << x << y << z << blockID;
 
+            client.network.sendPacket(p);
 		}
 
         if (placeBlock) {
             //if (!playerBoundingBox.intersectsWith(AABB(vec3(blockpos.x + blocknormal.x, blockpos.y + blocknormal.y, blockpos.z + blocknormal.z), vec3(blockpos.x  + blocknormal.x + 1, blockpos.y  + blocknormal.y + 1, blockpos.z  + blocknormal.z + 1)))) {
-                int x = blockpos.x + blocknormal.x;
-                int y = blockpos.y + blocknormal.y;
-                int z = blockpos.z + blocknormal.z;
-                int blockID = heldBlock;
+            int x = blockpos.x + blocknormal.x;
+            int y = blockpos.y + blocknormal.y;
+            int z = blockpos.z + blocknormal.z;
+            int blockID = heldBlock;
 
-                int wx = x & 31;
-                int wy = y & 31;
-                int wz = z & 31;
-                int cx = x >> 5;
-                int cy = y >> 5;
-                int cz = z >> 5;
+            world.setBlock(x, y, z, blockID);
 
-                //std::cout << world.manager.getChunk(cx, cy, cz)->getTorchlight(wx, wy, wz);
+            Packet p;
+            uint16_t packetID = 4;
 
-                if (blockID == 5) {
-                    std::cout << "placing planks" << std::endl;
+            p << packetID << x << y << z << blockID;
 
-                    world.manager.setBlock(x, y, z, blockID);
-                    //world.manager.getChunk(cx, cy, cz)->placeTorch(wx, wy, wz);
-                } else {
-                    world.manager.setBlock(x, y, z, blockID);
-                    //world.manager.getChunk(cx, cy, cz)->removeTorch(x, y, z);
-                }
-
-                //world.manager.chunkIO.saveChunk(world.manager.getChunk(cx, cy, cz));
-
-            //}
+            client.network.sendPacket(p);
         }
     }
+
+    int scroll = (int)Input::getScroll();
+    heldBlock += scroll;
 
     velocity.x = 0.0f;
     //velocity.y = 0.0f;
     velocity.z = 0.0f;
 
-    vec3i chunkPos = World::worldToChunkPos(position);
+    ///vec3i chunkPos = World::worldToChunkPos(position);
 
     // freezes player if not in chunk
 //    if (!world.chunkExists(chunkPos.x, chunkPos.y, chunkPos.z)) {

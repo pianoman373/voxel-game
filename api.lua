@@ -8,7 +8,6 @@ EnumDirection = {
     NEGATIVE_Z = 5
 }
 
-api = {}
 
 function rgb(r, g, b)
 	return {r / 255, g / 255, b / 255}
@@ -91,9 +90,9 @@ end
 
 function array2D(size)
 	local arr = {}
-	for i=1,size do
+	for i=0,size-1 do
 		arr[i] = {}
-		for j=1,size do
+		for j=0,size-1 do
 			arr[i][j] = 0
 		end
 	end

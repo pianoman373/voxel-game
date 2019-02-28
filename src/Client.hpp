@@ -1,31 +1,43 @@
 #pragma once
 
-#include <string>
+#include <crucible/Camera.hpp>
+
+#include "NetworkManagerClient.hpp"
 #include "World.hpp"
+#include "WorldRenderer.hpp"
+#include "LuaHandler.hpp"
 
-class Frustum;
+#include <map>
 
-class Window;
-
-/**
- * Controls mainly user-side and graphical tasks.
- */
 class Client {
 private:
-    static void init();
+    Camera camera;
 
-    static void renderGUI(float deltaTime);
+    std::map<int, vec3> playerPositions;
+
+    LuaHandler lua;
+
+    uint8_t *rleCache;
+
 public:
-    static Frustum frustum;
+    NetworkManagerClient network;
+    World world;
+    WorldRenderer worldRenderer;
+    Player player;
 
-    static Camera camera;
+    Client();
 
-	static World world;
-	//static sol::state luaState;
+    ~Client();
 
-    static void run(std::string username, std::string ip);
+    void requestChunkFromServer(int x, int z);
 
-    static void scrollBlocks(int direction);
+    void receivePackets();
 
-    static void shutdown();
+    void init();
+
+    void update(float delta);
+
+    void render();
+
+    void run(bool &running);
 };

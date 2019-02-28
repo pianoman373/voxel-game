@@ -6,6 +6,8 @@ add_subdirectory(lib/crucible)
 
 add_subdirectory(lib/luajit)
 
+add_subdirectory(lib/enet)
+
 include_directories(lib/crucible/include/
                     lib/luajit/src/
                     ${CMAKE_BINARY_DIR}/lib/luajit
@@ -14,6 +16,7 @@ include_directories(lib/crucible/include/
                     lib/crucible/lib/assimp/include/
                     lib/crucible/lib/stb/
                     lib/crucible/lib/imgui/
+                    lib/enet/include/
                     )
 
 file(GLOB PROJECT_SOURCES src/*.cpp
@@ -28,9 +31,9 @@ add_definitions(-DSFML_STATIC -DGLFW_STATIC)
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS})
 
 if(WIN32)
-    target_link_libraries(${PROJECT_NAME} crucible liblua)
+    target_link_libraries(${PROJECT_NAME} crucible liblua enet)
 elseif(UNIX AND NOT APPLE)
-    target_link_libraries(${PROJECT_NAME} crucible liblua)
+    target_link_libraries(${PROJECT_NAME} crucible liblua enet)
 endif()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
@@ -38,5 +41,5 @@ set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "
 if(MSVC)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /W4")
 else()
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wextra -Wpedantic -std=c++14")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -O3 -Wextra -Wpedantic -std=c++14")
 endif()

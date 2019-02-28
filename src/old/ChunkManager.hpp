@@ -4,29 +4,26 @@
 #include <crucible/AABB.hpp>
 
 #include <unordered_map>
-#include <mutex>
 
 #include "Chunk.hpp"
-#include "ChunkIO.hpp"
 
 
 // stuff to make sure a vec3i can be used in an unorderered:map
-struct key_hash : public std::unary_function<vec3i, std::size_t>
+struct key_hash : public std::unary_function<vec2i, std::size_t>
 {
-    std::size_t operator()(const vec3i& k) const
+    std::size_t operator()(const vec2i& k) const
     {
-        return k.x ^ k.y ^ k.z;
+        return k.x ^ k.y;
     }
 };
 
-struct key_equal : public std::binary_function<vec3i, vec3i, bool>
+struct key_equal : public std::binary_function<vec2i, vec2i, bool>
 {
-    bool operator()(const vec3i& v0, const vec3i& v1) const
+    bool operator()(const vec2i& v0, const vec2i& v1) const
     {
         return (
                 v0.x == v1.x &&
-                v0.y == v1.y &&
-                v0.z == v1.z
+                v0.y == v1.y
         );
     }
 };
@@ -34,12 +31,11 @@ struct key_equal : public std::binary_function<vec3i, vec3i, bool>
 
 class ChunkManager {
 private:
-    std::unordered_map<vec3i, Chunk*, key_hash, key_equal> chunks;
+    std::unordered_map<vec2i, Chunk*, key_hash, key_equal> chunks;
     std::mutex chunks_mx;
 
 
 public:
-    ChunkIO chunkIO;
 
     ChunkManager();
 
@@ -47,15 +43,15 @@ public:
 
     void setBlock(int x, int y, int z, int block);
 
-    Chunk *getChunk(int x, int y, int z);
+    Chunk *getChunk(int x, int z);
 
-    bool chunkExists(int x, int y, int z);
+    bool chunkExists(int x, int z);
 
-    void deleteChunk(int x, int y, int z);
+    void deleteChunk(int x, int z);
 
     void shutdown();
 
-    std::unordered_map<vec3i, Chunk*, key_hash, key_equal> getChunks();
+    std::unordered_map<vec2i, Chunk*, key_hash, key_equal> getChunks();
 
     /**
      * Returns the nearest block the specified ray intercepts.
