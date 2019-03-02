@@ -91,8 +91,8 @@ end
 api.initServer = function()
 	local chunk = ffi.new("uint8_t[?]", 16*16*256)
 
-	for x = 0, 31 do
-		for z = 0, 31 do
+	for x = 0, 65 do
+		for z = 0, 65 do
 			generateChunk(x, z, chunk)
 			C.setChunk(x, z, chunk)
 		end

@@ -35,8 +35,6 @@ int main(int argc, char *argv[]) {
     s = new Server();
     c = new Client();
 
-    std::cout << "Hello world!" << std::endl;
-
     // a. Initialize enet
     if (enet_initialize() != 0) {
         fprintf(stderr, "An error occured while initializing ENet.\n");
@@ -46,18 +44,36 @@ int main(int argc, char *argv[]) {
     atexit(enet_deinitialize);
 
     if (argc > 1 && std::string(argv[1]) == "-s") {
-        s->run(running);
+        if (argc > 2) {
+            int port = atoi(argv[2]);
+
+            s->run(running, port);
+        }
+        else {
+            std::cout << "Usage: voxel-game -s port" << std::endl;
+        }
+
+
     }
     else if (argc > 1 && std::string(argv[1]) == "-c") {
-        c->run(running);
+        if (argc > 3) {
+            std::string address = std::string(argv[2]);
+            int port = atoi(argv[3]);
+
+            c->run(running, address, port);
+        }
+        else {
+            std::cout << "Usage: voxel-game -c address port" << std::endl;
+        }
+
     }
     else {
         std::thread *thread0 = new std::thread([&]() {
-            s->run(running);
+            s->run(running, 1234);
         });
         thread0->detach();
 
-        c->run(running);
+        c->run(running, "localhost", 1234);
 
         running = false;
 

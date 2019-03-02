@@ -17,13 +17,13 @@ NetworkManagerServer::NetworkManagerServer(Server &server): server(server) {
 
 }
 
-void NetworkManagerServer::init() {
+void NetworkManagerServer::init(int port) {
     ENetAddress address;
 
 
     // b. Create a host using enet_host_create
     address.host = ENET_HOST_ANY;
-    address.port = 1234;
+    address.port = port;
 
     host = enet_host_create(&address, 32, 2, 0, 0);
 

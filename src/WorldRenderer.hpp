@@ -4,6 +4,7 @@
 #include <crucible/Shader.hpp>
 #include <crucible/Texture.hpp>
 #include <crucible/Material.hpp>
+#include <crucible/Camera.hpp>
 
 #include <unordered_map>
 #include <thread>
@@ -69,9 +70,11 @@ public:
 
     void init();
 
-    void render();
+    void render(Camera &cam);
 
     bool chunkRendererExists(int x, int z);
+
+    void deleteChunkRenderer(int x, int z);
 
     bool doesChunkHaveNeighbors(int x, int z);
 

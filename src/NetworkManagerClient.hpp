@@ -18,7 +18,7 @@ private:
 public:
     NetworkManagerClient(Client &client);
 
-    void init();
+    void init(std::string address, int port);
 
     void processEvents();
 

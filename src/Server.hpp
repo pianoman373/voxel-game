@@ -18,11 +18,11 @@ public:
 
     void generateTerrain(Chunk *c);
 
-    void init();
+    void init(int port);
 
     Server();
 
     ~Server();
 
-    void run(bool &running);
+    void run(bool &running, int port);
 };

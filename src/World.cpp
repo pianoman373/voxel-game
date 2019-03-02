@@ -65,7 +65,6 @@ std::shared_ptr<Chunk> World::getChunk(int x, int z) {
 void World::deleteChunk(int x, int z) {
     if (chunkExists(x, z)) {
         //std::cout << "deleting chunk" << std::endl;
-
         chunks.erase({x, z});
     }
 }
@@ -149,12 +148,16 @@ std::vector<AABB> World::getCollisions(AABB test) {
     for (int x = start.x; x <= end.x; x++) {
         for (int y = start.y; y <= end.y; y++) {
             for (int z = start.z; z <= end.z; z++) {
-                if (getBlock(x, y, z) != 0) {
-                    AABB blockAbb = AABB(vec3(x, y, z), vec3(x+1, y+1, z+1));
+                int xp = x >> 4;
+                int zp = z >> 4;
 
-                    returnVector.push_back(blockAbb);
+                if (chunkExists(xp, zp)) {
+                    if (getBlock(x, y, z) != 0) {
+                        AABB blockAbb = AABB(vec3(x, y, z), vec3(x+1, y+1, z+1));
+
+                        returnVector.push_back(blockAbb);
+                    }
                 }
-
             }
         }
     }

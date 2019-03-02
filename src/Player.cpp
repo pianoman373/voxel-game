@@ -2,6 +2,7 @@
 #include "Chunk.hpp"
 #include "World.hpp"
 #include "Client.hpp"
+#include "Block.hpp"
 
 #include <crucible/AABB.hpp>
 #include <crucible/Renderer.hpp>
@@ -11,7 +12,7 @@
 #include <imgui.h>
 #include <GLFW/glfw3.h>
 
-static const float movementSpeed = 7.0f;
+static const float movementSpeed = 50.0f;
 static const float mouseSensitivity = 8.0f;
 static const float gravity = 22.8f;
 static const float jumpPower = 7.3f;

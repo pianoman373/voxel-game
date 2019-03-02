@@ -6,8 +6,10 @@
 #include "World.hpp"
 #include "WorldRenderer.hpp"
 #include "LuaHandler.hpp"
+#include "Settings.hpp"
 
 #include <crucible/Frustum.hpp>
+
 
 #include <map>
 
@@ -16,6 +18,8 @@ private:
     Camera camera;
 
     std::map<int, vec3> playerPositions;
+
+    std::unordered_map<vec2i, int> expectedChunks;
 
     LuaHandler lua;
 
@@ -27,6 +31,7 @@ public:
     WorldRenderer worldRenderer;
     Player player;
     Frustum frustum;
+    Settings settings;
 
     Client();
 
@@ -36,11 +41,11 @@ public:
 
     void receivePackets();
 
-    void init();
+    void init(std::string address, int port);
 
     void update(float delta);
 
     void render();
 
-    void run(bool &running);
+    void run(bool &running, std::string address, int port);
 };

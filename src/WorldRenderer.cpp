@@ -96,7 +96,7 @@ void WorldRenderer::init() {
     thread3->detach();
 }
 
-void WorldRenderer::render() {
+void WorldRenderer::render(Camera &cam) {
     int regeneratedChunks = 0;
 
     for (auto &i : chunkRenderers) {
@@ -104,6 +104,8 @@ void WorldRenderer::render() {
 
         int x = i.first.x;
         int z = i.first.y;
+
+        //Renderer::debug.renderDebugAABB(vec3(x * 16.0f, 0.0f, x * 16.0f), vec3((x+1) * 16.0f, 256.0f, (z+1) * 16.0f), vec3(0.0f, 1.0f, 0.0f));
 
         if (doesChunkHaveNeighbors(x, z)) {
             std::shared_ptr<Chunk> chunk = world.getChunk(x, z);
@@ -147,12 +149,26 @@ void WorldRenderer::render() {
             cr->render(&nearMaterial);
         }
     }
+//
+//    auto chunks = world.getChunks();
+//
+//    for (auto i : chunks) {
+//        vec2i pos = i.first;
+//
+//        Renderer::debug.renderDebugAABB(vec3(pos.x * 16.0f, 0.0f, pos.y * 16.0f), vec3((pos.x+1) * 16.0f, 256.0f, (pos.y+1) * 16.0f), vec3(1.0f, 0.0f, 0.0f));
+//    }
 }
 
 bool WorldRenderer::chunkRendererExists(int x, int z) {
     bool exists = chunkRenderers.find({x, z}) != chunkRenderers.end();
 
     return exists;
+}
+
+void WorldRenderer::deleteChunkRenderer(int x, int z) {
+    if (chunkRendererExists(x, z)) {
+        chunkRenderers.erase({x, z});
+    }
 }
 
 bool WorldRenderer::doesChunkHaveNeighbors(int x, int z) {

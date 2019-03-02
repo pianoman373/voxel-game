@@ -99,8 +99,8 @@ static void nilFunction(int id, sol::table block) {
 
 }
 
-void Server::init() {
-    network.init();
+void Server::init(int port) {
+    network.init(port);
 
     world.init(Context::SERVER);
 
@@ -175,10 +175,10 @@ void Server::init() {
 //        }
 }
 
-void Server::run(bool &running) {
+void Server::run(bool &running, int port) {
     std::cout << "running server" << std::endl;
 
-    init();
+    init(port);
 
     while (running) {
         update();

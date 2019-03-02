@@ -8,8 +8,8 @@ NetworkManagerClient::NetworkManagerClient(Client &client): client(client) {
 
 }
 
-void NetworkManagerClient::init() {
-    ENetAddress address;
+void NetworkManagerClient::init(std::string address, int port) {
+    ENetAddress eaddress;
 
     // b. Create a host using enet_host_create
     host = enet_host_create(NULL, 1, 2, 57600/8, 14400/8);
@@ -18,11 +18,11 @@ void NetworkManagerClient::init() {
         fprintf(stderr, "An error occured while trying to create an ENet server host\n");
     }
 
-    enet_address_set_host(&address, "localhost");
-    address.port = 1234;
+    enet_address_set_host(&eaddress, address.c_str());
+    eaddress.port = port;
 
     // c. Connect and user service
-    peer = enet_host_connect(host, &address, 2, 0);
+    peer = enet_host_connect(host, &eaddress, 2, 0);
 
     if (peer == NULL) {
         fprintf(stderr, "No available peers for initializing an ENet connection");

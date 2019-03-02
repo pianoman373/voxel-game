@@ -21,7 +21,7 @@ private:
 public:
     NetworkManagerServer(Server &server);
 
-    void init();
+    void init(int port);
 
     void processEvents();
 

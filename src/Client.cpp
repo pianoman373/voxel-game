@@ -76,7 +76,7 @@ void Client::receivePackets() {
 
             p >> x >> z >> length;
 
-            //std::cout << "(Client) Received chunk at: " << x << ", " << z << std::endl;
+            std::cout << "(Client) Received chunk at: " << x << ", " << z << std::endl;
             bytesReceived += length;
             //std::cout << "Received a total of " << bytesReceived << " bytes." << std::endl;
 
@@ -89,6 +89,8 @@ void Client::receivePackets() {
             chunk->isDirty = true;
 
             worldRenderer.getChunkRenderer(x, z);
+
+            expectedChunks.erase({x, z});
         }
         if (packetID == 4) {
             int x, y, z, blockID;
@@ -100,16 +102,23 @@ void Client::receivePackets() {
     }
 }
 
-void Client::init() {
+void Client::init(std::string address, int port) {
     std::cout << "running client" << std::endl;
 
-    network.init();
+    settings.load("settings.json");
 
-    Window::create({1400, 800}, "Voxel Game", false);
+    network.init(address, port);
 
-    Renderer::init(true, 2048, 1400, 800);
+    Window::create({1400, 800}, "Voxel Game", false, settings.vsync);
+
+    Renderer::init(settings.shadows, settings.shadow_resolution, 1400*settings.resolution_scale, 800*settings.resolution_scale);
     Renderer::settings.vignette = false;
     Renderer::settings.SSR = false;
+
+    Renderer::settings.ssao = settings.fancy_graphics;
+    Renderer::settings.bloom = settings.fancy_graphics;
+    Renderer::settings.fxaa = settings.fancy_graphics;
+
     Renderer::setSun({normalize(vec3(-0.4f, -0.6f, -1.0f)), vec3(1.4f, 1.3f, 1.0f) * 3.0f});
 
     camera.position = vec3(3.0f, 62.0f, 3.0f);
@@ -121,22 +130,8 @@ void Client::init() {
     lua.state["api"]["registerBlock"] = BlockRegistry::registerBlockLua;
     lua.runScripts();
 
-//    for (int i = 0; i < chunk.size(); i++) {
-//        int c = chunk.get<int>(i);
-//        std::cout << c << ", " << std::endl;
-//    }
-
     world.init(Context::CLIENT);
     worldRenderer.init();
-
-    int range = WORLD_SIZE;
-
-    for (int x = 0; x < range; x++) {
-        for (int z = 0; z < range; z++) {
-            requestChunkFromServer(x, z);
-        }
-    }
-
 
     player.position = vec3(50, 200, 50);
 }
@@ -159,6 +154,41 @@ void Client::update(float delta) {
 
         network.sendPacket(p);
     }
+
+    auto chunks = world.getChunks();
+
+    vec2i playerPosition = vec2i((int)camera.position.x >> 4, (int)camera.position.z >> 4);
+
+    int renderdistance = settings.render_distance;
+
+
+    //chunk deletion
+    for (auto i : chunks) {
+        std::shared_ptr<Chunk> chunk = i.second;
+
+
+        if (abs(playerPosition.x - chunk->chunk_x) > renderdistance || abs(playerPosition.y - chunk->chunk_z) > renderdistance) {
+            world.deleteChunk(chunk->chunk_x, chunk->chunk_z);
+            worldRenderer.deleteChunkRenderer(chunk->chunk_x, chunk->chunk_z);
+        }
+    }
+
+    //chunk addition
+    for (int x = -renderdistance; x < renderdistance+1; x++) {
+        for (int z = -renderdistance; z < renderdistance+1; z++) {
+            vec2i chunkPos = vec2i(x, z) + playerPosition;
+
+            if (!world.chunkExists(chunkPos.x, chunkPos.y)) {
+                if (expectedChunks.find({chunkPos.x, chunkPos.y}) == expectedChunks.end()) {
+                    requestChunkFromServer(chunkPos.x, chunkPos.y);
+
+                    expectedChunks[{chunkPos.x, chunkPos.y}] = 1;
+                }
+            }
+
+        }
+    }
+
 }
 
 void Client::render() {
@@ -173,7 +203,7 @@ void Client::render() {
     //frustum.renderDebug();
 
 
-    worldRenderer.render();
+    worldRenderer.render(camera);
 
 
     for (auto const& x : playerPositions)
@@ -188,8 +218,8 @@ void Client::render() {
     Window::end();
 }
 
-void Client::run(bool &running) {
-    init();
+void Client::run(bool &running, std::string address, int port) {
+    init(address, port);
 
     while (Window::isOpen()) {
         static float deltaTime;
