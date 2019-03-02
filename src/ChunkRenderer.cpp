@@ -5,8 +5,13 @@
 
 #include <crucible/Renderer.hpp>
 
-ChunkRenderer::ChunkRenderer(Chunk &attachedChunk): attachedChunk(attachedChunk) {
-    this->transform = Transform(vec3(attachedChunk.chunk_x * 16, 0.0f, attachedChunk.chunk_z * 16), quaternion(), vec3(1.0f));
+#include <queue>
+
+ChunkRenderer::ChunkRenderer(int chunk_x, int chunk_z) {
+    this->chunk_x = chunk_x;
+    this->chunk_z = chunk_z;
+
+    this->transform = Transform(vec3(chunk_x * 16, 0.0f, chunk_z * 16), quaternion(), vec3(1.0f));
 }
 
 const float textureSize = 16.0f;
@@ -16,7 +21,7 @@ char ChunkRenderer::getBlock(ChunkRemeshJob &job, int x, int y, int z) {
 
     //center
     if (x >= 0 && x < 16 && z >= 0 && z < 16) {
-        return attachedChunk.getBlock(x, y, z);
+        return job.center->getBlock(x, y, z);
     }
 
     //positive X
@@ -60,345 +65,306 @@ char ChunkRenderer::getBlock(ChunkRemeshJob &job, int x, int y, int z) {
 }
 
 void ChunkRenderer::generateMesh(ChunkRemeshJob &job) {
-    if (!attachedChunk.empty) {
-        float bias = 0.00001f;
+    float bias = 0.00001f;
 
-        vec3i min = vec3i(16, 256, 16);
-        vec3i max = vec3i(0, 0, 0);
+    int highestY = 0;
 
-        for (int x = 0; x < 16; x++) {
-            for (int z = 0; z < 16; z++) {
-                for (int y = 0; y < 256; y++) {
+    for (int x = 0; x < 16; x++) {
+        for (int z = 0; z < 16; z++) {
+            for (int y = 0; y < 256; y++) {
 
-                    int block_X_Y_Z = getBlock(job, x, y, z);
+                int block_X_Y_Z = getBlock(job, x, y, z);
 
 
-                    if (block_X_Y_Z == 0) {
-                        continue;
-                    }
-                    else {
-                        if (x < min.x) {
-                            min.x = x;
-                        }
+                if (block_X_Y_Z == 0) {
+                    continue;
+                }
 
+                if (y > highestY) {
+                    highestY = y;
+                }
 
-                        if (y < min.y) {
-                            min.y = y;
-                        }
+                Block *block = BlockRegistry::getBlock(block_X_Y_Z);
 
 
-                        if (z < min.z) {
-                            min.z = z;
-                        }
+                bool block_X_posY_Z = !BlockRegistry::getBlock(getBlock(job, x, y + 1, z))->isSolid();
+                bool block_X_negY_Z = !BlockRegistry::getBlock(getBlock(job, x, y - 1, z))->isSolid();
 
+                bool block_X_Y_negZ = !BlockRegistry::getBlock(getBlock(job, x, y, z - 1))->isSolid();
+                bool block_X_posY_negZ = !BlockRegistry::getBlock(getBlock(job, x, y + 1, z - 1))->isSolid();
+                bool block_X_negY_negZ = !BlockRegistry::getBlock(getBlock(job, x, y - 1, z - 1))->isSolid();
 
+                bool block_X_Y_posZ = !BlockRegistry::getBlock(getBlock(job, x, y, z + 1))->isSolid();
+                bool block_X_posY_posZ = !BlockRegistry::getBlock(getBlock(job, x, y + 1, z + 1))->isSolid();
+                bool block_X_negY_posZ = !BlockRegistry::getBlock(getBlock(job, x, y - 1, z + 1))->isSolid();
 
 
-                        if (x > max.x) {
-                            max.x = x;
-                        }
+                bool block_posX_Y_Z = !BlockRegistry::getBlock(getBlock(job, x + 1, y, z))->isSolid();
+                bool block_posX_posY_Z = !BlockRegistry::getBlock(getBlock(job, x + 1, y + 1, z))->isSolid();
+                bool block_posX_negY_Z = !BlockRegistry::getBlock(getBlock(job, x + 1, y - 1, z))->isSolid();
 
+                bool block_posX_Y_negZ = !BlockRegistry::getBlock(getBlock(job, x + 1, y, z - 1))->isSolid();
+                bool block_posX_posY_negZ = !BlockRegistry::getBlock(getBlock(job, x + 1, y + 1, z - 1))->isSolid();
+                bool block_posX_negY_negZ = !BlockRegistry::getBlock(getBlock(job, x + 1, y - 1, z - 1))->isSolid();
 
-                        if (y > max.y) {
-                            max.y = y;
-                        }
+                bool block_posX_Y_posZ = !BlockRegistry::getBlock(getBlock(job, x + 1, y, z + 1))->isSolid();
+                bool block_posX_posY_posZ = !BlockRegistry::getBlock(getBlock(job, x + 1, y + 1, z + 1))->isSolid();
+                bool block_posX_negY_posZ = !BlockRegistry::getBlock(getBlock(job, x + 1, y - 1, z + 1))->isSolid();
 
 
-                        if (z > max.z) {
-                            max.z = z;
-                        }
-                    }
+                bool block_negX_Y_Z = !BlockRegistry::getBlock(getBlock(job, x - 1, y, z))->isSolid();
+                bool block_negX_posY_Z = !BlockRegistry::getBlock(getBlock(job, x - 1, y + 1, z))->isSolid();
+                bool block_negX_negY_Z = !BlockRegistry::getBlock(getBlock(job, x - 1, y - 1, z))->isSolid();
 
+                bool block_negX_Y_negZ = !BlockRegistry::getBlock(getBlock(job, x - 1, y, z - 1))->isSolid();
+                bool block_negX_posY_negZ = !BlockRegistry::getBlock(getBlock(job, x - 1, y + 1, z - 1))->isSolid();
+                bool block_negX_negY_negZ = !BlockRegistry::getBlock(getBlock(job, x - 1, y - 1, z - 1))->isSolid();
 
-                    float lightLevel = 0.0f;
+                bool block_negX_Y_posZ = !BlockRegistry::getBlock(getBlock(job, x - 1, y, z + 1))->isSolid();
+                bool block_negX_posY_posZ = !BlockRegistry::getBlock(getBlock(job, x - 1, y + 1, z + 1))->isSolid();
+                bool block_negX_negY_posZ = !BlockRegistry::getBlock(getBlock(job, x - 1, y - 1, z + 1))->isSolid();
 
+                if (block_posX_Y_Z) { //+x face
+                    vec2i textureCoord = block->getTextureCoord(EnumDirection::POSITIVE_X);
 
-                    Block *block = BlockRegistry::getBlock(block_X_Y_Z);
+                    vec2 uv1 = vec2((textureCoord.x / textureSize), (textureCoord.y / textureSize)) + bias;
+                    vec2 uv2 = vec2(((textureCoord.x + 1) / textureSize), ((textureCoord.y + 1) / textureSize)) - bias;
 
+                    float ao100 = 1.0f;
+                    float ao101 = 1.0f;
+                    float ao110 = 1.0f;
+                    float ao111 = 1.0f;
 
-                    bool block_X_posY_Z = !BlockRegistry::getBlock(getBlock(job, x, y + 1, z))->isSolid();
-                    bool block_X_negY_Z = !BlockRegistry::getBlock(getBlock(job, x, y - 1, z))->isSolid();
+                    if (!block_posX_negY_negZ && (block_posX_Y_negZ && block_posX_negY_Z)) ao100 -= AO;
+                    if (!block_posX_Y_negZ) ao100 -= AO;
+                    if (!block_posX_negY_Z) ao100 -= AO;
 
-                    bool block_X_Y_negZ = !BlockRegistry::getBlock(getBlock(job, x, y, z - 1))->isSolid();
-                    bool block_X_posY_negZ = !BlockRegistry::getBlock(getBlock(job, x, y + 1, z - 1))->isSolid();
-                    bool block_X_negY_negZ = !BlockRegistry::getBlock(getBlock(job, x, y - 1, z - 1))->isSolid();
+                    if (!block_posX_negY_posZ && (block_posX_Y_posZ && block_posX_negY_Z)) ao101 -= AO;
+                    if (!block_posX_Y_posZ) ao101 -= AO;
+                    if (!block_posX_negY_Z) ao101 -= AO;
 
-                    bool block_X_Y_posZ = !BlockRegistry::getBlock(getBlock(job, x, y, z + 1))->isSolid();
-                    bool block_X_posY_posZ = !BlockRegistry::getBlock(getBlock(job, x, y + 1, z + 1))->isSolid();
-                    bool block_X_negY_posZ = !BlockRegistry::getBlock(getBlock(job, x, y - 1, z + 1))->isSolid();
+                    if (!block_posX_posY_negZ && (block_posX_Y_negZ && block_posX_posY_Z)) ao110 -= AO;
+                    if (!block_posX_Y_negZ) ao110 -= AO;
+                    if (!block_posX_posY_Z) ao110 -= AO;
 
+                    if (!block_posX_posY_posZ && (block_posX_Y_posZ && block_posX_posY_Z)) ao111 -= AO;
+                    if (!block_posX_Y_posZ) ao111 -= AO;
+                    if (!block_posX_posY_Z) ao111 -= AO;
 
-                    bool block_posX_Y_Z = !BlockRegistry::getBlock(getBlock(job, x + 1, y, z))->isSolid();
-                    bool block_posX_posY_Z = !BlockRegistry::getBlock(getBlock(job, x + 1, y + 1, z))->isSolid();
-                    bool block_posX_negY_Z = !BlockRegistry::getBlock(getBlock(job, x + 1, y - 1, z))->isSolid();
+                    float lightLevel = 1.0f;
 
-                    bool block_posX_Y_negZ = !BlockRegistry::getBlock(getBlock(job, x + 1, y, z - 1))->isSolid();
-                    bool block_posX_posY_negZ = !BlockRegistry::getBlock(getBlock(job, x + 1, y + 1, z - 1))->isSolid();
-                    bool block_posX_negY_negZ = !BlockRegistry::getBlock(getBlock(job, x + 1, y - 1, z - 1))->isSolid();
+                    mesh.pushVertex(1.0f+x, 0.0f+y, 0.0f+z,  uv1.x, uv2.y,  ao100*lightLevel,  0);
+                    mesh.pushVertex(1.0f+x, 1.0f+y, 0.0f+z,  uv1.x, uv1.y,  ao110*lightLevel,  0);
+                    mesh.pushVertex(1.0f+x, 1.0f+y, 1.0f+z,  uv2.x, uv1.y,  ao111*lightLevel,  0);
 
-                    bool block_posX_Y_posZ = !BlockRegistry::getBlock(getBlock(job, x + 1, y, z + 1))->isSolid();
-                    bool block_posX_posY_posZ = !BlockRegistry::getBlock(getBlock(job, x + 1, y + 1, z + 1))->isSolid();
-                    bool block_posX_negY_posZ = !BlockRegistry::getBlock(getBlock(job, x + 1, y - 1, z + 1))->isSolid();
+                    mesh.pushVertex(1.0f+x, 1.0f+y, 1.0f+z,  uv2.x, uv1.y,  ao111*lightLevel,  0);
+                    mesh.pushVertex(1.0f+x, 0.0f+y, 1.0f+z,  uv2.x, uv2.y,  ao101*lightLevel,  0);
+                    mesh.pushVertex(1.0f+x, 0.0f+y, 0.0f+z,  uv1.x, uv2.y,  ao100*lightLevel,  0);
+                }
+                if (block_negX_Y_Z) { //-x face
+                    vec2i textureCoord = block->getTextureCoord(EnumDirection::NEGATIVE_X);
 
+                    vec2 uv1 = vec2((textureCoord.x / textureSize), (textureCoord.y / textureSize)) + bias;
+                    vec2 uv2 = vec2(((textureCoord.x + 1) / textureSize), ((textureCoord.y + 1) / textureSize)) - bias;
 
-                    bool block_negX_Y_Z = !BlockRegistry::getBlock(getBlock(job, x - 1, y, z))->isSolid();
-                    bool block_negX_posY_Z = !BlockRegistry::getBlock(getBlock(job, x - 1, y + 1, z))->isSolid();
-                    bool block_negX_negY_Z = !BlockRegistry::getBlock(getBlock(job, x - 1, y - 1, z))->isSolid();
+                    float ao000 = 1.0f;
+                    float ao001 = 1.0f;
+                    float ao010 = 1.0f;
+                    float ao011 = 1.0f;
 
-                    bool block_negX_Y_negZ = !BlockRegistry::getBlock(getBlock(job, x - 1, y, z - 1))->isSolid();
-                    bool block_negX_posY_negZ = !BlockRegistry::getBlock(getBlock(job, x - 1, y + 1, z - 1))->isSolid();
-                    bool block_negX_negY_negZ = !BlockRegistry::getBlock(getBlock(job, x - 1, y - 1, z - 1))->isSolid();
+                    if (!block_negX_negY_negZ && (block_negX_Y_negZ && block_negX_negY_Z)) ao000 -= AO;
+                    if (!block_negX_Y_negZ) ao000 -= AO;
+                    if (!block_negX_negY_Z) ao000 -= AO;
+
+                    if (!block_negX_negY_posZ && (block_negX_Y_posZ && block_negX_negY_Z)) ao001 -= AO;
+                    if (!block_negX_Y_posZ) ao001 -= AO;
+                    if (!block_negX_negY_Z) ao001 -= AO;
 
-                    bool block_negX_Y_posZ = !BlockRegistry::getBlock(getBlock(job, x - 1, y, z + 1))->isSolid();
-                    bool block_negX_posY_posZ = !BlockRegistry::getBlock(getBlock(job, x - 1, y + 1, z + 1))->isSolid();
-                    bool block_negX_negY_posZ = !BlockRegistry::getBlock(getBlock(job, x - 1, y - 1, z + 1))->isSolid();
+                    if (!block_negX_posY_negZ && (block_negX_Y_negZ && block_negX_posY_Z)) ao010 -= AO;
+                    if (!block_negX_Y_negZ) ao010 -= AO;
+                    if (!block_negX_posY_Z) ao010 -= AO;
+
+                    if (!block_negX_posY_posZ && (block_negX_Y_posZ && block_negX_posY_Z)) ao011 -= AO;
+                    if (!block_negX_Y_posZ) ao011 -= AO;
+                    if (!block_negX_posY_Z) ao011 -= AO;
+
+                    float lightLevel = 1.0f;
 
-                    if (block_posX_Y_Z) { //+x face
-                        vec2i textureCoord = block->getTextureCoord(EnumDirection::POSITIVE_X);
+                    mesh.pushVertex( 0.0f+x, 1.0f+y, 1.0f+z,  uv1.x, uv1.y,  ao011*lightLevel,  1);
+                    mesh.pushVertex( 0.0f+x, 1.0f+y, 0.0f+z,  uv2.x, uv1.y,  ao010*lightLevel,  1);
+                    mesh.pushVertex( 0.0f+x, 0.0f+y, 0.0f+z,  uv2.x, uv2.y,  ao000*lightLevel,  1);
 
-                        vec2 uv1 = vec2((textureCoord.x / textureSize), (textureCoord.y / textureSize)) + bias;
-                        vec2 uv2 = vec2(((textureCoord.x + 1) / textureSize), ((textureCoord.y + 1) / textureSize)) - bias;
+                    mesh.pushVertex( 0.0f+x, 0.0f+y, 0.0f+z,  uv2.x, uv2.y,  ao000*lightLevel,  1);
+                    mesh.pushVertex( 0.0f+x, 0.0f+y, 1.0f+z,  uv1.x, uv2.y,  ao001*lightLevel,  1);
+                    mesh.pushVertex( 0.0f+x, 1.0f+y, 1.0f+z,  uv1.x, uv1.y,  ao011*lightLevel,  1);
+                }
+
+                if (block_X_posY_Z) { //top face
+                    vec2i textureCoord = block->getTextureCoord(EnumDirection::POSITIVE_Y);
 
-                        float ao100 = 1.0f;
-                        float ao101 = 1.0f;
-                        float ao110 = 1.0f;
-                        float ao111 = 1.0f;
+                    vec2 uv1 = vec2((textureCoord.x / textureSize), (textureCoord.y / textureSize)) + bias;
+                    vec2 uv2 = vec2(((textureCoord.x + 1) / textureSize), ((textureCoord.y + 1) / textureSize)) - bias;
 
-                        if (!block_posX_negY_negZ && (block_posX_Y_negZ && block_posX_negY_Z)) ao100 -= AO;
-                        if (!block_posX_Y_negZ) ao100 -= AO;
-                        if (!block_posX_negY_Z) ao100 -= AO;
-
-                        if (!block_posX_negY_posZ && (block_posX_Y_posZ && block_posX_negY_Z)) ao101 -= AO;
-                        if (!block_posX_Y_posZ) ao101 -= AO;
-                        if (!block_posX_negY_Z) ao101 -= AO;
+                    float ao010 = 1.0f;
+                    float ao110 = 1.0f;
+                    float ao011 = 1.0f;
+                    float ao111 = 1.0f;
 
-                        if (!block_posX_posY_negZ && (block_posX_Y_negZ && block_posX_posY_Z)) ao110 -= AO;
-                        if (!block_posX_Y_negZ) ao110 -= AO;
-                        if (!block_posX_posY_Z) ao110 -= AO;
-
-                        if (!block_posX_posY_posZ && (block_posX_Y_posZ && block_posX_posY_Z)) ao111 -= AO;
-                        if (!block_posX_Y_posZ) ao111 -= AO;
-                        if (!block_posX_posY_Z) ao111 -= AO;
-
-                        vec3 blockColor = vec3(1.0f);
-
-                        mesh.pushVertex(1.0f+x, 0.0f+y, 0.0f+z,  uv1.x, uv2.y,  ao100,  0);
-                        mesh.pushVertex(1.0f+x, 1.0f+y, 0.0f+z,  uv1.x, uv1.y,  ao110,  0);
-                        mesh.pushVertex(1.0f+x, 1.0f+y, 1.0f+z,  uv2.x, uv1.y,  ao111,  0);
-
-                        mesh.pushVertex(1.0f+x, 1.0f+y, 1.0f+z,  uv2.x, uv1.y,  ao111,  0);
-                        mesh.pushVertex(1.0f+x, 0.0f+y, 1.0f+z,  uv2.x, uv2.y,  ao101,  0);
-                        mesh.pushVertex(1.0f+x, 0.0f+y, 0.0f+z,  uv1.x, uv2.y,  ao100,  0);
-                    }
-                    if (block_negX_Y_Z) { //-x face
-                        vec2i textureCoord = block->getTextureCoord(EnumDirection::NEGATIVE_X);
+                    if (!block_negX_posY_negZ && (block_X_posY_negZ && block_negX_posY_Z)) ao010 -= AO;
+                    if (!block_X_posY_negZ) ao010 -= AO;
+                    if (!block_negX_posY_Z) ao010 -= AO;
 
-                        vec2 uv1 = vec2((textureCoord.x / textureSize), (textureCoord.y / textureSize)) + bias;
-                        vec2 uv2 = vec2(((textureCoord.x + 1) / textureSize), ((textureCoord.y + 1) / textureSize)) - bias;
+                    if (!block_posX_posY_negZ && (block_X_posY_negZ && block_posX_posY_Z)) ao110 -= AO;
+                    if (!block_X_posY_negZ) ao110 -= AO;
+                    if (!block_posX_posY_Z) ao110 -= AO;
 
-                        float ao000 = 1.0f;
-                        float ao001 = 1.0f;
-                        float ao010 = 1.0f;
-                        float ao011 = 1.0f;
+                    if (!block_negX_posY_posZ && (block_X_posY_posZ && block_negX_posY_Z)) ao011 -= AO;
+                    if (!block_X_posY_posZ) ao011 -= AO;
+                    if (!block_negX_posY_Z) ao011 -= AO;
 
-                        if (!block_negX_negY_negZ && (block_negX_Y_negZ && block_negX_negY_Z)) ao000 -= AO;
-                        if (!block_negX_Y_negZ) ao000 -= AO;
-                        if (!block_negX_negY_Z) ao000 -= AO;
-
-                        if (!block_negX_negY_posZ && (block_negX_Y_posZ && block_negX_negY_Z)) ao001 -= AO;
-                        if (!block_negX_Y_posZ) ao001 -= AO;
-                        if (!block_negX_negY_Z) ao001 -= AO;
+                    if (!block_posX_posY_posZ && (block_X_posY_posZ && block_posX_posY_Z)) ao111 -= AO;
+                    if (!block_X_posY_posZ) ao111 -= AO;
+                    if (!block_posX_posY_Z) ao111 -= AO;
 
-                        if (!block_negX_posY_negZ && (block_negX_Y_negZ && block_negX_posY_Z)) ao010 -= AO;
-                        if (!block_negX_Y_negZ) ao010 -= AO;
-                        if (!block_negX_posY_Z) ao010 -= AO;
-
-                        if (!block_negX_posY_posZ && (block_negX_Y_posZ && block_negX_posY_Z)) ao011 -= AO;
-                        if (!block_negX_Y_posZ) ao011 -= AO;
-                        if (!block_negX_posY_Z) ao011 -= AO;
-
-                        vec3 blockColor = vec3(1.0f);
-
-                        mesh.pushVertex( 0.0f+x, 1.0f+y, 1.0f+z,  uv1.x, uv1.y,  ao011,  1);
-                        mesh.pushVertex( 0.0f+x, 1.0f+y, 0.0f+z,  uv2.x, uv1.y,  ao010,  1);
-                        mesh.pushVertex( 0.0f+x, 0.0f+y, 0.0f+z,  uv2.x, uv2.y,  ao000,  1);
-
-                        mesh.pushVertex( 0.0f+x, 0.0f+y, 0.0f+z,  uv2.x, uv2.y,  ao000,  1);
-                        mesh.pushVertex( 0.0f+x, 0.0f+y, 1.0f+z,  uv1.x, uv2.y,  ao001,  1);
-                        mesh.pushVertex( 0.0f+x, 1.0f+y, 1.0f+z,  uv1.x, uv1.y,  ao011,  1);
-                    }
-
-                    if (block_X_posY_Z) { //top face
-                        vec2i textureCoord = block->getTextureCoord(EnumDirection::POSITIVE_Y);
-
-                        vec2 uv1 = vec2((textureCoord.x / textureSize), (textureCoord.y / textureSize)) + bias;
-                        vec2 uv2 = vec2(((textureCoord.x + 1) / textureSize), ((textureCoord.y + 1) / textureSize)) - bias;
-
-                        float ao010 = 1.0f;
-                        float ao110 = 1.0f;
-                        float ao011 = 1.0f;
-                        float ao111 = 1.0f;
-
-                        if (!block_negX_posY_negZ && (block_X_posY_negZ && block_negX_posY_Z)) ao010 -= AO;
-                        if (!block_X_posY_negZ) ao010 -= AO;
-                        if (!block_negX_posY_Z) ao010 -= AO;
-
-                        if (!block_posX_posY_negZ && (block_X_posY_negZ && block_posX_posY_Z)) ao110 -= AO;
-                        if (!block_X_posY_negZ) ao110 -= AO;
-                        if (!block_posX_posY_Z) ao110 -= AO;
-
-                        if (!block_negX_posY_posZ && (block_X_posY_posZ && block_negX_posY_Z)) ao011 -= AO;
-                        if (!block_X_posY_posZ) ao011 -= AO;
-                        if (!block_negX_posY_Z) ao011 -= AO;
-
-                        if (!block_posX_posY_posZ && (block_X_posY_posZ && block_posX_posY_Z)) ao111 -= AO;
-                        if (!block_X_posY_posZ) ao111 -= AO;
-                        if (!block_posX_posY_Z) ao111 -= AO;
-
-                        float lightLevel = 1.0f;
-
-                        mesh.pushVertex( 1.0f+x, 1.0f+y, 1.0f+z,  uv2.x, uv1.y,  ao111*lightLevel,  2);
-                        mesh.pushVertex( 1.0f+x, 1.0f+y, 0.0f+z,  uv2.x, uv2.y,  ao110*lightLevel,  2);
-                        mesh.pushVertex( 0.0f+x, 1.0f+y, 0.0f+z,  uv1.x, uv2.y,  ao010*lightLevel,  2);
-
-                        mesh.pushVertex( 0.0f+x, 1.0f+y, 0.0f+z,  uv1.x, uv2.y,  ao010*lightLevel,  2);
-                        mesh.pushVertex( 0.0f+x, 1.0f+y, 1.0f+z,  uv1.x, uv1.y,  ao011*lightLevel,  2);
-                        mesh.pushVertex( 1.0f+x, 1.0f+y, 1.0f+z,  uv2.x, uv1.y,  ao111*lightLevel,  2);
-                    }
-                    if (block_X_negY_Z) { //bottom face
-                        vec2i textureCoord = block->getTextureCoord(EnumDirection::NEGATIVE_Y);
-
-                        vec2 uv1 = vec2((textureCoord.x / textureSize), (textureCoord.y / textureSize)) + bias;
-                        vec2 uv2 = vec2(((textureCoord.x + 1) / textureSize), ((textureCoord.y + 1) / textureSize)) - bias;
-
-                        float ao000 = 1.0f;
-                        float ao100 = 1.0f;
-                        float ao001 = 1.0f;
-                        float ao101 = 1.0f;
-
-                        if (!block_negX_negY_negZ && (block_X_negY_negZ && block_negX_negY_Z)) ao000 -= AO;
-                        if (!block_X_negY_negZ) ao000 -= AO;
-                        if (!block_negX_negY_Z) ao000 -= AO;
-
-                        if (!block_posX_negY_negZ && (block_X_negY_negZ && block_posX_negY_Z)) ao100 -= AO;
-                        if (!block_X_negY_negZ) ao100 -= AO;
-                        if (!block_posX_negY_Z) ao100 -= AO;
-
-                        if (!block_negX_negY_posZ  && (block_X_negY_posZ && block_negX_negY_Z)) ao001 -= AO;
-                        if (!block_X_negY_posZ) ao001 -= AO;
-                        if (!block_negX_negY_Z) ao001 -= AO;
-
-                        if (!block_posX_negY_posZ  && (block_X_negY_posZ && block_posX_negY_Z)) ao101 -= AO;
-                        if (!block_X_negY_posZ) ao101 -= AO;
-                        if (!block_posX_negY_Z) ao101 -= AO;
-
-                        vec3 blockColor = vec3(1.0f);
-
-                        mesh.pushVertex( 0.0f+x, 0.0f+y, 0.0f+z,  uv1.x, uv2.y,  ao000,  3);
-                        mesh.pushVertex( 1.0f+x, 0.0f+y, 0.0f+z,  uv2.x, uv2.y,  ao100,  3);
-                        mesh.pushVertex( 1.0f+x, 0.0f+y, 1.0f+z,  uv2.x, uv1.y,  ao101,  3);
-
-                        mesh.pushVertex( 1.0f+x, 0.0f+y, 1.0f+z,  uv2.x, uv1.y,  ao101,  3);
-                        mesh.pushVertex( 0.0f+x, 0.0f+y, 1.0f+z,  uv1.x, uv1.y,  ao001,  3);
-                        mesh.pushVertex( 0.0f+x, 0.0f+y, 0.0f+z,  uv1.x, uv2.y,  ao000,  3);
-                    }
-                    if (block_X_Y_posZ) { //+z face
-                        vec2i textureCoord = block->getTextureCoord(EnumDirection::POSITIVE_Z);
-
-                        vec2 uv1 = vec2((textureCoord.x / textureSize), (textureCoord.y / textureSize)) + bias;
-                        vec2 uv2 = vec2(((textureCoord.x + 1) / textureSize), ((textureCoord.y + 1) / textureSize)) - bias;
-
-                        float ao001 = 1.0f;
-                        float ao011 = 1.0f;
-                        float ao101 = 1.0f;
-                        float ao111 = 1.0f;
-
-                        if (!block_negX_negY_posZ && (block_X_negY_posZ && block_negX_Y_posZ)) ao001 -= AO;
-                        if (!block_X_negY_posZ) ao001 -= AO;
-                        if (!block_negX_Y_posZ) ao001 -= AO;
-
-                        if (!block_negX_posY_posZ && (block_X_posY_posZ && block_negX_Y_posZ)) ao011 -= AO;
-                        if (!block_X_posY_posZ) ao011 -= AO;
-                        if (!block_negX_Y_posZ) ao011 -= AO;
-
-                        if (!block_posX_negY_posZ && (block_X_negY_posZ && block_posX_Y_posZ)) ao101 -= AO;
-                        if (!block_X_negY_posZ) ao101 -= AO;
-                        if (!block_posX_Y_posZ) ao101 -= AO;
-
-                        if (!block_posX_posY_posZ && (block_X_posY_posZ && block_posX_Y_posZ)) ao111 -= AO;
-                        if (!block_X_posY_posZ) ao111 -= AO;
-                        if (!block_posX_Y_posZ) ao111 -= AO;
-
-                        vec3 blockColor = vec3(1.0f);
-
-                        mesh.pushVertex( 0.0f+x, 0.0f+y, 1.0f+z,  uv1.x, uv2.y,  ao001,  4);
-                        mesh.pushVertex( 1.0f+x, 0.0f+y, 1.0f+z,  uv2.x, uv2.y,  ao101,  4);
-                        mesh.pushVertex( 1.0f+x, 1.0f+y, 1.0f+z,  uv2.x, uv1.y,  ao111,  4);
-
-                        mesh.pushVertex( 1.0f+x, 1.0f+y, 1.0f+z,  uv2.x, uv1.y,  ao111,  4);
-                        mesh.pushVertex( 0.0f+x, 1.0f+y, 1.0f+z,  uv1.x, uv1.y,  ao011,  4);
-                        mesh.pushVertex( 0.0f+x, 0.0f+y, 1.0f+z,  uv1.x, uv2.y,  ao001,  4);
-                    }
-                    if (block_X_Y_negZ) { //-z face
-                        vec2i textureCoord = block->getTextureCoord(EnumDirection::NEGATIVE_Z);
-
-                        vec2 uv1 = vec2((textureCoord.x / textureSize), (textureCoord.y / textureSize)) + bias;
-                        vec2 uv2 = vec2(((textureCoord.x + 1) / textureSize), ((textureCoord.y + 1) / textureSize)) - bias;
-
-                        float ao000 = 1.0f;
-                        float ao010 = 1.0f;
-                        float ao100 = 1.0f;
-                        float ao110 = 1.0f;
-
-                        if (!block_negX_negY_negZ && (block_X_negY_negZ && block_negX_Y_negZ)) ao000 -= AO;
-                        if (!block_X_negY_negZ) ao000 -= AO;
-                        if (!block_negX_Y_negZ) ao000 -= AO;
-
-                        if (!block_negX_posY_negZ && (block_X_posY_negZ && block_negX_Y_negZ)) ao010 -= AO;
-                        if (!block_X_posY_negZ) ao010 -= AO;
-                        if (!block_negX_Y_negZ) ao010 -= AO;
-
-                        if (!block_posX_negY_negZ && (block_X_negY_negZ && block_posX_Y_negZ)) ao100 -= AO;
-                        if (!block_X_negY_negZ) ao100 -= AO;
-                        if (!block_posX_Y_negZ) ao100 -= AO;
-
-                        if (!block_posX_posY_negZ && (block_X_posY_negZ && block_posX_Y_negZ)) ao110 -= AO;
-                        if (!block_X_posY_negZ) ao110 -= AO;
-                        if (!block_posX_Y_negZ) ao110 -= AO;
-
-                        vec3 blockColor = vec3(1.0f);
-
-                        mesh.pushVertex( 1.0f+x, 1.0f+y, 0.0f+z,  uv2.x, uv1.y,  ao110,  5);
-                        mesh.pushVertex( 1.0f+x, 0.0f+y, 0.0f+z,  uv2.x, uv2.y,  ao100,  5);
-                        mesh.pushVertex( 0.0f+x, 0.0f+y, 0.0f+z,  uv1.x, uv2.y,  ao000,  5);
-
-                        mesh.pushVertex( 0.0f+x, 0.0f+y, 0.0f+z,  uv1.x, uv2.y,  ao000,  5);
-                        mesh.pushVertex( 0.0f+x, 1.0f+y, 0.0f+z,  uv1.x, uv1.y,  ao010,  5);
-                        mesh.pushVertex( 1.0f+x, 1.0f+y, 0.0f+z,  uv2.x, uv1.y,  ao110,  5);
-                    }
+                    float lightLevel = 1.0f;
+
+                    mesh.pushVertex( 1.0f+x, 1.0f+y, 1.0f+z,  uv2.x, uv1.y,  ao111*lightLevel,  2);
+                    mesh.pushVertex( 1.0f+x, 1.0f+y, 0.0f+z,  uv2.x, uv2.y,  ao110*lightLevel,  2);
+                    mesh.pushVertex( 0.0f+x, 1.0f+y, 0.0f+z,  uv1.x, uv2.y,  ao010*lightLevel,  2);
+
+                    mesh.pushVertex( 0.0f+x, 1.0f+y, 0.0f+z,  uv1.x, uv2.y,  ao010*lightLevel,  2);
+                    mesh.pushVertex( 0.0f+x, 1.0f+y, 1.0f+z,  uv1.x, uv1.y,  ao011*lightLevel,  2);
+                    mesh.pushVertex( 1.0f+x, 1.0f+y, 1.0f+z,  uv2.x, uv1.y,  ao111*lightLevel,  2);
+                }
+                if (block_X_negY_Z) { //bottom face
+                    vec2i textureCoord = block->getTextureCoord(EnumDirection::NEGATIVE_Y);
+
+                    vec2 uv1 = vec2((textureCoord.x / textureSize), (textureCoord.y / textureSize)) + bias;
+                    vec2 uv2 = vec2(((textureCoord.x + 1) / textureSize), ((textureCoord.y + 1) / textureSize)) - bias;
+
+                    float ao000 = 1.0f;
+                    float ao100 = 1.0f;
+                    float ao001 = 1.0f;
+                    float ao101 = 1.0f;
+
+                    if (!block_negX_negY_negZ && (block_X_negY_negZ && block_negX_negY_Z)) ao000 -= AO;
+                    if (!block_X_negY_negZ) ao000 -= AO;
+                    if (!block_negX_negY_Z) ao000 -= AO;
+
+                    if (!block_posX_negY_negZ && (block_X_negY_negZ && block_posX_negY_Z)) ao100 -= AO;
+                    if (!block_X_negY_negZ) ao100 -= AO;
+                    if (!block_posX_negY_Z) ao100 -= AO;
+
+                    if (!block_negX_negY_posZ  && (block_X_negY_posZ && block_negX_negY_Z)) ao001 -= AO;
+                    if (!block_X_negY_posZ) ao001 -= AO;
+                    if (!block_negX_negY_Z) ao001 -= AO;
+
+                    if (!block_posX_negY_posZ  && (block_X_negY_posZ && block_posX_negY_Z)) ao101 -= AO;
+                    if (!block_X_negY_posZ) ao101 -= AO;
+                    if (!block_posX_negY_Z) ao101 -= AO;
+
+                    float lightLevel = 1.0f;
+
+                    mesh.pushVertex( 0.0f+x, 0.0f+y, 0.0f+z,  uv1.x, uv2.y,  ao000*lightLevel,  3);
+                    mesh.pushVertex( 1.0f+x, 0.0f+y, 0.0f+z,  uv2.x, uv2.y,  ao100*lightLevel,  3);
+                    mesh.pushVertex( 1.0f+x, 0.0f+y, 1.0f+z,  uv2.x, uv1.y,  ao101*lightLevel,  3);
+
+                    mesh.pushVertex( 1.0f+x, 0.0f+y, 1.0f+z,  uv2.x, uv1.y,  ao101*lightLevel,  3);
+                    mesh.pushVertex( 0.0f+x, 0.0f+y, 1.0f+z,  uv1.x, uv1.y,  ao001*lightLevel,  3);
+                    mesh.pushVertex( 0.0f+x, 0.0f+y, 0.0f+z,  uv1.x, uv2.y,  ao000*lightLevel,  3);
+                }
+                if (block_X_Y_posZ) { //+z face
+                    vec2i textureCoord = block->getTextureCoord(EnumDirection::POSITIVE_Z);
+
+                    vec2 uv1 = vec2((textureCoord.x / textureSize), (textureCoord.y / textureSize)) + bias;
+                    vec2 uv2 = vec2(((textureCoord.x + 1) / textureSize), ((textureCoord.y + 1) / textureSize)) - bias;
+
+                    float ao001 = 1.0f;
+                    float ao011 = 1.0f;
+                    float ao101 = 1.0f;
+                    float ao111 = 1.0f;
+
+                    if (!block_negX_negY_posZ && (block_X_negY_posZ && block_negX_Y_posZ)) ao001 -= AO;
+                    if (!block_X_negY_posZ) ao001 -= AO;
+                    if (!block_negX_Y_posZ) ao001 -= AO;
+
+                    if (!block_negX_posY_posZ && (block_X_posY_posZ && block_negX_Y_posZ)) ao011 -= AO;
+                    if (!block_X_posY_posZ) ao011 -= AO;
+                    if (!block_negX_Y_posZ) ao011 -= AO;
+
+                    if (!block_posX_negY_posZ && (block_X_negY_posZ && block_posX_Y_posZ)) ao101 -= AO;
+                    if (!block_X_negY_posZ) ao101 -= AO;
+                    if (!block_posX_Y_posZ) ao101 -= AO;
+
+                    if (!block_posX_posY_posZ && (block_X_posY_posZ && block_posX_Y_posZ)) ao111 -= AO;
+                    if (!block_X_posY_posZ) ao111 -= AO;
+                    if (!block_posX_Y_posZ) ao111 -= AO;
+
+                    float lightLevel = 1.0f;
+
+                    mesh.pushVertex( 0.0f+x, 0.0f+y, 1.0f+z,  uv1.x, uv2.y,  ao001*lightLevel,  4);
+                    mesh.pushVertex( 1.0f+x, 0.0f+y, 1.0f+z,  uv2.x, uv2.y,  ao101*lightLevel,  4);
+                    mesh.pushVertex( 1.0f+x, 1.0f+y, 1.0f+z,  uv2.x, uv1.y,  ao111*lightLevel,  4);
+
+                    mesh.pushVertex( 1.0f+x, 1.0f+y, 1.0f+z,  uv2.x, uv1.y,  ao111*lightLevel,  4);
+                    mesh.pushVertex( 0.0f+x, 1.0f+y, 1.0f+z,  uv1.x, uv1.y,  ao011*lightLevel,  4);
+                    mesh.pushVertex( 0.0f+x, 0.0f+y, 1.0f+z,  uv1.x, uv2.y,  ao001*lightLevel,  4);
+                }
+                if (block_X_Y_negZ) { //-z face
+                    vec2i textureCoord = block->getTextureCoord(EnumDirection::NEGATIVE_Z);
+
+                    vec2 uv1 = vec2((textureCoord.x / textureSize), (textureCoord.y / textureSize)) + bias;
+                    vec2 uv2 = vec2(((textureCoord.x + 1) / textureSize), ((textureCoord.y + 1) / textureSize)) - bias;
+
+                    float ao000 = 1.0f;
+                    float ao010 = 1.0f;
+                    float ao100 = 1.0f;
+                    float ao110 = 1.0f;
+
+                    if (!block_negX_negY_negZ && (block_X_negY_negZ && block_negX_Y_negZ)) ao000 -= AO;
+                    if (!block_X_negY_negZ) ao000 -= AO;
+                    if (!block_negX_Y_negZ) ao000 -= AO;
+
+                    if (!block_negX_posY_negZ && (block_X_posY_negZ && block_negX_Y_negZ)) ao010 -= AO;
+                    if (!block_X_posY_negZ) ao010 -= AO;
+                    if (!block_negX_Y_negZ) ao010 -= AO;
+
+                    if (!block_posX_negY_negZ && (block_X_negY_negZ && block_posX_Y_negZ)) ao100 -= AO;
+                    if (!block_X_negY_negZ) ao100 -= AO;
+                    if (!block_posX_Y_negZ) ao100 -= AO;
+
+                    if (!block_posX_posY_negZ && (block_X_posY_negZ && block_posX_Y_negZ)) ao110 -= AO;
+                    if (!block_X_posY_negZ) ao110 -= AO;
+                    if (!block_posX_Y_negZ) ao110 -= AO;
+
+                    float lightLevel = 1.0f;
+
+                    mesh.pushVertex( 1.0f+x, 1.0f+y, 0.0f+z,  uv2.x, uv1.y,  ao110*lightLevel,  5);
+                    mesh.pushVertex( 1.0f+x, 0.0f+y, 0.0f+z,  uv2.x, uv2.y,  ao100*lightLevel,  5);
+                    mesh.pushVertex( 0.0f+x, 0.0f+y, 0.0f+z,  uv1.x, uv2.y,  ao000*lightLevel,  5);
+
+                    mesh.pushVertex( 0.0f+x, 0.0f+y, 0.0f+z,  uv1.x, uv2.y,  ao000*lightLevel,  5);
+                    mesh.pushVertex( 0.0f+x, 1.0f+y, 0.0f+z,  uv1.x, uv1.y,  ao010*lightLevel,  5);
+                    mesh.pushVertex( 1.0f+x, 1.0f+y, 0.0f+z,  uv2.x, uv1.y,  ao110*lightLevel,  5);
                 }
             }
         }
-
-        aabb = AABB(vec3(min.x + (attachedChunk.chunk_x * 16), min.y, min.z + (attachedChunk.chunk_z * 16)), vec3(max.x+1 + (attachedChunk.chunk_x * 16), max.y+1, max.z+1 + (attachedChunk.chunk_z * 16)));
     }
 
-    this->rebuild = true;
+    aabb = AABB(vec3((chunk_x * 16), 0, (chunk_z * 16)), vec3(16 + (chunk_x * 16), highestY+1, 16 + (chunk_z * 16)));
+
+    this->updateMesh = true;
 }
 
 void ChunkRenderer::render(Material *mat) {
-    if (this->rebuild) {
+    if (this->updateMesh) {
         mesh.generate();
-        //mesh.clear();
 
-        this->rebuild = false;
+        this->updateMesh = false;
     }
 
-    if (this->mesh.data.size() > 0) {
-        Renderer::render(this->mesh, *mat, transform, aabb);
-        //Renderer::render(Renderer::cubemapMesh, *mat, transform, aabb);
-        //Renderer::debug.renderDebugAABB(aabb, vec3(1.0f, 0.0f, 0.0f));
-    }
+    Renderer::render(this->mesh, *mat, transform, aabb);
+    //Renderer::debug.renderDebugAABB(aabb, vec3(0.0f, 1.0f, 0.0f));
 
    //Renderer::debug.renderDebugAABB(AABB(vec3(attachedChunk.chunk_x*16, 0, attachedChunk.chunk_z*16), vec3(attachedChunk.chunk_x*16, 0, attachedChunk.chunk_z*16) + vec3(16, 256, 16)), vec3(0.0f, 1.0f, 0.0f));
 }

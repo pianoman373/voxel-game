@@ -7,6 +7,8 @@
 #include "WorldRenderer.hpp"
 #include "LuaHandler.hpp"
 
+#include <crucible/Frustum.hpp>
+
 #include <map>
 
 class Client {
@@ -24,6 +26,7 @@ public:
     World world;
     WorldRenderer worldRenderer;
     Player player;
+    Frustum frustum;
 
     Client();
 

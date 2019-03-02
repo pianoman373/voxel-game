@@ -16,7 +16,7 @@ local C = ffi.C
 
 --helper function
 function getHeight(x, z)
-    return C.ridgedNoise(x/10, z/10, 5, 0.01, 0.5) * 60 + 80
+    return C.ridgedNoise(x/10, z/10, 5, 0.01, 0.5) * 80 + 80
 end
 
 function getCave(x, y, z)

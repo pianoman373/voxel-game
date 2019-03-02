@@ -100,20 +100,23 @@ void WorldRenderer::render() {
     int regeneratedChunks = 0;
 
     for (auto &i : chunkRenderers) {
-        ChunkRenderer *c = i.second;
+        std::shared_ptr<ChunkRenderer> cr = i.second;
 
         int x = i.first.x;
         int z = i.first.y;
 
         if (doesChunkHaveNeighbors(x, z)) {
-            if (c->attachedChunk.isDirty) {
-                c->attachedChunk.isDirty = false;
+            std::shared_ptr<Chunk> chunk = world.getChunk(x, z);
+
+            if (chunk->isDirty) {
+                chunk->isDirty = false;
 
                 int remainderX = x % 2;
                 int remainderZ = z % 2;
 
                 ChunkRemeshJob job = {
-                        c,
+                        cr,
+                        chunk,
                         world.getChunk(x+1, z),
                         world.getChunk(x-1, z),
 
@@ -140,23 +143,8 @@ void WorldRenderer::render() {
                 if (remainderX == 0 && remainderZ != 0) {
                     remeshQueue3.enqueue(job);
                 }
-
-
-
-
-
-
-
-//                if (regeneratedChunks < 5) {
-//                    c->generateMesh();
-//
-//
-//                    c->render(&nearMaterial);
-//
-//                    regeneratedChunks++;
-//                }
             }
-            c->render(&nearMaterial);
+            cr->render(&nearMaterial);
         }
     }
 }
@@ -188,9 +176,9 @@ bool WorldRenderer::doesChunkHaveNeighbors(int x, int z) {
     }
 }
 
-ChunkRenderer* WorldRenderer::getChunkRenderer(int x, int z) {
+std::shared_ptr<ChunkRenderer> WorldRenderer::getChunkRenderer(int x, int z) {
     if (!chunkRendererExists(x, z)) {
-        ChunkRenderer *cr = new ChunkRenderer(*world.getChunk(x, z));
+        ChunkRenderer *cr = new ChunkRenderer(x, z);
 
         chunkRenderers.emplace(vec2i(x, z), cr);
     }
@@ -198,15 +186,11 @@ ChunkRenderer* WorldRenderer::getChunkRenderer(int x, int z) {
     return chunkRenderers[{x, z}];
 }
 
-void WorldRenderer::remeshThread(ReaderWriterQueue<ChunkRemeshJob> &queue) {
+void WorldRenderer::remeshThread(BlockingReaderWriterQueue<ChunkRemeshJob> &queue) {
     while (running) {
         ChunkRemeshJob j;
-        bool succeeded = queue.try_dequeue(j);
+        queue.wait_dequeue(j);
 
-        if (succeeded) {
-            //std::cout << "building mesh at: " << j.chunk->attachedChunk.chunk_x << ", " << j.chunk->attachedChunk.chunk_z << std::endl;
-
-            j.chunk->generateMesh(j);
-        }
+        j.renderer->generateMesh(j);
     }
 }

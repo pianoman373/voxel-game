@@ -6,6 +6,7 @@
 #include <crucible/Renderer.hpp>
 #include <crucible/Primitives.hpp>
 #include <crucible/Util.hpp>
+#include <crucible/Input.hpp>
 
 #include <cstring>
 
@@ -85,16 +86,7 @@ void Client::receivePackets() {
 
             chunk->unSerialize(rleCache, length);
 
-//
-//
-//            for (int i = 0; i < 16*16*256; i++) {
-//                unsigned char c;
-//                p >> c;
-//
-//                chunk->blocks[i] = c;
-//            }
             chunk->isDirty = true;
-            chunk->empty = false;
 
             worldRenderer.getChunkRenderer(x, z);
         }
@@ -116,7 +108,9 @@ void Client::init() {
     Window::create({1400, 800}, "Voxel Game", false);
 
     Renderer::init(true, 2048, 1400, 800);
-    Renderer::setSun({normalize(vec3(-0.4f, -0.9f, -1.0f)), vec3(1.4f, 1.3f, 1.0f) * 3.0f});
+    Renderer::settings.vignette = false;
+    Renderer::settings.SSR = false;
+    Renderer::setSun({normalize(vec3(-0.4f, -0.6f, -1.0f)), vec3(1.4f, 1.3f, 1.0f) * 3.0f});
 
     camera.position = vec3(3.0f, 62.0f, 3.0f);
     camera.direction = vec3(0.0f, 0.0f, 1.0f);
@@ -170,6 +164,15 @@ void Client::update(float delta) {
 void Client::render() {
     Window::begin();
 
+    //frustum.updateCamPosition(camera);
+
+    frustum.setupInternals(camera.fov, (float)Window::getWindowSize().x/(float)Window::getWindowSize().y, 0.1f, 1000.0f);
+    //if (Input::isKeyDown(Input::KEY_LEFT_CONTROL))
+        frustum.updateCamPosition(camera);
+
+    //frustum.renderDebug();
+
+
     worldRenderer.render();
 
 
@@ -180,7 +183,7 @@ void Client::render() {
     }
 
     //render scene and update window
-    Renderer::flush(camera);
+    Renderer::flush(camera, frustum, true);
 
     Window::end();
 }

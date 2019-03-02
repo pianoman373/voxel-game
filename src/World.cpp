@@ -97,32 +97,30 @@ bool World::raycastBlocks(vec3 origin, vec3 direction, float maxDistance, vec3i 
     for (auto const &ref: chunks) {
         std::shared_ptr<Chunk> c = ref.second;
 
-        if (!c->empty) {
-            vec3 chunkPos = vec3(c->chunk_x * 16, 0, c->chunk_z * 16);
+        vec3 chunkPos = vec3(c->chunk_x * 16, 0, c->chunk_z * 16);
 
-            AABB abb = AABB(chunkPos, chunkPos + vec3(16, 256, 16));
+        AABB abb = AABB(chunkPos, chunkPos + vec3(16, 256, 16));
 
-            vec3 point;
-            vec3 normal;
+        vec3 point;
+        vec3 normal;
 
-            //get raycasts
-            if (abb.raycast(origin, direction * maxDistance, point, normal)) {
-                for (int x = 0; x < 16; x++) {
-                    for (int y = 0; y < 256; y++) {
-                        for (int z = 0; z < 16; z++) {
-                            char block = c->getBlock(x, y, z);
-                            if (block != 0) {
-                                AABB blockAbb = AABB(chunkPos + vec3(x, y, z), chunkPos + vec3(x + 1, y + 1, z + 1));
+        //get raycasts
+        if (abb.raycast(origin, direction * maxDistance, point, normal)) {
+            for (int x = 0; x < 16; x++) {
+                for (int y = 0; y < 256; y++) {
+                    for (int z = 0; z < 16; z++) {
+                        char block = c->getBlock(x, y, z);
+                        if (block != 0) {
+                            AABB blockAbb = AABB(chunkPos + vec3(x, y, z), chunkPos + vec3(x + 1, y + 1, z + 1));
 
-                                if (blockAbb.raycast(origin, direction * maxDistance, point, normal)) {
-                                    float distance = length(origin - point);
+                            if (blockAbb.raycast(origin, direction * maxDistance, point, normal)) {
+                                float distance = length(origin - point);
 
-                                    if (distance < nearestBlockDistance) {
-                                        nearestBlockDistance = distance;
-                                        nearestBlockChunk = c;
-                                        nearestBlockPos = vec3i(x, y, z);
-                                        nearestBlockNormal = normal;
-                                    }
+                                if (distance < nearestBlockDistance) {
+                                    nearestBlockDistance = distance;
+                                    nearestBlockChunk = c;
+                                    nearestBlockPos = vec3i(x, y, z);
+                                    nearestBlockNormal = normal;
                                 }
                             }
                         }
@@ -143,7 +141,6 @@ bool World::raycastBlocks(vec3 origin, vec3 direction, float maxDistance, vec3i 
 }
 
 std::vector<AABB> World::getCollisions(AABB test) {
-
     vec3i start = vec3i(test.min.x, test.min.y, test.min.z);
     vec3i end = vec3i(test.max.x, test.max.y, test.max.z);
 

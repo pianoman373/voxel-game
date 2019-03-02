@@ -15,7 +15,9 @@
 class World;
 
 struct ChunkRemeshJob {
-    ChunkRenderer *chunk;
+    std::shared_ptr<ChunkRenderer> renderer;
+
+    std::shared_ptr<Chunk> center;
 
     std::shared_ptr<Chunk> posX;
     std::shared_ptr<Chunk> negX;
@@ -47,11 +49,12 @@ private:
 
     Material nearMaterial;
 
-    std::unordered_map<vec2i, ChunkRenderer*> chunkRenderers;
-    ReaderWriterQueue<ChunkRemeshJob> remeshQueue0;
-    ReaderWriterQueue<ChunkRemeshJob> remeshQueue1;
-    ReaderWriterQueue<ChunkRemeshJob> remeshQueue2;
-    ReaderWriterQueue<ChunkRemeshJob> remeshQueue3;
+    std::unordered_map<vec2i, std::shared_ptr<ChunkRenderer>> chunkRenderers;
+
+    BlockingReaderWriterQueue<ChunkRemeshJob> remeshQueue0;
+    BlockingReaderWriterQueue<ChunkRemeshJob> remeshQueue1;
+    BlockingReaderWriterQueue<ChunkRemeshJob> remeshQueue2;
+    BlockingReaderWriterQueue<ChunkRemeshJob> remeshQueue3;
 
     bool running = true;
     std::thread *thread0;
@@ -72,7 +75,7 @@ public:
 
     bool doesChunkHaveNeighbors(int x, int z);
 
-    ChunkRenderer *getChunkRenderer(int x, int z);
+    std::shared_ptr<ChunkRenderer> getChunkRenderer(int x, int z);
 
-    void remeshThread(ReaderWriterQueue<ChunkRemeshJob> &queue);
+    void remeshThread(BlockingReaderWriterQueue<ChunkRemeshJob> &queue);
 };

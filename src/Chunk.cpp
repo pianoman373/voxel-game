@@ -111,11 +111,39 @@ int Chunk::getBlockFromWorld(int x, int y, int z) {
 void Chunk::setBlock(int x, int y, int z, char block) {
     if (x < 16 && x >= 0 && y < 256 && y >= 0 && z < 16 && z >= 0) {
 		blocks[(y * 16 * 16) + (x * 16) + z] = block;
+    }
+}
 
-        if (block != 0) {
-            if (this->empty) {
-                this->empty = false;
-            }
-        }
+// Get the bits XXXX0000
+
+int Chunk::getSunlight(int x, int y, int z) {
+    return (lightMap[y][z][x] >> 4) & 0xF;
+}
+
+
+// Set the bits XXXX0000
+void Chunk::setSunlight(int x, int y, int z, int val) {
+    lightMap[y][z][x] = (lightMap[x][y][z] & 0xF) | (val << 4);
+}
+
+
+// Get the bits 0000XXXX
+
+int Chunk::getTorchlight(int x, int y, int z) {
+    if (x < 16 && x >= 0 && y < 256 && y >= 0 && z < 16 && z >= 0) {
+        return lightMap[y][z][x] & 0xF;
+    }
+    else {
+        return 15;
+    }
+}
+
+// Set the bits 0000XXXX
+void Chunk::setTorchlight(int x, int y, int z, int val) {
+    if (x < 16 && x >= 0 && y < 256 && y >= 0 && z < 16 && z >= 0) {
+        lightMap[y][z][x] = (lightMap[x][y][z] & 0xF0) | val;
+    }
+    else {
+
     }
 }

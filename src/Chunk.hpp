@@ -20,10 +20,10 @@ private:
 
 public:
 	unsigned char blocks[16 * 16 * 256] = { 0 };
+	unsigned char lightMap[256][16][16] = { 0 };
     bool isDirty = false;
 
     ChunkMesh mesh;
-    bool empty = true;
 
     AABB aabb;
 
@@ -48,4 +48,12 @@ public:
     char getBlock(int x, int y, int z);
 
     void setBlock(int x, int y, int z, char block);
+
+	int getSunlight(int x, int y, int z);
+
+	void setSunlight(int x, int y, int z, int val);
+
+	int getTorchlight(int x, int y, int z);
+
+	void setTorchlight(int x, int y, int z, int val);
 };

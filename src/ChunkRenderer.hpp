@@ -14,15 +14,17 @@ private:
 
     AABB aabb;
 
-    bool rebuild = false;
+    bool updateMesh = false;
 
     Transform transform;
 
+    int chunk_x;
+    int chunk_z;
+
 
 public:
-    Chunk &attachedChunk;
 
-    ChunkRenderer(Chunk &attachedChunk);
+    ChunkRenderer(int chunk_x, int chunk_z);
 
     char getBlock(ChunkRemeshJob &job, int x, int y, int z);
 
