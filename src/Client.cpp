@@ -119,6 +119,9 @@ void Client::init(std::string address, int port) {
     Renderer::settings.bloom = settings.fancy_graphics;
     Renderer::settings.fxaa = settings.fancy_graphics;
 
+    Renderer::settings.fogOuter = settings.render_distance*16.0f;
+    Renderer::settings.fogInner = Renderer::settings.fogOuter * 0.8f;
+
     Renderer::setSun({normalize(vec3(-0.4f, -0.6f, -1.0f)), vec3(1.4f, 1.3f, 1.0f) * 3.0f});
 
     camera.position = vec3(3.0f, 62.0f, 3.0f);

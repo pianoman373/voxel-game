@@ -130,7 +130,7 @@ void main() {
 
     float sunAmount = max( dot( dir, sun.direction ), 0.0 );
     vec3 atmoColor = mix( vec3(0.5,0.6,1.0), // bluish
-                           vec3(1.2,0.9,0.7), // yellowish
+                           vec3(0.5,0.6,1.0), // yellowish
                            pow(sunAmount,2.0) );
 
     vec3 sunLevel = vec3(0.0);
@@ -146,19 +146,7 @@ void main() {
     vec3 color = mix(atmoColor, vec3(0.1,0.2,0.3), clamp(dot(vec3(0.0, -1.0, 0.0), dir) + 0.2, 0.0, 1.0));
     
 
-    color = atmosphere(
-        -dir,           // normalized ray direction
-        vec3(0,6372e3 + 1000,0),               // ray origin
-        -sun.direction,                        // position of the sun
-        22.0,                           // intensity of the sun
-        6371e3,                         // radius of the planet in meters
-        6471e3,                         // radius of the atmosphere in meters
-        vec3(5.5e-6, 13.0e-6, 22.4e-6), // Rayleigh scattering coefficient
-        21e-6,                          // Mie scattering coefficient
-        8e3,                            // Rayleigh scale height
-        1.2e3,                          // Mie scale height
-        0.758                           // Mie preferred scattering direction
-    );
+    
 
     color += sunLevel;
     color += (texture(stars, -dir).rgb);// * clamp(dot(-sun.direction, vec3(0, -1, 0)) + 0.3, 0, 1);
