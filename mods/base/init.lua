@@ -1,22 +1,18 @@
 print("Running Lua code...")
 
-require("api")
+require("mods.base.api")
 
 local ffi = require("ffi")
 ffi.cdef[[
-float ridgedNoise(float x, float y, int octaves, float frequency, float persistence);
-
-void setChunk(int x, int z, uint8_t *data);
-
-int printf(const char *fmt, ...);
-
-float noise3D(float x, float y, float z);
+    float ridgedNoise(float x, float y, int octaves, float frequency, float persistence);
+    void setChunk(int x, int z, uint8_t *data);
+    float noise3D(float x, float y, float z);
 ]]
 local C = ffi.C
 
 --helper function
 function getHeight(x, z)
-    return C.ridgedNoise(x/10, z/10, 5, 0.01, 0.5) * 80 + 80
+    return C.ridgedNoise(x/10, z/10, 5, 0.01, 0.5) * 80 + 120
 end
 
 function getCave(x, y, z)
@@ -88,11 +84,14 @@ local generateChunk = function(chunk_x, chunk_z, chunk)
     return chunk
 end
 
+local worldSize = 64
+
 api.initServer = function()
 	local chunk = ffi.new("uint8_t[?]", 16*16*256)
 
-	for x = 0, 65 do
-		for z = 0, 65 do
+    print("Generating world. This may take a while...")
+	for x = 0, worldSize+1 do
+		for z = 0, worldSize+1 do
 			generateChunk(x, z, chunk)
 			C.setChunk(x, z, chunk)
 		end
@@ -182,3 +181,41 @@ api.registerBlock(10, {
         {7, 1}
     }
 })
+
+hotbarSelectorPos = 0
+
+local function renderHotbar(width, height, img)
+    local blockSize = 50
+
+    hotbarSelectorPos = hotbarSelectorPos + api.getScroll();
+
+    if hotbarSelectorPos < 0 then
+        hotbarSelectorPos = 9
+    end
+    if hotbarSelectorPos > 9 then
+        hotbarSelectorPos = 0
+    end
+
+    for x = -4, 5 do
+    	api.renderSpriteTexture((width/2) + (blockSize * x) - (blockSize/2), height-(blockSize/2),     blockSize, blockSize,           (1/8)*1, (1/8)*1, (1/8)*2, (1/8)*2,  img)
+    end
+
+    api.renderSpriteTexture((width/2) - (blockSize * 4.5) + (hotbarSelectorPos * blockSize), height-(blockSize/2),     blockSize*3, blockSize*3,           (1/8)*2, (1/8)*0, (1/8)*5, (1/8)*3,  img)
+   
+end
+
+api.registerEventHandler("renderGUI", function(width, height)
+    local img = api.getTexture("base:GUI.png")
+
+    -- crosshair
+    api.renderSpriteColor(width/2, height/2,	20.0, 3.0,	1.0, 1.0, 1.0, 1.0)
+    api.renderSpriteColor(width/2, height/2,	3.0, 20.0,	1.0, 1.0, 1.0, 1.0)
+
+    renderHotbar(width, height, img)
+end)
+
+api.registerEventHandler("client_init", function()
+    print("Being init'ed by the client!")
+
+    api.registerTexture("base:GUI.png")
+end)

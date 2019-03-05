@@ -106,6 +106,7 @@ void Server::init(int port) {
 
     lua.init();
     lua.state["api"]["registerBlock"] = nilFunction;
+    lua.addCommonFunctions();
     lua.runScripts();
 
     auto start = std::chrono::high_resolution_clock::now();

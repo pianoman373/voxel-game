@@ -29,8 +29,8 @@ void NetworkManagerClient::init(std::string address, int port) {
     }
 
     ENetEvent event;
-    // wait 30 seconds for connection to succeed
-    if (enet_host_service(host, &event, 30000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT) {
+    // wait 3 minutes for connection to succeed
+    if (enet_host_service(host, &event, 3*60000) > 0 && event.type == ENET_EVENT_TYPE_CONNECT) {
         // connection successful
         std::cout << "Connection to server succeeded" << std::endl;
         return;

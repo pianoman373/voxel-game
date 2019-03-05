@@ -7,6 +7,7 @@
 #include "WorldRenderer.hpp"
 #include "LuaHandler.hpp"
 #include "Settings.hpp"
+#include "TextureRegistry.hpp"
 
 #include <crucible/Frustum.hpp>
 
@@ -21,7 +22,7 @@ private:
 
     std::unordered_map<vec2i, int> expectedChunks;
 
-    LuaHandler lua;
+
 
     uint8_t *rleCache;
 
@@ -32,10 +33,14 @@ public:
     Player player;
     Frustum frustum;
     Settings settings;
+    TextureRegistry textureRegistry;
+    LuaHandler lua;
 
     Client();
 
     ~Client();
+
+    void manageChunks(vec2i playerChunkPosition);
 
     void requestChunkFromServer(int x, int z);
 

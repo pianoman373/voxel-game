@@ -42,11 +42,7 @@ private:
     Shader blockShader;
     Shader skyboxShader;
 
-    Texture texture;
-    Texture texture_r;
-    Texture texture_m;
-    Texture texture_e;
-    Texture texture_n;
+
 
     Material nearMaterial;
 
@@ -64,6 +60,12 @@ private:
     std::thread *thread3;
 
 public:
+    Texture texture;
+    Texture texture_r;
+    Texture texture_m;
+    Texture texture_e;
+    Texture texture_n;
+
     WorldRenderer(World &world);
 
     ~WorldRenderer();

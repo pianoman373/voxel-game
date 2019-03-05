@@ -12,10 +12,10 @@
 #include <imgui.h>
 #include <GLFW/glfw3.h>
 
-static const float movementSpeed = 50.0f;
+static const float movementSpeed = 7.0f;
 static const float mouseSensitivity = 8.0f;
 static const float gravity = 22.8f;
-static const float jumpPower = 7.3f;
+static const float jumpPower = 7.7f;
 
 static bool p_open = false;
 
@@ -278,7 +278,7 @@ void Player::update(Camera &cam, float delta) {
             int x = blockpos.x + blocknormal.x;
             int y = blockpos.y + blocknormal.y;
             int z = blockpos.z + blocknormal.z;
-            int blockID = heldBlock;
+            int blockID = client.lua.state.get<int>("hotbarSelectorPos")+1;
 
             world.setBlock(x, y, z, blockID);
 
@@ -300,9 +300,11 @@ void Player::update(Camera &cam, float delta) {
 
     ///vec3i chunkPos = World::worldToChunkPos(position);
 
+    vec2i chunkPos = vec2i((int)position.x >> 4, (int)position.z >> 4);
+
     // freezes player if not in chunk
-//    if (!world.chunkExists(chunkPos.x, chunkPos.y, chunkPos.z)) {
-//        position = oldPosition;
-//        velocity.y = 0.0f;
-//    }
+    if (!world.chunkExists(chunkPos.x, chunkPos.y)) {
+        position = oldPosition;
+        velocity.y = 0.0f;
+    }
 }

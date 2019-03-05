@@ -7,6 +7,7 @@
 #include <crucible/Primitives.hpp>
 #include <crucible/Util.hpp>
 #include <crucible/Input.hpp>
+#include <crucible/GuiRenderer.hpp>
 
 #include <cstring>
 
@@ -28,6 +29,37 @@ Client::Client(): network(*this), worldRenderer(world), player(world, *this) {
 
 Client::~Client() {
     delete[] rleCache;
+}
+
+void Client::manageChunks(vec2i playerChunkPosition) {
+    auto chunks = world.getChunks();
+
+    //chunk deletion
+    for (auto i : chunks) {
+        std::shared_ptr<Chunk> chunk = i.second;
+
+
+        if (abs(playerChunkPosition.x - chunk->chunk_x) > settings.render_distance || abs(playerChunkPosition.y - chunk->chunk_z) > settings.render_distance) {
+            world.deleteChunk(chunk->chunk_x, chunk->chunk_z);
+            worldRenderer.deleteChunkRenderer(chunk->chunk_x, chunk->chunk_z);
+        }
+    }
+
+    //chunk addition
+    for (int x = -settings.render_distance; x < settings.render_distance+1; x++) {
+        for (int z = -settings.render_distance; z < settings.render_distance+1; z++) {
+            vec2i chunkPos = vec2i(x, z) + playerChunkPosition;
+
+            if (!world.chunkExists(chunkPos.x, chunkPos.y)) {
+                if (expectedChunks.find({chunkPos.x, chunkPos.y}) == expectedChunks.end()) {
+                    requestChunkFromServer(chunkPos.x, chunkPos.y);
+
+                    expectedChunks[{chunkPos.x, chunkPos.y}] = 1;
+                }
+            }
+
+        }
+    }
 }
 
 void Client::requestChunkFromServer(int x, int z) {
@@ -76,7 +108,7 @@ void Client::receivePackets() {
 
             p >> x >> z >> length;
 
-            std::cout << "(Client) Received chunk at: " << x << ", " << z << std::endl;
+            //std::cout << "(Client) Received chunk at: " << x << ", " << z << std::endl;
             bytesReceived += length;
             //std::cout << "Received a total of " << bytesReceived << " bytes." << std::endl;
 
@@ -130,17 +162,24 @@ void Client::init(std::string address, int port) {
     BlockRegistry::init();
 
     lua.init();
-    lua.state["api"]["registerBlock"] = BlockRegistry::registerBlockLua;
+    lua.addCommonFunctions();
+    lua.addClientSideFunctions(*this);
     lua.runScripts();
 
     world.init(Context::CLIENT);
     worldRenderer.init();
 
-    player.position = vec3(50, 200, 50);
+    player.position = vec3(16*16, 250, 18*16);
+    vec2i playerChunkPosition = vec2i((int)player.position.x >> 4, (int)player.position.z >> 4);
+    manageChunks(playerChunkPosition);
+
+    lua.pushEvent("client_init");
 }
 
 void Client::update(float delta) {
     vec3 lastPosition = player.position;
+    vec2i lastPlayerChunkPosition = vec2i((int)player.position.x >> 4, (int)player.position.z >> 4);
+
     world.update(delta);
     player.update(camera, delta);
 
@@ -158,50 +197,21 @@ void Client::update(float delta) {
         network.sendPacket(p);
     }
 
-    auto chunks = world.getChunks();
-
-    vec2i playerPosition = vec2i((int)camera.position.x >> 4, (int)camera.position.z >> 4);
-
-    int renderdistance = settings.render_distance;
 
 
-    //chunk deletion
-    for (auto i : chunks) {
-        std::shared_ptr<Chunk> chunk = i.second;
+    vec2i playerChunkPosition = vec2i((int)camera.position.x >> 4, (int)camera.position.z >> 4);
 
-
-        if (abs(playerPosition.x - chunk->chunk_x) > renderdistance || abs(playerPosition.y - chunk->chunk_z) > renderdistance) {
-            world.deleteChunk(chunk->chunk_x, chunk->chunk_z);
-            worldRenderer.deleteChunkRenderer(chunk->chunk_x, chunk->chunk_z);
-        }
+    if (!(playerChunkPosition == lastPlayerChunkPosition)) {
+        manageChunks(playerChunkPosition);
     }
-
-    //chunk addition
-    for (int x = -renderdistance; x < renderdistance+1; x++) {
-        for (int z = -renderdistance; z < renderdistance+1; z++) {
-            vec2i chunkPos = vec2i(x, z) + playerPosition;
-
-            if (!world.chunkExists(chunkPos.x, chunkPos.y)) {
-                if (expectedChunks.find({chunkPos.x, chunkPos.y}) == expectedChunks.end()) {
-                    requestChunkFromServer(chunkPos.x, chunkPos.y);
-
-                    expectedChunks[{chunkPos.x, chunkPos.y}] = 1;
-                }
-            }
-
-        }
-    }
-
 }
 
 void Client::render() {
     Window::begin();
 
-    //frustum.updateCamPosition(camera);
-
     frustum.setupInternals(camera.fov, (float)Window::getWindowSize().x/(float)Window::getWindowSize().y, 0.1f, 1000.0f);
     //if (Input::isKeyDown(Input::KEY_LEFT_CONTROL))
-        frustum.updateCamPosition(camera);
+    frustum.updateCamPosition(camera);
 
     //frustum.renderDebug();
 
@@ -217,6 +227,15 @@ void Client::render() {
 
     //render scene and update window
     Renderer::flush(camera, frustum, true);
+
+    vec2 size = vec2((float)Window::getWindowSize().x, (float)Window::getWindowSize().y);
+
+
+    //render crosshair
+//    GuiRenderer::renderSprite(size / 2.0f, vec2(20.0f, 3.0f), vec4(1.0f));
+//    GuiRenderer::renderSprite(size / 2.0f, vec2(3.0f, 20.0f), vec4(1.0f));
+
+    lua.pushEvent("renderGUI", size.x, size.y);
 
     Window::end();
 }
