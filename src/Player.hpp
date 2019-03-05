@@ -6,6 +6,7 @@ class Camera;
 
 //forward declaration
 class World;
+class Client;
 
 class Player {
 public:
@@ -18,8 +19,9 @@ public:
     float yRot = 0;
 
     World &world;
+    Client &client;
 
-    Player(World &world);
+    Player(World &world, Client &client);
 
     void update(Camera &cam, float delta);
 };

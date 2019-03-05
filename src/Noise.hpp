@@ -1,12 +1,6 @@
 #pragma once
 
-#include "crucible/Math.hpp"
-#include "json.hpp"
-
-#include <string>
-#include <list>
-
-class Util {
+class Noise {
 public:
     /**
      * General purpose simplex noise function.
@@ -16,7 +10,7 @@ public:
      * frequency is how far apart high parts are generally from low parts.
      * persistence is how much each octave mutates the terrain
      */
-    static float noise(vec2 position, int octaves, float frequency, float persistence);
+    static float noise(float x, float y, int octaves, float frequency, float persistence);
 
     /**
      * Positive biased noise good for mountains.
@@ -26,9 +20,5 @@ public:
      * frequency is how far apart high parts are generally from low parts.
      * persistence is how much each octave mutates the terrain
      */
-    static float ridgedNoise(vec2 position, int octaves, float frequency, float persistence);
-
-    static json loadJsonFile(std::string file);
-
-    static std::string loadFile(std::string file);
+    static float ridgedNoise(float x, float y, int octaves, float frequency, float persistence);
 };

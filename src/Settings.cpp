@@ -1,14 +1,17 @@
 #include "Settings.hpp"
 
 #include <iostream>
+#include <fstream>
 
-int Settings::shadow_resolution = 2048;
-bool Settings::shadows = true;
-int Settings::render_distance = 256;
-float Settings::fov = 70.0f;
-bool Settings::fancy_graphics = true;
+void Settings::load(std::string file) {
+    std::ifstream i(file);
+    json j;
 
-void Settings::load(json j) {
+    if (i) {
+        i >> j;
+    }
+
+
     if (j["shadow_resolution"].is_number())
         shadow_resolution = j["shadow_resolution"];
 
@@ -24,5 +27,9 @@ void Settings::load(json j) {
     if (j["fancy_graphics"].is_boolean())
         fancy_graphics = j["fancy_graphics"];
 
-    std::cout << shadow_resolution << std::endl;
+    if (j["vsync"].is_boolean())
+        vsync = j["vsync"];
+
+    if (j["resolution_scale"].is_number())
+        resolution_scale = j["resolution_scale"];
 }

@@ -1,358 +1,166 @@
 #include "World.hpp"
-#include "glad/glad.h"
-#include "GLFW/glfw3.h"
-#include "Settings.hpp"
-#include "Util.hpp"
-#include "Client.hpp"
-#include "Chunk.hpp"
-#include "SimplexNoise.hpp"
-#include "ChunkIO.hpp"
 
 #include <crucible/Renderer.hpp>
-#include <crucible/Input.hpp>
-#include <crucible/Camera.hpp>
-#include <crucible/AABB.hpp>
-#include <crucible/Frustum.hpp>
+#include <crucible/IBL.hpp>
 
-#include <iostream>
-#include <mutex>
-#include <thread>
-#include <algorithm>
+World::World() {
 
-static std::vector<vec3i> chunkLoadingPositions;
-
-static float getHeight(int x, int z) {
-	return Util::ridgedNoise(vec2(x / 10.0f, z / 10.0f), 5, 0.01f, 0.5f) * 30.0f - 50.0f;
 }
 
-char topBlock = 1;    //grass
-char midBlock = 3;    //dirt
-char fillerBlock = 2; //stone
-
-static void placeTree(ChunkManager &manager, int x, int y, int z) {
-    manager.setBlock(x, y, z, 6);
-    manager.setBlock(x, y+1, z, 6);
-    manager.setBlock(x, y+2, z, 6);
-	manager.setBlock(x, y+3, z, 6);
-	manager.setBlock(x, y+4, z, 6);
-	manager.setBlock(x, y+5, z, 6);
-	manager.setBlock(x, y+6, z, 6);
-
-	manager.setBlock(x-1, y+3, z, 7);
-	manager.setBlock(x+1, y+3, z, 7);
-	manager.setBlock(x, y+3, z-1, 7);
-	manager.setBlock(x, y+3, z+1, 7);
-
-
-	manager.setBlock(x-1, y+4, z, 7);
-	manager.setBlock(x+1, y+4, z, 7);
-	manager.setBlock(x, y+4, z-1, 7);
-	manager.setBlock(x, y+4, z+1, 7);
-	manager.setBlock(x-1, y+4, z-1, 7);
-	manager.setBlock(x+1, y+4, z+1, 7);
-	manager.setBlock(x-1, y+4, z+1, 7);
-	manager.setBlock(x+1, y+4, z-1, 7);
-
-
-	manager.setBlock(x-1, y+5, z, 7);
-	manager.setBlock(x+1, y+5, z, 7);
-	manager.setBlock(x, y+5, z-1, 7);
-	manager.setBlock(x, y+5, z+1, 7);
-	manager.setBlock(x-1, y+5, z-1, 7);
-	manager.setBlock(x+1, y+5, z+1, 7);
-	manager.setBlock(x-1, y+5, z+1, 7);
-	manager.setBlock(x+1, y+5, z-1, 7);
-
-
-	manager.setBlock(x-1, y+6, z, 7);
-	manager.setBlock(x+1, y+6, z, 7);
-	manager.setBlock(x, y+6, z-1, 7);
-	manager.setBlock(x, y+6, z+1, 7);
-
-	manager.setBlock(x, y+7, z, 7);
-	manager.setBlock(x-1, y+7, z, 7);
-	manager.setBlock(x+1, y+7, z, 7);
-	manager.setBlock(x, y+7, z-1, 7);
-	manager.setBlock(x, y+7, z+1, 7);
-
-	manager.setBlock(x, y+8, z, 7);
-	manager.setBlock(x, y+9, z, 7);
-	manager.setBlock(x, y+10, z, 7);
+void World::init(Context ctx) {
+    this->ctx = ctx;
 }
 
-static void generateChunk(ChunkManager &manager, Chunk *chunk) {
-//	for (int x = 0; x < 32; x++) {
-//		for (int z = 0; z < 32; z++) {
-//			for (int y = 0; y < 32; y++) {
-//				int actualY = y - 1 + (chunk->chunk_y * 32);
-//
-//				if (actualY < -50) {
-//					chunk->setBlock(x, y, z, 2);
-//				}
-//			}
-//		}
-//	}
-//	return;
+void World::update(float delta) {
+}
 
-    if (manager.chunkIO.chunkIsSaved(chunk)) {
-        //std::cout << "loading chunk" << std::endl;
-        manager.chunkIO.loadChunk(chunk);
+int World::getBlock(int x, int y, int z) {
+    int xp = x >> 4;
+    int zp = z >> 4;
 
-        if (chunk->generated)
-            return;
+    std::shared_ptr<Chunk> c = getChunk(xp, zp);
+
+    return c->getBlock(x & 15, y, z & 15);
+}
+
+void World::setBlock(int x, int y, int z, int block) {
+    int xp = x >> 4;
+    int zp = z >> 4;
+
+    int xc = x & 15;
+    int yc = y;
+    int zc = z & 15;
+
+    std::shared_ptr<Chunk> c = getChunk(xp, zp);
+
+    c->setBlock(xc, yc, zc, block);
+    c->isDirty = true;
+
+
+    if (xc == 15 && chunkExists(xp + 1, zp)) {
+        getChunk(xp + 1, zp)->isDirty = true;
+    }
+    if (xc == 0 && chunkExists(xp - 1, zp)) {
+        getChunk(xp - 1, zp)->isDirty = true;
     }
 
-
-	float heights[34][34]; //heightmap includes adjacent chunk blocks
-
-	for (int x = 0; x < 34; x++) {
-		for (int z = 0; z < 34; z++) {
-			heights[x][z] = getHeight(x - 1 + (chunk->chunk_x * 32), z - 1 + (chunk->chunk_z * 32));
-		}
-	}
-
-	for (int x = 0; x < 32; x++) {
-		for (int z = 0; z < 32; z++) {
-			float height = heights[x + 1][z + 1];
-
-			vec3 lineNegX = normalize(vec3(x - 1, heights[x + 2][z + 1], z) - vec3(x, height, z));
-			vec3 linePosX = normalize(vec3(x + 1, heights[x][z + 1], z) - vec3(x, height, z));
-
-			vec3 lineNegY = normalize(vec3(x, heights[x + 1][z], z - 1) - vec3(x, height, z));
-			vec3 linePosY = normalize(vec3(x, heights[x + 1][z + 2], z + 1) - vec3(x, height, z));
-
-			vec3 norm1 = cross(lineNegY, lineNegX);
-			vec3 norm2 = cross(linePosX, lineNegY);
-			vec3 norm3 = cross(linePosY, linePosX);
-			vec3 norm4 = cross(lineNegX, linePosY);
-
-			vec3 finalNorm = (norm1 + norm2 + norm3 + norm4) / vec3(4, 4, 4);
-			bool steep = dot(finalNorm, vec3(0, 1, 0)) < 0.8f;
-
-			int actualX = x - 1 + (chunk->chunk_x * 32);
-			int actualZ = z - 1 + (chunk->chunk_z * 32);
-
-
-			float r = SimplexNoise::noise(actualX * 100.0f, actualZ * 100.0f); //tree spawning
-
-			for (int y = 0; y < 32; y++) {
-
-                int actualY = y - 1 + (chunk->chunk_y * 32);
-
-
-
-                if (SimplexNoise::noise((float)actualX / 70.0f, (float)actualY / 70.0f, (float)actualZ / 50.0f) > -0.5f) {
-					int actualHeight = y + (chunk->chunk_y * 32);
-
-					if (actualHeight < height) {
-						if (steep) {
-							chunk->setBlock(x, y, z, fillerBlock);
-						}
-						else if (actualHeight < height - 5) {
-
-							chunk->setBlock(x, y, z, fillerBlock);
-
-						} else if (actualHeight < height - 1) {
-							chunk->setBlock(x, y, z, midBlock);
-						} else {
-                            float n = Util::noise(vec2(actualX / 50.0f, actualZ / 50.0f), 5, 0.1f, 0.5f);
-
-                            if (n > 0.0) {
-
-
-                                if (r > 0.965f) {
-                                    placeTree(manager, x + (chunk->chunk_x * CHUNK_SIZE),
-                                              y + (chunk->chunk_y * CHUNK_SIZE) + 1, z + (chunk->chunk_z * CHUNK_SIZE));
-                                }
-                            }
-
-
-
-                            chunk->setBlock(x, y, z, topBlock);
-
-
-						}
-					}
-				}
-			}
-		}
-	}
+    if (zc == 15 && chunkExists(xp, zp + 1)) {
+        getChunk(xp, zp + 1)->isDirty = true;
+    }
+    if (zc == 0 && chunkExists(xp, zp - 1)) {
+        getChunk(xp, zp - 1)->isDirty = true;
+    }
 }
 
-void World::chunkUpdateThread() {
-	while (running) {
+std::shared_ptr<Chunk> World::getChunk(int x, int z) {
+    if (!chunkExists(x, z)) {
+        Chunk *c = new Chunk(x, z);
 
-		for (int i = 0; i < chunkLoadingPositions.size(); i++) {
-			vec3i cameraChunkPos = worldToChunkPos(Client::camera.position);
+        chunks.emplace(vec2i(x, z), c);
+    }
 
-			vec3i loadingPos = chunkLoadingPositions[i];
+    return chunks[{x, z}];
+}
 
-			vec3i pos = loadingPos + cameraChunkPos;
-
-			vec3 chunkPosWorld = vec3(pos.x * CHUNK_SIZE, (pos.y * CHUNK_SIZE), pos.z * CHUNK_SIZE);
-
-			if (Client::frustum.isBoxInside(AABB(chunkPosWorld, chunkPosWorld + vec3(CHUNK_SIZE))) || AABB(chunkPosWorld, chunkPosWorld + vec3(CHUNK_SIZE)).isVecInside(Client::camera.getPosition())) {
-
-			}
-			else {
-				continue;
-			}
-
-			Chunk * chunk = manager.getChunk(pos.x, pos.y, pos.z);
-
-
-
-			if (!chunk->generated || chunk->isDirty) {
-
-				bool flag = false;
-
-				for (int xm = -1; xm < 2; xm++) {
-					for (int ym = -1; ym < 2; ym++) {
-						for (int zm = -1; zm < 2; zm++) {
-							Chunk *c = manager.getChunk(pos.x + xm, pos.y + ym, pos.z + zm);
-							if (!c->generated) {
-
-								generateChunk(manager, c);
-
-                                c->generated = true;
-                                c->isDirty = true;
-
-								flag = true;
-							}
-						}
-					}
-				}
-
-
-                chunk->generateMesh();
-				chunk->isDirty = false;
-
-				if (!manager.chunkIO.chunkIsSaved(chunk))
-					manager.chunkIO.saveChunk(chunk);
-
-				break;
-			}
-		}
-	}
+void World::deleteChunk(int x, int z) {
+    if (chunkExists(x, z)) {
+        //std::cout << "deleting chunk" << std::endl;
+        chunks.erase({x, z});
+    }
 }
 
 void World::shutdown() {
-    running = false;
-
-    if (thread0->joinable()) {
-		thread0->join();
-    }
-    delete thread0;
-
-    manager.shutdown();
+    chunks.clear();
 }
 
-void World::init(const Camera& camera) {
-	for (int i = 0; i < Settings::render_distance; i++) {
+bool World::chunkExists(int x, int z) {
+    bool exists = chunks.find({x, z}) != chunks.end();
 
-		for (int x = -i; x <= i; x++) {
-			for (int y = -i; y <= i; y++) {
-				for (int z = -i; z <= i; z++) {
-					if (std::find(chunkLoadingPositions.begin(), chunkLoadingPositions.end(), vec3i(x,y, z)) == chunkLoadingPositions.end()) {
-						chunkLoadingPositions.push_back(vec3i(x, y, z));
-					}
-				}
-			}
-		}
-	}
-//
-//	for (int x = -Settings::render_distance; x <= Settings::render_distance; x++) {
-//        for (int y = -Settings::render_distance; y <= Settings::render_distance; y++) {
-//            for (int z = -Settings::render_distance; z <= Settings::render_distance; z++) {
-//                chunkLoadingPositions.push_back(vec3i(x, y, z));
-//            }
-//        }
-//	}
-
-	thread0 = new std::thread([&]() {
-        chunkUpdateThread();
-    });
-	thread0->detach();
+    return exists;
 }
 
-void World::render(Camera &cam, Material *nearmaterial) {
-	vec3i camPos = World::worldToChunkPos(cam.position);
-	bool rebuild = true;
-	bool hasDeleted = false;
+std::unordered_map<vec2i, std::shared_ptr<Chunk>> World::getChunks() {
+    //chunks_mx.lock();
+    std::unordered_map<vec2i, std::shared_ptr<Chunk>> ret = chunks;
+    //chunks_mx.unlock();
 
-	auto chunksCopy = manager.getChunks();
+    return ret;
+}
 
-    for (auto const &ref: chunksCopy) {
-        Chunk *c = ref.second;
-        vec3i chunkPos = ref.first;
+bool World::raycastBlocks(vec3 origin, vec3 direction, float maxDistance, vec3i &blockPosReturn, vec3 &blockNormalReturn) {
+    std::shared_ptr<Chunk> nearestBlockChunk;
+    vec3i nearestBlockPos;
+    float nearestBlockDistance = 10000000000000.0f;
+    vec3 nearestBlockNormal;
 
-        if (!hasDeleted) {
-            if (abs(chunkPos.x - camPos.x) > Settings::render_distance+1 || abs(chunkPos.y - camPos.y) > Settings::render_distance+1 || abs(chunkPos.z - camPos.z) > Settings::render_distance+1) {
-                manager.deleteChunk(chunkPos.x, chunkPos.y, chunkPos.z);
+    for (auto const &ref: chunks) {
+        std::shared_ptr<Chunk> c = ref.second;
 
-                //hasDeleted = true;
+        vec3 chunkPos = vec3(c->chunk_x * 16, 0, c->chunk_z * 16);
 
-                continue;
+        AABB abb = AABB(chunkPos, chunkPos + vec3(16, 256, 16));
+
+        vec3 point;
+        vec3 normal;
+
+        //get raycasts
+        if (abb.raycast(origin, direction * maxDistance, point, normal)) {
+            for (int x = 0; x < 16; x++) {
+                for (int y = 0; y < 256; y++) {
+                    for (int z = 0; z < 16; z++) {
+                        char block = c->getBlock(x, y, z);
+                        if (block != 0) {
+                            AABB blockAbb = AABB(chunkPos + vec3(x, y, z), chunkPos + vec3(x + 1, y + 1, z + 1));
+
+                            if (blockAbb.raycast(origin, direction * maxDistance, point, normal)) {
+                                float distance = length(origin - point);
+
+                                if (distance < nearestBlockDistance) {
+                                    nearestBlockDistance = distance;
+                                    nearestBlockChunk = c;
+                                    nearestBlockPos = vec3i(x, y, z);
+                                    nearestBlockNormal = normal;
+                                }
+                            }
+                        }
+                    }
+                }
             }
         }
-
-
-		vec3 chunkPosWorld = vec3(c->chunk_x * CHUNK_SIZE, (c->chunk_y * CHUNK_SIZE), c->chunk_z * CHUNK_SIZE);
-
-		if (!c->empty) {
-			c->render(nearmaterial);
-		}
-    }
-}
-
-void World::update(const Camera &cam, float delta) {
-	time += delta;
-
-	if (time > DAYLIGHT_CYCLE) {
-		time -= DAYLIGHT_CYCLE;
-	}
-}
-
-float World::getTime() {
-	return this->time;
-}
-
-void World::setTime(float time) {
-	this->time = time;
-}
-
-vec3 World::getSunDirection() {
-	float rotation = ((getTime() / DAYLIGHT_CYCLE) * PI * 2) + (PI / 2);
-	
-	return normalize(vec3(sin(rotation), cos(rotation), cos(rotation)*0.4f));
-}
-
-vec3 World::getSunColor() {
-	float sunIntensity = dot(getSunDirection(), vec3(0.0f, -1.0f, 0.0f)) * 5.0f;
-
-	if (sunIntensity < 0.0f) {
-		sunIntensity = 0.0f;
-	}
-	if (sunIntensity > 2.0f) {
-		sunIntensity = 2.0f;
-	}
-
-	return vec3(1.4f, 1.3f, 1.0f) * sunIntensity;
-}
-
-vec3 World::getAmbient() {
-	float sunIntensity = dot(getSunDirection(), vec3(0.0f, -1.0f, 0.0f));
-
-	if (sunIntensity < 0.0f) {
-		sunIntensity = 0.0f;
-	}
-    if (sunIntensity > 2.0f) {
-        sunIntensity = 2.0f;
     }
 
-	return (vec3(0.5, 0.6, 1.0) * 0.5f * sunIntensity) + (vec3(0.5, 0.6, 1.0) * 0.05f);
+    if (nearestBlockDistance != 10000000000000.0f) {
+        vec3i chunkPos = vec3i(nearestBlockChunk->chunk_x * 16, 0, nearestBlockChunk->chunk_z * 16);
+
+        blockNormalReturn = nearestBlockNormal;
+        blockPosReturn = nearestBlockPos + chunkPos;
+        return true;
+    }
+    return false;
 }
 
-vec3i World::worldToChunkPos(vec3 pos) {
-    return vec3i((int)pos.x >> 5, (int)pos.y >> 5, (int)pos.z >> 5);
+std::vector<AABB> World::getCollisions(AABB test) {
+    vec3i start = vec3i(test.min.x, test.min.y, test.min.z);
+    vec3i end = vec3i(test.max.x, test.max.y, test.max.z);
+
+    std::vector<AABB> returnVector;
+
+    for (int x = start.x; x <= end.x; x++) {
+        for (int y = start.y; y <= end.y; y++) {
+            for (int z = start.z; z <= end.z; z++) {
+                int xp = x >> 4;
+                int zp = z >> 4;
+
+                if (chunkExists(xp, zp)) {
+                    if (getBlock(x, y, z) != 0) {
+                        AABB blockAbb = AABB(vec3(x, y, z), vec3(x+1, y+1, z+1));
+
+                        returnVector.push_back(blockAbb);
+                    }
+                }
+            }
+        }
+    }
+
+    return returnVector;
 }

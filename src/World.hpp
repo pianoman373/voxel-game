@@ -1,66 +1,60 @@
 #pragma once
 
+
 #include <unordered_map>
-#include <vector>
-#include <deque>
-#include <string>
-#include <crucible/Math.hpp>
-#include <functional>
-#include <mutex>
-#include <thread>
+#include <memory>
 
-#include "ChunkManager.hpp"
+#include "Chunk.hpp"
+#include "Player.hpp"
+#include "ChunkRenderer.hpp"
 
-class Texture;
-class Shader;
-class Camera;
-class AABB;
-class Chunk;
-class Material;
-
-struct chunk_position {
-    int x;
-    int y;
-    int z;
+enum Context {
+    CLIENT,
+    SERVER,
+    COMMON
 };
+
+#define WORLD_SIZE 32
 
 class World {
 private:
-    void chunkUpdateThread();
-
-	bool running = true;
+    Context ctx;
 
 
-	float time = 60 * 2;
-
-    std::thread *thread0;
-
-
-
-
+    std::unordered_map<vec2i, std::shared_ptr<Chunk>> chunks;
 
 public:
-    ChunkManager manager;
+    World();
 
-	static constexpr float DAYLIGHT_CYCLE = 60.0f * 20.0f; //20 minutes
+    void init(Context ctx);
 
-	void init(const Camera& camera);
+    void update(float delta);
 
-	void shutdown();
+    int getBlock(int x, int y, int z);
 
-    void render(Camera &cam, Material *nearmaterial);
+    void setBlock(int x, int y, int z, int block);
 
-    void update(const Camera &cam, float delta);
+    std::shared_ptr<Chunk> getChunk(int x, int z);
 
-	float getTime();
+    bool chunkExists(int x, int z);
 
-	void setTime(float time);
+    void deleteChunk(int x, int z);
 
-	vec3 getSunDirection();
+    void shutdown();
 
-	vec3 getSunColor();
+    std::unordered_map<vec2i, std::shared_ptr<Chunk>> getChunks();
 
-	vec3 getAmbient();
+    /**
+     * Returns the nearest block the specified ray intercepts.
+     * blockPosReturn is a passthrough parameter which returns the block position of the intercepted block.
+     * blockNormalReturn is the direction (normal) of the block face the ray intercepted.
+     *
+     * Returns true if a block collision was found.
+     */
+    bool raycastBlocks(vec3 origin, vec3 direction, float maxDistance, vec3i &blockPosReturn, vec3 &blockNormalReturn);
 
-    static vec3i worldToChunkPos(vec3 pos);
+    /**
+     * Returns all AABB's in the world that collide with the given test AABB
+     */
+    std::vector<AABB> getCollisions(AABB test);
 };

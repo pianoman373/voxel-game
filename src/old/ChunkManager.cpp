@@ -1,113 +1,86 @@
 #include "ChunkManager.hpp"
-#include "ChunkIO.hpp"
 
 #include <crucible/Renderer.hpp>
-
-#include <chrono>
-#include <thread>
 
 ChunkManager::ChunkManager() {
 
 }
 
 int ChunkManager::getBlock(int x, int y, int z) {
-    int xp = x >> 5;
-    int yp = y >> 5;
-    int zp = z >> 5;
+    int xp = x >> 4;
+    int zp = z >> 4;
 
-    Chunk *c = getChunk(xp, yp, zp);
+    Chunk *c = getChunk(xp, zp);
 
-    return c->getBlock(x & 31, y & 31, z & 31);
+    return c->getBlock(x & 15, y, z & 15);
 }
 
 void ChunkManager::setBlock(int x, int y, int z, int block) {
-    int xp = x >> 5;
-    int yp = y >> 5;
-    int zp = z >> 5;
+    int xp = x >> 4;
+    int zp = z >> 4;
 
-    int xc = x & 31;
-    int yc = y & 31;
-    int zc = z & 31;
+    int xc = x & 15;
+    int yc = y;
+    int zc = z & 15;
 
-    Chunk *c = getChunk(xp, yp, zp);
+    Chunk *c = getChunk(xp, zp);
 
     c->setBlock(xc, yc, zc, block);
     c->isDirty = true;
 
 
-    if (xc == 31 && chunkExists(xp + 1, yp, zp)) {
-        getChunk(xp + 1, yp, zp)->isDirty = true;
+    if (xc == 15 && chunkExists(xp + 1, zp)) {
+        getChunk(xp + 1, zp)->isDirty = true;
     }
-    if (xc == 0 && chunkExists(xp - 1, yp, zp)) {
-        getChunk(xp - 1, yp, zp)->isDirty = true;
-    }
-
-    if (yc == 31 && chunkExists(xp, yp + 1, zp)) {
-        getChunk(xp, yp + 1, zp)->isDirty = true;
-    }
-    if (yc == 0 && chunkExists(xp, yp - 1, zp)) {
-        getChunk(xp, yp - 1, zp)->isDirty = true;
+    if (xc == 0 && chunkExists(xp - 1, zp)) {
+        getChunk(xp - 1, zp)->isDirty = true;
     }
 
-    if (zc == 31 && chunkExists(xp, yp, zp + 1)) {
-        getChunk(xp, yp, zp + 1)->isDirty = true;
+    if (zc == 15 && chunkExists(xp, zp + 1)) {
+        getChunk(xp, zp + 1)->isDirty = true;
     }
-    if (zc == 0 && chunkExists(xp, yp, zp - 1)) {
-        getChunk(xp, yp, zp - 1)->isDirty = true;
+    if (zc == 0 && chunkExists(xp, zp - 1)) {
+        getChunk(xp, zp - 1)->isDirty = true;
     }
 }
 
-Chunk *ChunkManager::getChunk(int x, int y, int z) {
-    if (!chunkExists(x, y, z)) {
-        Chunk *c = new Chunk(x, y, z, this);
+Chunk *ChunkManager::getChunk(int x, int z) {
+    if (!chunkExists(x, z)) {
+        Chunk *c = new Chunk(x, z);
 
         chunks_mx.lock();
-        chunks.emplace(vec3i(x, y, z), c);
+        chunks.emplace(vec2i(x, z), c);
         chunks_mx.unlock();
     }
 
-    return chunks[{x, y, z}];
+    return chunks[{x, z}];
 }
 
-void ChunkManager::deleteChunk(int x, int y, int z) {
-    if (chunkExists(x, y, z)) {
+void ChunkManager::deleteChunk(int x, int z) {
+    if (chunkExists(x, z)) {
         //std::cout << "deleting chunk" << std::endl;
 
-        chunkIO.saveChunk(chunks[{x, y, z}]);
-
         chunks_mx.lock();
-        delete(chunks[{x, y, z}]);
+        delete(chunks[{x, z}]);
 
-        chunks.erase({x, y, z});
+        chunks.erase({x, z});
         chunks_mx.unlock();
     }
 }
 
 void ChunkManager::shutdown() {
-    auto chunksCopy = getChunks();
-
-    for (auto const &ref: chunks) {
-        chunkIO.saveChunk(chunks[{ref.first.x, ref.first.y, ref.first.z}]);
-
-        delete chunks[{ref.first.x, ref.first.y, ref.first.z}];
-    }
-
     chunks.clear();
-
-    chunkIO.flushSaveBuffer();
 }
 
-bool ChunkManager::chunkExists(int x, int y, int z) {
-    chunks_mx.lock();
-    bool exists = chunks.find({x, y, z}) != chunks.end();
-    chunks_mx.unlock();
+bool ChunkManager::chunkExists(int x, int z) {
+    bool exists = chunks.find({x, z}) != chunks.end();
 
     return exists;
 }
 
-std::unordered_map<vec3i, Chunk*, key_hash, key_equal> ChunkManager::getChunks() {
+std::unordered_map<vec2i, Chunk*, key_hash, key_equal> ChunkManager::getChunks() {
     //chunks_mx.lock();
-    std::unordered_map<vec3i, Chunk*, key_hash, key_equal> ret = chunks;
+    std::unordered_map<vec2i, Chunk*, key_hash, key_equal> ret = chunks;
     //chunks_mx.unlock();
 
     return ret;
@@ -123,18 +96,18 @@ bool ChunkManager::raycastBlocks(vec3 origin, vec3 direction, float maxDistance,
         Chunk *c = ref.second;
 
         if (!c->empty) {
-            vec3 chunkPos = vec3(c->chunk_x * CHUNK_SIZE, (c->chunk_y * CHUNK_SIZE), c->chunk_z * CHUNK_SIZE);
+            vec3 chunkPos = vec3(c->chunk_x * 16, 0, c->chunk_z * 16);
 
-            AABB abb = AABB(chunkPos, chunkPos + vec3(CHUNK_SIZE));
+            AABB abb = AABB(chunkPos, chunkPos + vec3(16, 256, 16));
 
             vec3 point;
             vec3 normal;
 
             //get raycasts
             if (abb.raycast(origin, direction * maxDistance, point, normal)) {
-                for (int x = 0; x < CHUNK_SIZE; x++) {
-                    for (int y = 0; y < CHUNK_SIZE; y++) {
-                        for (int z = 0; z < CHUNK_SIZE; z++) {
+                for (int x = 0; x < 16; x++) {
+                    for (int y = 0; y < 256; y++) {
+                        for (int z = 0; z < 16; z++) {
                             char block = c->getBlock(x, y, z);
                             if (block != 0) {
                                 AABB blockAbb = AABB(chunkPos + vec3(x, y, z), chunkPos + vec3(x + 1, y + 1, z + 1));
@@ -158,7 +131,7 @@ bool ChunkManager::raycastBlocks(vec3 origin, vec3 direction, float maxDistance,
     }
 
     if (nearestBlockDistance != 10000000000000.0f) {
-        vec3i chunkPos = vec3i(nearestBlockChunk->chunk_x * CHUNK_SIZE, (nearestBlockChunk->chunk_y * CHUNK_SIZE), nearestBlockChunk->chunk_z * CHUNK_SIZE);
+        vec3i chunkPos = vec3i(nearestBlockChunk->chunk_x * 16, 0, nearestBlockChunk->chunk_z * 16);
 
         blockNormalReturn = nearestBlockNormal;
         blockPosReturn = nearestBlockPos + chunkPos;
