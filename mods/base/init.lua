@@ -1,103 +1,5 @@
 print("Running Lua code...")
 
-require("mods.base.api")
-
-local ffi = require("ffi")
-ffi.cdef[[
-    float ridgedNoise(float x, float y, int octaves, float frequency, float persistence);
-    void setChunk(int x, int z, uint8_t *data);
-    float noise3D(float x, float y, float z);
-]]
-local C = ffi.C
-
---helper function
-function getHeight(x, z)
-    return C.ridgedNoise(x/10, z/10, 5, 0.01, 0.5) * 80 + 120
-end
-
-function getCave(x, y, z)
-	return C.noise3D(x/100, y/100, z/100) > 0.6;
-end
-
-local topBlock = 1 --grass
-local midBlock = 3 --dirt
-local fillerBlock = 2 --stone
-
-local heights = array2D(18) --heightmap includes adjacent chunk blocks
-
-local generateChunk = function(chunk_x, chunk_z, chunk)
-    for x = 0, 17 do
-       for z = 0, 17 do
-           heights[x][z] = getHeight(x-1 + (chunk_x * 16), z-1 + (chunk_z * 16))
-       end
-    end
-
-    for x = 0, 15 do
-        for z = 0, 15 do
-            local height = heights[x+1][z+1]
-
-            local lineNegX =  normalize(vec3(x - 1, heights[x+2][z+1], z) - vec3(x, height, z));
-            local linePosX =  normalize(vec3(x + 1, heights[x][z+1], z) - vec3(x, height, z));
-
-            local lineNegY =  normalize(vec3(x, heights[x+1][z], z - 1) - vec3(x, height, z));
-            local linePosY =  normalize(vec3(x, heights[x+1][z+2], z + 1) - vec3(x, height, z));
-
-            local norm1 = cross(lineNegY, lineNegX);
-            local norm2 = cross(linePosX, lineNegY);
-
-            local norm3 = cross(linePosY, linePosX);
-            local norm4 = cross(lineNegX, linePosY);
-
-            local finalNorm = (norm1 + norm2 + norm3 + norm4) / vec3(4, 4, 4)
-            local steep = dot(finalNorm, vec3(0, 1, 0)) < 0.7
-
-            for y = 0, 255 do
-			local index = (y * 16 * 16) + (x * 16) + z;
-
-            	if not getCave(x + (chunk_x * 16), y, z + (chunk_z * 16)) then
-            		
-
-	                local actualHeight = y
-
-	                if actualHeight < height then
-	                    if steep then
-	                        chunk[index] = fillerBlock
-	                    else
-	                        if actualHeight < height - 5 then
-	                           chunk[index] = fillerBlock
-	                        elseif actualHeight < height - 1 then
-	                            chunk[index] = midBlock
-	                        else
-	                            chunk[index] = topBlock
-	                        end
-	                    end
-	                else
-	                	chunk[index] = 0
-	                end
-            	else
-            		chunk[index] = 0
-            	end
-            end
-        end
-    end
-
-    return chunk
-end
-
-local worldSize = 64
-
-api.initServer = function()
-	local chunk = ffi.new("uint8_t[?]", 16*16*256)
-
-    print("Generating world. This may take a while...")
-	for x = 0, worldSize+1 do
-		for z = 0, worldSize+1 do
-			generateChunk(x, z, chunk)
-			C.setChunk(x, z, chunk)
-		end
-	end
-end
-
 api.registerBlock(0, {
     name = "Air",
     solid = false,
@@ -187,7 +89,7 @@ hotbarSelectorPos = 0
 local function renderHotbar(width, height, img)
     local blockSize = 50
 
-    hotbarSelectorPos = hotbarSelectorPos + api.getScroll();
+    hotbarSelectorPos = hotbarSelectorPos - api.getScroll();
 
     if hotbarSelectorPos < 0 then
         hotbarSelectorPos = 9
@@ -198,24 +100,49 @@ local function renderHotbar(width, height, img)
 
     for x = -4, 5 do
     	api.renderSpriteTexture((width/2) + (blockSize * x) - (blockSize/2), height-(blockSize/2),     blockSize, blockSize,           (1/8)*1, (1/8)*1, (1/8)*2, (1/8)*2,  img)
+
+        api.renderBlockItem(x + 5, (width/2) + (blockSize * x) - (blockSize/2), height-(blockSize/2), 25);
     end
 
     api.renderSpriteTexture((width/2) - (blockSize * 4.5) + (hotbarSelectorPos * blockSize), height-(blockSize/2),     blockSize*3, blockSize*3,           (1/8)*2, (1/8)*0, (1/8)*5, (1/8)*3,  img)
-   
+
+end
+
+local function renderInventory(width, height, img)
+    local originX = 0
+    local originY = 0
+
+    local blockSize = 50
+
+    for y = 0, 12 do
+        for x = 0, 9 do
+            api.renderSpriteTexture((width/2) - (blockSize*4.5) + (blockSize * x), (blockSize*y) + (blockSize*1.5),     blockSize, blockSize,           (1/8)*1, (1/8)*1, (1/8)*2, (1/8)*2,  img)
+
+    --        api.renderBlockItem(x + 5, (width/2) + (blockSize * x) - (blockSize/2), height-(blockSize/2), 25);
+        end
+    end
+
 end
 
 api.registerEventHandler("renderGUI", function(width, height)
-    local img = api.getTexture("base:GUI.png")
+    local img = api.getTexture("base:textures/GUI.png")
 
     -- crosshair
     api.renderSpriteColor(width/2, height/2,	20.0, 3.0,	1.0, 1.0, 1.0, 1.0)
     api.renderSpriteColor(width/2, height/2,	3.0, 20.0,	1.0, 1.0, 1.0, 1.0)
 
+    if api.isKeyDown(258) then
+        api.renderSpriteColor(width/2, height/2, width, height, 0.0, 0.0, 0.0, 0.8);
+        renderInventory(width, height, img)
+    end
+
     renderHotbar(width, height, img)
+
+
 end)
 
 api.registerEventHandler("client_init", function()
-    print("Being init'ed by the client!")
+    print("Being initialized by the client!")
 
-    api.registerTexture("base:GUI.png")
+    api.registerTexture("base:textures/GUI.png")
 end)

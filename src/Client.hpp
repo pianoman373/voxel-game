@@ -8,6 +8,7 @@
 #include "LuaHandler.hpp"
 #include "Settings.hpp"
 #include "TextureRegistry.hpp"
+#include "ItemRenderer.hpp"
 
 #include <crucible/Frustum.hpp>
 
@@ -35,6 +36,7 @@ public:
     Settings settings;
     TextureRegistry textureRegistry;
     LuaHandler lua;
+    ItemRenderer itemRenderer;
 
     Client();
 

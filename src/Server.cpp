@@ -105,28 +105,37 @@ void Server::init(int port) {
     world.init(Context::SERVER);
 
     lua.init();
-    lua.state["api"]["registerBlock"] = nilFunction;
-    lua.addCommonFunctions();
-    lua.runScripts();
+    //lua.addCommonFunctions();
+    lua.state.script_file("mods/base/worldgen.lua", sol::script_default_on_error);
 
     auto start = std::chrono::high_resolution_clock::now();
 
-    sol::protected_function f(lua.state["api"]["initServer"]);
-    sol::protected_function_result result = f();
-    if (result.valid()) {
 
-    }
-    else {
-        // Call failed
-        sol::error err = result;
-        std::cout << err.what() << std::endl;
-    }
-
-//    for (int x = 0; x < 16; x++) {
-//        for (int z = 0; z < 16; z++) {
-//            generateTerrain(world.getChunk(x, z));
-//        }
+//    sol::protected_function f(lua.state["generateWorld"]);
+//    sol::protected_function_result result = f();
+//    if (result.valid()) {
+//
 //    }
+//    else {
+//        // Call failed
+//        sol::error err = result;
+//        std::cout << err.what() << std::endl;
+//    }
+
+    for (int x = 0; x < 32; x++) {
+        for (int z = 0; z < 32; z++) {
+            sol::protected_function f(lua.state["generateWorldNew"]);
+            sol::protected_function_result result = f(x, z);
+            if (result.valid()) {
+
+            }
+            else {
+                // Call failed
+                sol::error err = result;
+                std::cout << err.what() << std::endl;
+            }
+        }
+    }
 
     auto finish = std::chrono::high_resolution_clock::now();
     float seconds = std::chrono::duration_cast<std::chrono::milliseconds>(finish-start).count() / 1000.0f;

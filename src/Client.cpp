@@ -23,7 +23,7 @@
 
 
 
-Client::Client(): network(*this), worldRenderer(world), player(world, *this) {
+Client::Client(): network(*this), worldRenderer(world), player(world, *this), itemRenderer(*this) {
     rleCache = new uint8_t[16*16*256*2];
 }
 
@@ -161,6 +161,8 @@ void Client::init(std::string address, int port) {
 
     BlockRegistry::init();
 
+    itemRenderer.init();
+
     lua.init();
     lua.addCommonFunctions();
     lua.addClientSideFunctions(*this);
@@ -236,6 +238,8 @@ void Client::render() {
 //    GuiRenderer::renderSprite(size / 2.0f, vec2(3.0f, 20.0f), vec4(1.0f));
 
     lua.pushEvent("renderGUI", size.x, size.y);
+
+//    itemRenderer.renderBlockItem(2, size.x/2.0f, size.y/2.0f, 30.0f);
 
     Window::end();
 }

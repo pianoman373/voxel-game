@@ -32,6 +32,10 @@ void LuaHandler::addClientSideFunctions(Client &client) {
     state["api"]["renderSpriteTexture"] = [](float positionX, float positionY, float sizeX, float sizeY, float uvU1, float uvV1, float uvU2, float uvV2, Texture &tex) {
         GuiRenderer::renderSprite({positionX, positionY}, {sizeX, sizeY}, {uvU1, uvV1, uvU2, uvV2},{1.0f, 1.0f, 1.0f, 1.0f}, tex);
     };
+    state["api"]["renderBlockItem"] = [&](int blockID, float x, float y, float size) {
+        client.itemRenderer.renderBlockItem(blockID, x, y, size);
+    };
+
     state["api"]["getTexture"] = [&](std::string path) {
         return client.textureRegistry.getTexture(path);
     };
@@ -41,6 +45,9 @@ void LuaHandler::addClientSideFunctions(Client &client) {
 
     state["api"]["getScroll"] = []() {
         return (int)Input::getScroll();
+    };
+    state["api"]["isKeyDown"] = [](int key) {
+        return Input::isKeyDown(key);
     };
 
 }
