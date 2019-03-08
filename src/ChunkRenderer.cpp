@@ -64,6 +64,51 @@ char ChunkRenderer::getBlock(ChunkRemeshJob &job, int x, int y, int z) {
     return 1;
 }
 
+int ChunkRenderer::getSunlight(ChunkRemeshJob &job, int x, int y, int z) {
+    //center
+    if (x >= 0 && x < 16 && z >= 0 && z < 16) {
+        return job.center->getSunlight(x, y, z);
+    }
+
+    //positive X
+    if (x >= 16 && z >= 0 && z < 16) {
+        return job.posX->getSunlight(x - 16, y, z);
+    }
+    //negative X
+    if (x < 0 && z >= 0 && z < 16) {
+        return job.negX->getSunlight(x + 16, y, z);
+    }
+
+    //positive Z
+    if (x >= 0 && x < 16 && z >= 16) {
+        return job.posZ->getSunlight(x, y, z - 16);
+    }
+    //negative Z
+    if (x >= 0 && x < 16 && z < 0) {
+        return job.negZ->getSunlight(x, y, z + 16);
+    }
+
+    //positive X positive Z
+    if (x >= 16 &&  z >= 16) {
+        return job.posXposZ->getSunlight(x - 16, y, z - 16);
+    }
+    //positive X negative Z
+    if (x >= 16 && z < 0) {
+        return job.posXnegZ->getSunlight(x - 16, y, z + 16);
+    }
+
+    //negative X positive Z
+    if (x < 0 &&  z >= 16) {
+        return job.negXposZ->getSunlight(x + 16, y, z - 16);
+    }
+    //negative X negative Z
+    if (x < 0 && z < 0) {
+        return job.negXnegZ->getSunlight(x + 16, y, z + 16);
+    }
+
+    return 15;
+}
+
 void ChunkRenderer::generateMesh(ChunkRemeshJob &job) {
     float bias = 0.00001f;
 
@@ -151,7 +196,7 @@ void ChunkRenderer::generateMesh(ChunkRemeshJob &job) {
                     if (!block_posX_Y_posZ) ao111 -= AO;
                     if (!block_posX_posY_Z) ao111 -= AO;
 
-                    float lightLevel = 1.0f;
+                    float lightLevel = getSunlight(job, x+1, y, z) / 15.0f;
 
                     mesh.pushVertex(1.0f+x, 0.0f+y, 0.0f+z,  uv1.x, uv2.y,  ao100*lightLevel,  0);
                     mesh.pushVertex(1.0f+x, 1.0f+y, 0.0f+z,  uv1.x, uv1.y,  ao110*lightLevel,  0);
@@ -188,7 +233,7 @@ void ChunkRenderer::generateMesh(ChunkRemeshJob &job) {
                     if (!block_negX_Y_posZ) ao011 -= AO;
                     if (!block_negX_posY_Z) ao011 -= AO;
 
-                    float lightLevel = 1.0f;
+                    float lightLevel = getSunlight(job, x-1, y, z) / 15.0f;
 
                     mesh.pushVertex( 0.0f+x, 1.0f+y, 1.0f+z,  uv1.x, uv1.y,  ao011*lightLevel,  1);
                     mesh.pushVertex( 0.0f+x, 1.0f+y, 0.0f+z,  uv2.x, uv1.y,  ao010*lightLevel,  1);
@@ -226,7 +271,7 @@ void ChunkRenderer::generateMesh(ChunkRemeshJob &job) {
                     if (!block_X_posY_posZ) ao111 -= AO;
                     if (!block_posX_posY_Z) ao111 -= AO;
 
-                    float lightLevel = 1.0f;
+                    float lightLevel = getSunlight(job, x, y+1, z) / 15.0f;
 
                     mesh.pushVertex( 1.0f+x, 1.0f+y, 1.0f+z,  uv2.x, uv1.y,  ao111*lightLevel,  2);
                     mesh.pushVertex( 1.0f+x, 1.0f+y, 0.0f+z,  uv2.x, uv2.y,  ao110*lightLevel,  2);
@@ -263,7 +308,7 @@ void ChunkRenderer::generateMesh(ChunkRemeshJob &job) {
                     if (!block_X_negY_posZ) ao101 -= AO;
                     if (!block_posX_negY_Z) ao101 -= AO;
 
-                    float lightLevel = 1.0f;
+                    float lightLevel = getSunlight(job, x, y-1, z) / 15.0f;
 
                     mesh.pushVertex( 0.0f+x, 0.0f+y, 0.0f+z,  uv1.x, uv2.y,  ao000*lightLevel,  3);
                     mesh.pushVertex( 1.0f+x, 0.0f+y, 0.0f+z,  uv2.x, uv2.y,  ao100*lightLevel,  3);
@@ -300,7 +345,7 @@ void ChunkRenderer::generateMesh(ChunkRemeshJob &job) {
                     if (!block_X_posY_posZ) ao111 -= AO;
                     if (!block_posX_Y_posZ) ao111 -= AO;
 
-                    float lightLevel = 1.0f;
+                    float lightLevel = getSunlight(job, x, y, z+1) / 15.0f;
 
                     mesh.pushVertex( 0.0f+x, 0.0f+y, 1.0f+z,  uv1.x, uv2.y,  ao001*lightLevel,  4);
                     mesh.pushVertex( 1.0f+x, 0.0f+y, 1.0f+z,  uv2.x, uv2.y,  ao101*lightLevel,  4);
@@ -337,7 +382,7 @@ void ChunkRenderer::generateMesh(ChunkRemeshJob &job) {
                     if (!block_X_posY_negZ) ao110 -= AO;
                     if (!block_posX_Y_negZ) ao110 -= AO;
 
-                    float lightLevel = 1.0f;
+                    float lightLevel = getSunlight(job, x, y, z-1) / 15.0f;
 
                     mesh.pushVertex( 1.0f+x, 1.0f+y, 0.0f+z,  uv2.x, uv1.y,  ao110*lightLevel,  5);
                     mesh.pushVertex( 1.0f+x, 0.0f+y, 0.0f+z,  uv2.x, uv2.y,  ao100*lightLevel,  5);

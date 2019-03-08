@@ -6,8 +6,11 @@
 
 #include "ChunkMesh.hpp"
 
+#include <queue>
 #include <mutex>
 
+class ChunkNeighborhood;
+class World;
 
 class Chunk {
 private:
@@ -16,11 +19,12 @@ private:
 
 
 	Transform transform;
+	World &world;
 
 
 public:
 	unsigned char blocks[16 * 16 * 256] = { 0 };
-	unsigned char lightMap[256][16][16] = { 0 };
+	unsigned char lightMap[16 * 16 * 256] = { 0 };
     bool isDirty = false;
 
     ChunkMesh mesh;
@@ -41,7 +45,7 @@ public:
      */
     void unSerialize(uint8_t *dataIn, int dataLength);
 
-    Chunk(int x, int z);
+    Chunk(World &world, int x, int z);
 
     ~Chunk();
 
@@ -56,4 +60,10 @@ public:
 	int getTorchlight(int x, int y, int z);
 
 	void setTorchlight(int x, int y, int z, int val);
+
+	void calculateSunLighting();
+
+	void propagateSunlight(ChunkNeighborhood &neighborhood, std::queue<vec3i> &lightBfsQueue);
+
+	void unPropagateSunlight(ChunkNeighborhood &neighborhood, std::queue<vec4i> &lightBfsQueue);
 };

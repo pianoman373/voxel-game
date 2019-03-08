@@ -61,7 +61,7 @@ void WorldRenderer::init() {
     texture_n.load("resources/terrain_n.png", true);
 
 
-    nearMaterial.setPBRUniforms(texture, texture_r, texture_m, texture_n);
+    nearMaterial.setPBRUniforms(texture, 1.0f, 0.0f);
     nearMaterial.setUniformTexture("emissionTex", texture_e, 5);
     nearMaterial.setShader(blockShader);
 

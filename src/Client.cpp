@@ -24,7 +24,7 @@
 
 
 Client::Client(): network(*this), worldRenderer(world), player(world, *this), itemRenderer(*this) {
-    rleCache = new uint8_t[16*16*256*2];
+    rleCache = new uint8_t[16*16*256*5];
 }
 
 Client::~Client() {

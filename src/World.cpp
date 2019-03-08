@@ -3,6 +3,145 @@
 #include <crucible/Renderer.hpp>
 #include <crucible/IBL.hpp>
 
+char ChunkNeighborhood::getBlock(int x, int y, int z) {
+    //center
+    if (x >= 0 && x < 16 && z >= 0 && z < 16) {
+        return center->getBlock(x, y, z);
+    }
+
+    //positive X
+    if (x >= 16 && z >= 0 && z < 16) {
+        return posX->getBlock(x - 16, y, z);
+    }
+    //negative X
+    if (x < 0 && z >= 0 && z < 16) {
+        return negX->getBlock(x + 16, y, z);
+    }
+
+    //positive Z
+    if (x >= 0 && x < 16 && z >= 16) {
+        return posZ->getBlock(x, y, z - 16);
+    }
+    //negative Z
+    if (x >= 0 && x < 16 && z < 0) {
+        return negZ->getBlock(x, y, z + 16);
+    }
+
+    //positive X positive Z
+    if (x >= 16 &&  z >= 16) {
+        return posXposZ->getBlock(x - 16, y, z - 16);
+    }
+    //positive X negative Z
+    if (x >= 16 && z < 0) {
+        return posXnegZ->getBlock(x - 16, y, z + 16);
+    }
+
+    //negative X positive Z
+    if (x < 0 &&  z >= 16) {
+        return negXposZ->getBlock(x + 16, y, z - 16);
+    }
+    //negative X negative Z
+    if (x < 0 && z < 0) {
+        return negXnegZ->getBlock(x + 16, y, z + 16);
+    }
+
+    return 0;
+}
+
+int ChunkNeighborhood::getSunlight(int x, int y, int z) {
+    //center
+    if (x >= 0 && x < 16 && z >= 0 && z < 16) {
+        return center->getSunlight(x, y, z);
+    }
+
+    //positive X
+    if (x >= 16 && z >= 0 && z < 16) {
+        return posX->getSunlight(x - 16, y, z);
+    }
+    //negative X
+    if (x < 0 && z >= 0 && z < 16) {
+        return negX->getSunlight(x + 16, y, z);
+    }
+
+    //positive Z
+    if (x >= 0 && x < 16 && z >= 16) {
+        return posZ->getSunlight(x, y, z - 16);
+    }
+    //negative Z
+    if (x >= 0 && x < 16 && z < 0) {
+        return negZ->getSunlight(x, y, z + 16);
+    }
+
+    //positive X positive Z
+    if (x >= 16 &&  z >= 16) {
+        return posXposZ->getSunlight(x - 16, y, z - 16);
+    }
+    //positive X negative Z
+    if (x >= 16 && z < 0) {
+        return posXnegZ->getSunlight(x - 16, y, z + 16);
+    }
+
+    //negative X positive Z
+    if (x < 0 &&  z >= 16) {
+        return negXposZ->getSunlight(x + 16, y, z - 16);
+    }
+    //negative X negative Z
+    if (x < 0 && z < 0) {
+        return negXnegZ->getSunlight(x + 16, y, z + 16);
+    }
+
+    return 15;
+}
+
+void ChunkNeighborhood::setBlock(int x, int y, int z, char block) {
+
+}
+
+void ChunkNeighborhood::setSunlight(int x, int y, int z, int val) {
+    //center
+    if (x >= 0 && x < 16 && z >= 0 && z < 16) {
+        center->setSunlight(x, y, z, val);
+    }
+
+    //positive X
+    if (x >= 16 && z >= 0 && z < 16) {
+        posX->setSunlight(x - 16, y, z, val);
+    }
+    //negative X
+    if (x < 0 && z >= 0 && z < 16) {
+        negX->setSunlight(x + 16, y, z, val);
+    }
+
+    //positive Z
+    if (x >= 0 && x < 16 && z >= 16) {
+        posZ->setSunlight(x, y, z - 16, val);
+    }
+    //negative Z
+    if (x >= 0 && x < 16 && z < 0) {
+        negZ->setSunlight(x, y, z + 16, val);
+    }
+
+    //positive X positive Z
+    if (x >= 16 &&  z >= 16) {
+        posXposZ->setSunlight(x - 16, y, z - 16, val);
+    }
+    //positive X negative Z
+    if (x >= 16 && z < 0) {
+        posXnegZ->setSunlight(x - 16, y, z + 16, val);
+    }
+
+    //negative X positive Z
+    if (x < 0 &&  z >= 16) {
+        negXposZ->setSunlight(x + 16, y, z - 16, val);
+    }
+    //negative X negative Z
+    if (x < 0 && z < 0) {
+        negXnegZ->setSunlight(x + 16, y, z + 16, val);
+    }
+}
+
+
+
 World::World() {
 
 }
@@ -54,12 +193,32 @@ void World::setBlock(int x, int y, int z, int block) {
 
 std::shared_ptr<Chunk> World::getChunk(int x, int z) {
     if (!chunkExists(x, z)) {
-        Chunk *c = new Chunk(x, z);
+        Chunk *c = new Chunk(*this, x, z);
 
         chunks.emplace(vec2i(x, z), c);
     }
 
     return chunks[{x, z}];
+}
+
+ChunkNeighborhood World::getChunkNeighborhood(int x, int z) {
+    ChunkNeighborhood neighborhood = {
+            getChunk(x, z),
+
+            getChunk(x+1, z),
+            getChunk(x-1, z),
+
+            getChunk(x, z+1),
+            getChunk(x, z-1),
+
+            getChunk(x+1, z+1),
+            getChunk(x+1, z-1),
+
+            getChunk(x-1, z+1),
+            getChunk(x-1, z-1)
+    };
+
+    return neighborhood;
 }
 
 void World::deleteChunk(int x, int z) {

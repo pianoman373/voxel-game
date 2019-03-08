@@ -84,6 +84,20 @@ api.registerBlock(10, {
     }
 })
 
+api.registerBlock(11, {
+    name = "Bricks",
+    textures = {
+        {7, 0}
+    }
+})
+
+api.registerBlock(12, {
+    name = "Thing",
+    textures = {
+        {8, 0}
+    }
+})
+
 hotbarSelectorPos = 0
 
 local function renderHotbar(width, height, img)
@@ -94,17 +108,19 @@ local function renderHotbar(width, height, img)
     if hotbarSelectorPos < 0 then
         hotbarSelectorPos = 9
     end
-    if hotbarSelectorPos > 9 then
+    if hotbarSelectorPos > 11 then
         hotbarSelectorPos = 0
     end
 
-    for x = -4, 5 do
-    	api.renderSpriteTexture((width/2) + (blockSize * x) - (blockSize/2), height-(blockSize/2),     blockSize, blockSize,           (1/8)*1, (1/8)*1, (1/8)*2, (1/8)*2,  img)
+    local xOffset = (width/2) - (blockSize * 6)
 
-        api.renderBlockItem(x + 5, (width/2) + (blockSize * x) - (blockSize/2), height-(blockSize/2), 25);
+    for i = 0, 11 do
+    	api.renderSpriteTexture(xOffset + (blockSize * i), height-blockSize,     blockSize, blockSize,           (1/8)*1, (1/8)*1, (1/8)*2, (1/8)*2,  img)
+
+        api.renderBlockItem(i + 1, xOffset + (blockSize * i) + (blockSize/2), height-(blockSize/2), 25);
     end
 
-    api.renderSpriteTexture((width/2) - (blockSize * 4.5) + (hotbarSelectorPos * blockSize), height-(blockSize/2),     blockSize*3, blockSize*3,           (1/8)*2, (1/8)*0, (1/8)*5, (1/8)*3,  img)
+    api.renderSpriteTexture(xOffset - (blockSize) + (hotbarSelectorPos * blockSize), height-(blockSize*2),     blockSize*3, blockSize*3,           (1/8)*2, (1/8)*0, (1/8)*5, (1/8)*3,  img)
 
 end
 
@@ -127,12 +143,15 @@ end
 api.registerEventHandler("renderGUI", function(width, height)
     local img = api.getTexture("base:textures/GUI.png")
 
+    local crosshairLength = 20
+    local crosshairThickness = 3
+
     -- crosshair
-    api.renderSpriteColor(width/2, height/2,	20.0, 3.0,	1.0, 1.0, 1.0, 1.0)
-    api.renderSpriteColor(width/2, height/2,	3.0, 20.0,	1.0, 1.0, 1.0, 1.0)
+    api.renderSpriteColor((width/2) - (crosshairLength/2), (height/2) - (crosshairThickness/2),	20.0, 3.0,	1.0, 1.0, 1.0, 1.0)
+    api.renderSpriteColor((width/2) - (crosshairThickness/2), (height/2) - (crosshairLength/2),	3.0, 20.0,	1.0, 1.0, 1.0, 1.0)
 
     if api.isKeyDown(258) then
-        api.renderSpriteColor(width/2, height/2, width, height, 0.0, 0.0, 0.0, 0.8);
+        api.renderSpriteColor(0, 0, width, height, 0.0, 0.0, 0.0, 0.8);
         renderInventory(width, height, img)
     end
 

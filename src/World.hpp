@@ -16,6 +16,31 @@ enum Context {
 
 #define WORLD_SIZE 32
 
+struct ChunkNeighborhood {
+    std::shared_ptr<Chunk> center;
+
+    std::shared_ptr<Chunk> posX;
+    std::shared_ptr<Chunk> negX;
+
+    std::shared_ptr<Chunk> posZ;
+    std::shared_ptr<Chunk> negZ;
+
+    std::shared_ptr<Chunk> posXposZ;
+    std::shared_ptr<Chunk> posXnegZ;
+
+    std::shared_ptr<Chunk> negXposZ;
+    std::shared_ptr<Chunk> negXnegZ;
+
+    char getBlock(int x, int y, int z);
+
+    int getSunlight(int x, int y, int z);
+
+    void setBlock(int x, int y, int z, char block);
+
+    void setSunlight(int x, int y, int z, int val);
+};
+
+
 class World {
 private:
     Context ctx;
@@ -35,6 +60,8 @@ public:
     void setBlock(int x, int y, int z, int block);
 
     std::shared_ptr<Chunk> getChunk(int x, int z);
+
+    ChunkNeighborhood getChunkNeighborhood(int x, int z);
 
     bool chunkExists(int x, int z);
 

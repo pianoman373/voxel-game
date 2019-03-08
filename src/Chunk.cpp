@@ -9,7 +9,7 @@
 #include <math.h>
 #include <queue>
 
-Chunk::Chunk(int x, int z) {
+Chunk::Chunk(World &world, int x, int z): world(world) {
     chunk_x = x;
     chunk_z = z;
 
@@ -79,18 +79,31 @@ int rleDecode(uint8_t *input, int inputLength, uint8_t *output) {
 }
 
 int Chunk::serialize(uint8_t *dataOut) {
-    int length = rleEncode(&blocks[0], 16*16*256, dataOut);
+    uint32_t *bigData = (uint32_t*)dataOut;
 
-    return length + 1;
+    int blockLength = rleEncode(&blocks[0], 16*16*256, dataOut+8);
+    int lightingLength = rleEncode(&lightMap[0], 16*16*256, dataOut+blockLength+8);
+
+    bigData[0] = blockLength;
+    bigData[1] = lightingLength;
+
+    return blockLength + lightingLength + 8;
 }
 
 void Chunk::unSerialize(uint8_t *dataIn, int dataLength) {
-    uint8_t uncompressedChunk[16*16*256*16] = {0};
+    uint8_t uncompressedBlockData[16*16*256*2] = {0};
+    uint8_t uncompressedLightingData[16*16*256*2] = {0};
 
-    int length = rleDecode(dataIn, dataLength, uncompressedChunk);
+    uint32_t *bigData = (uint32_t*)dataIn;
+    uint32_t blockLength = bigData[0];
+    uint32_t lightingLength = bigData[1];
+
+    rleDecode(dataIn+8, blockLength, uncompressedBlockData);
+    rleDecode(dataIn+8+blockLength, lightingLength, uncompressedLightingData);
 
     for (int i = 0; i < 16*16*256; i++) {
-        blocks[i] = uncompressedChunk[i];
+        blocks[i] = uncompressedBlockData[i];
+        lightMap[i] = uncompressedLightingData[i];
     }
 }
 
@@ -110,28 +123,80 @@ int Chunk::getBlockFromWorld(int x, int y, int z) {
 
 void Chunk::setBlock(int x, int y, int z, char block) {
     if (x < 16 && x >= 0 && y < 256 && y >= 0 && z < 16 && z >= 0) {
-		blocks[(y * 16 * 16) + (x * 16) + z] = block;
+        isDirty = true;
+
+        int index = (y * 16 * 16) + (x * 16) + z;
+
+        if (blocks[index] != 0 && block == 0) {
+            blocks[index] = block;
+
+            std::queue<vec3i> lightBfsQueue;
+
+            for (int i = -1; i < 2; i++) {
+                for (int j = -1; j < 2; j++) {
+                    for (int k = -1; k < 2; k++) {
+                        lightBfsQueue.emplace(x+i, y+j, z+k);
+                    }
+                }
+            }
+            //lightBfsQueue.emplace(x, y+1, z);
+
+            ChunkNeighborhood neighborhood = world.getChunkNeighborhood(chunk_x, chunk_z);
+            propagateSunlight(neighborhood, lightBfsQueue);
+
+        }
+        else if (blocks[index] == 0 && block != 0) {
+            blocks[index] = block;
+
+            std::queue<vec4i> lightBfsQueue;
+            lightBfsQueue.emplace(x, y, z, 15);
+
+            setSunlight(x, y, z, 0);
+            ChunkNeighborhood neighborhood = world.getChunkNeighborhood(chunk_x, chunk_z);
+            unPropagateSunlight(neighborhood, lightBfsQueue);
+        }
+        else {
+            blocks[index] = block;
+        }
     }
 }
 
 // Get the bits XXXX0000
 
 int Chunk::getSunlight(int x, int y, int z) {
-    return (lightMap[y][z][x] >> 4) & 0xF;
+    int index = (y * 16 * 16) + (x * 16) + z;
+
+    if (x < 16 && x >= 0 && y < 256 && y >= 0 && z < 16 && z >= 0) {
+        return (lightMap[index] >> 4) & 0xF;
+    }
+    else {
+        return 15;
+    }
 }
 
 
 // Set the bits XXXX0000
 void Chunk::setSunlight(int x, int y, int z, int val) {
-    lightMap[y][z][x] = (lightMap[x][y][z] & 0xF) | (val << 4);
+    int index = (y * 16 * 16) + (x * 16) + z;
+
+    if (x < 16 && x >= 0 && y < 256 && y >= 0 && z < 16 && z >= 0) {
+        isDirty = true;
+
+        lightMap[index] = (lightMap[index] & 0xF) | (val << 4);
+    }
+    else {
+
+    }
 }
 
 
 // Get the bits 0000XXXX
 
 int Chunk::getTorchlight(int x, int y, int z) {
+    int index = (y * 16 * 16) + (x * 16) + z;
+
     if (x < 16 && x >= 0 && y < 256 && y >= 0 && z < 16 && z >= 0) {
-        return lightMap[y][z][x] & 0xF;
+        return lightMap[index] & 0xF;
     }
     else {
         return 15;
@@ -140,10 +205,164 @@ int Chunk::getTorchlight(int x, int y, int z) {
 
 // Set the bits 0000XXXX
 void Chunk::setTorchlight(int x, int y, int z, int val) {
+    int index = (y * 16 * 16) + (x * 16) + z;
+
     if (x < 16 && x >= 0 && y < 256 && y >= 0 && z < 16 && z >= 0) {
-        lightMap[y][z][x] = (lightMap[x][y][z] & 0xF0) | val;
+        lightMap[index] = (lightMap[index] & 0xF0) | val;
     }
     else {
 
     }
+}
+
+void Chunk::calculateSunLighting() {
+    ChunkNeighborhood neighborhood = world.getChunkNeighborhood(chunk_x, chunk_z);
+
+    std::queue<vec3i> lightBfsQueue;
+
+
+    for (int x = 0; x < 16; x++) {
+        for (int z = 0; z < 16; z++) {
+            lightBfsQueue.emplace(x, 256, z);
+        }
+    }
+
+    propagateSunlight(neighborhood, lightBfsQueue);
+}
+
+void Chunk::propagateSunlight(ChunkNeighborhood &neighborhood, std::queue<vec3i> &lightBfsQueue) {
+    while (!lightBfsQueue.empty()) {
+        // Get a reference to the front node.
+        vec3i node = lightBfsQueue.front();
+        lightBfsQueue.pop();
+
+        int lightLevel = neighborhood.getSunlight(node.x, node.y, node.z);
+
+        if (neighborhood.getBlock(node.x - 1, node.y, node.z) == 0 && neighborhood.getSunlight(node.x - 1, node.y, node.z) + 2 <= lightLevel) {
+            neighborhood.setSunlight(node.x - 1, node.y, node.z, lightLevel - 1);
+
+            lightBfsQueue.emplace(node.x - 1, node.y, node.z);
+        }
+        if (neighborhood.getBlock(node.x + 1, node.y, node.z) == 0 && neighborhood.getSunlight(node.x + 1, node.y, node.z) + 2 <= lightLevel) {
+            neighborhood.setSunlight(node.x + 1, node.y, node.z, lightLevel - 1);
+
+            lightBfsQueue.emplace(node.x + 1, node.y, node.z);
+        }
+        if (neighborhood.getBlock(node.x, node.y - 1, node.z) == 0 && neighborhood.getSunlight(node.x, node.y - 1, node.z) < lightLevel) {
+            neighborhood.setSunlight(node.x, node.y - 1, node.z, lightLevel);
+
+            lightBfsQueue.emplace(node.x, node.y - 1, node.z);
+        }
+        if (neighborhood.getBlock(node.x, node.y + 1, node.z) == 0 && neighborhood.getSunlight(node.x, node.y + 1, node.z) + 2 <= lightLevel) {
+            neighborhood.setSunlight(node.x, node.y + 1, node.z, lightLevel - 1);
+
+            lightBfsQueue.emplace(node.x, node.y + 1, node.z);
+        }
+
+        if (neighborhood.getBlock(node.x, node.y, node.z - 1) == 0 && neighborhood.getSunlight(node.x, node.y, node.z - 1) + 2 <= lightLevel) {
+            neighborhood.setSunlight(node.x, node.y, node.z - 1, lightLevel - 1);
+
+            lightBfsQueue.emplace(node.x, node.y, node.z - 1);
+        }
+        if (neighborhood.getBlock(node.x, node.y, node.z + 1) == 0 && neighborhood.getSunlight(node.x, node.y, node.z + 1) + 2 <= lightLevel) {
+            neighborhood.setSunlight(node.x, node.y, node.z + 1, lightLevel - 1);
+
+            lightBfsQueue.emplace(node.x, node.y, node.z + 1);
+        }
+    }
+}
+
+void Chunk::unPropagateSunlight(ChunkNeighborhood &neighborhood, std::queue<vec4i> &lightBfsQueue) {
+
+    std::queue<vec3i> lightAdditionQueue;
+
+    while (!lightBfsQueue.empty()) {
+        // Get a reference to the front node.
+        vec4i node = lightBfsQueue.front();
+        lightBfsQueue.pop();
+
+        int lightLevel = node.w;
+
+        int neighborLevel;
+
+
+        neighborLevel = neighborhood.getSunlight(node.x-1, node.y, node.z);
+        if (neighborLevel != 0 && neighborLevel < lightLevel) {
+            // Set its light level
+            neighborhood.setSunlight(node.x-1, node.y, node.z, 0);
+
+            // Emplace new node to queue. (could use push as well)
+            lightBfsQueue.emplace(node.x-1, node.y, node.z, lightLevel-1);
+
+        } else if (neighborLevel >= lightLevel) {
+            lightAdditionQueue.emplace(node.x-1, node.y, node.z);
+        }
+
+        neighborLevel = neighborhood.getSunlight(node.x+1, node.y, node.z);
+        if (neighborLevel != 0 && neighborLevel < lightLevel) {
+            // Set its light level
+            neighborhood.setSunlight(node.x+1, node.y, node.z, 0);
+
+            // Emplace new node to queue. (could use push as well)
+            lightBfsQueue.emplace(node.x+1, node.y, node.z, lightLevel-1);
+
+        } else if (neighborLevel >= lightLevel) {
+            lightAdditionQueue.emplace(node.x+1, node.y, node.z);
+        }
+
+
+
+        neighborLevel = neighborhood.getSunlight(node.x, node.y-1, node.z);
+        if (neighborLevel != 0) {
+            // Set its light level
+            neighborhood.setSunlight(node.x, node.y-1, node.z, 0);
+
+            // Emplace new node to queue. (could use push as well)
+            lightBfsQueue.emplace(node.x, node.y-1, node.z, lightLevel);
+
+        } else if (neighborLevel >= lightLevel) {
+            lightAdditionQueue.emplace(node.x, node.y-1, node.z);
+        }
+
+        neighborLevel = neighborhood.getSunlight(node.x, node.y+1, node.z);
+        if (neighborLevel != 0 && neighborLevel < lightLevel) {
+            // Set its light level
+            neighborhood.setSunlight(node.x, node.y+1, node.z, 0);
+
+            // Emplace new node to queue. (could use push as well)
+            lightBfsQueue.emplace(node.x, node.y+1, node.z, lightLevel-1);
+
+        } else if (neighborLevel >= lightLevel) {
+            lightAdditionQueue.emplace(node.x, node.y+1, node.z);
+        }
+
+
+
+
+        neighborLevel = neighborhood.getSunlight(node.x, node.y, node.z-1);
+        if (neighborLevel != 0 && neighborLevel < lightLevel) {
+            // Set its light level
+            neighborhood.setSunlight(node.x, node.y, node.z-1, 0);
+
+            // Emplace new node to queue. (could use push as well)
+            lightBfsQueue.emplace(node.x, node.y, node.z-1, lightLevel-1);
+
+        } else if (neighborLevel >= lightLevel) {
+            lightAdditionQueue.emplace(node.x, node.y, node.z-1);
+        }
+
+        neighborLevel = neighborhood.getSunlight(node.x, node.y, node.z+1);
+        if (neighborLevel != 0 && neighborLevel < lightLevel) {
+            // Set its light level
+            neighborhood.setSunlight(node.x, node.y, node.z+1, 0);
+
+            // Emplace new node to queue. (could use push as well)
+            lightBfsQueue.emplace(node.x, node.y, node.z+1, lightLevel-1);
+
+        } else if (neighborLevel >= lightLevel) {
+            lightAdditionQueue.emplace(node.x, node.y, node.z+1);
+        }
+    }
+
+    propagateSunlight(neighborhood, lightAdditionQueue);
 }

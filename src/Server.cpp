@@ -10,7 +10,7 @@
 
 
 Server::Server(): network(*this) {
-    rleCache = new uint8_t[16*16*256*2];
+    rleCache = new uint8_t[16*16*256*5];
 }
 
 Server::~Server() {
@@ -134,6 +134,13 @@ void Server::init(int port) {
                 sol::error err = result;
                 std::cout << err.what() << std::endl;
             }
+        }
+    }
+
+    //generate lighting
+    for (int x = 0; x < 32; x++) {
+        for (int z = 0; z < 32; z++) {
+            world.getChunk(x, z)->calculateSunLighting();
         }
     }
 

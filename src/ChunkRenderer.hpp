@@ -28,6 +28,8 @@ public:
 
     char getBlock(ChunkRemeshJob &job, int x, int y, int z);
 
+    int getSunlight(ChunkRemeshJob &job, int x, int y, int z);
+
     void generateMesh(ChunkRemeshJob &job);
 
     void render(Material *mat);
