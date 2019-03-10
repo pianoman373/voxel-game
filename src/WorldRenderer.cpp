@@ -118,18 +118,7 @@ void WorldRenderer::render(Camera &cam) {
 
                 ChunkRemeshJob job = {
                         cr,
-                        chunk,
-                        world.getChunk(x+1, z),
-                        world.getChunk(x-1, z),
-
-                        world.getChunk(x, z+1),
-                        world.getChunk(x, z-1),
-
-                        world.getChunk(x+1, z+1),
-                        world.getChunk(x+1, z-1),
-
-                        world.getChunk(x-1, z+1),
-                        world.getChunk(x-1, z-1)
+                        world.getChunkNeighborhood(x, z)
                 };
 
                 if (remainderX == 0 && remainderZ == 0) {
@@ -207,6 +196,6 @@ void WorldRenderer::remeshThread(BlockingReaderWriterQueue<ChunkRemeshJob> &queu
         ChunkRemeshJob j;
         queue.wait_dequeue(j);
 
-        j.renderer->generateMesh(j);
+        j.renderer->generateMesh(j.neighborhood);
     }
 }

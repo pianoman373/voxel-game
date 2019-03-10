@@ -48,6 +48,10 @@ char ChunkNeighborhood::getBlock(int x, int y, int z) {
     return 0;
 }
 
+void ChunkNeighborhood::setBlock(int x, int y, int z, char block) {
+
+}
+
 int ChunkNeighborhood::getSunlight(int x, int y, int z) {
     //center
     if (x >= 0 && x < 16 && z >= 0 && z < 16) {
@@ -93,10 +97,6 @@ int ChunkNeighborhood::getSunlight(int x, int y, int z) {
     return 15;
 }
 
-void ChunkNeighborhood::setBlock(int x, int y, int z, char block) {
-
-}
-
 void ChunkNeighborhood::setSunlight(int x, int y, int z, int val) {
     //center
     if (x >= 0 && x < 16 && z >= 0 && z < 16) {
@@ -137,6 +137,94 @@ void ChunkNeighborhood::setSunlight(int x, int y, int z, int val) {
     //negative X negative Z
     if (x < 0 && z < 0) {
         negXnegZ->setSunlight(x + 16, y, z + 16, val);
+    }
+}
+
+int ChunkNeighborhood::getTorchlight(int x, int y, int z) {
+    //center
+    if (x >= 0 && x < 16 && z >= 0 && z < 16) {
+        return center->getTorchlight(x, y, z);
+    }
+
+    //positive X
+    if (x >= 16 && z >= 0 && z < 16) {
+        return posX->getTorchlight(x - 16, y, z);
+    }
+    //negative X
+    if (x < 0 && z >= 0 && z < 16) {
+        return negX->getTorchlight(x + 16, y, z);
+    }
+
+    //positive Z
+    if (x >= 0 && x < 16 && z >= 16) {
+        return posZ->getTorchlight(x, y, z - 16);
+    }
+    //negative Z
+    if (x >= 0 && x < 16 && z < 0) {
+        return negZ->getTorchlight(x, y, z + 16);
+    }
+
+    //positive X positive Z
+    if (x >= 16 &&  z >= 16) {
+        return posXposZ->getTorchlight(x - 16, y, z - 16);
+    }
+    //positive X negative Z
+    if (x >= 16 && z < 0) {
+        return posXnegZ->getTorchlight(x - 16, y, z + 16);
+    }
+
+    //negative X positive Z
+    if (x < 0 &&  z >= 16) {
+        return negXposZ->getTorchlight(x + 16, y, z - 16);
+    }
+    //negative X negative Z
+    if (x < 0 && z < 0) {
+        return negXnegZ->getTorchlight(x + 16, y, z + 16);
+    }
+
+    return 0;
+}
+
+void ChunkNeighborhood::setTorchlight(int x, int y, int z, int val) {
+    //center
+    if (x >= 0 && x < 16 && z >= 0 && z < 16) {
+        center->setTorchlight(x, y, z, val);
+    }
+
+    //positive X
+    if (x >= 16 && z >= 0 && z < 16) {
+        posX->setTorchlight(x - 16, y, z, val);
+    }
+    //negative X
+    if (x < 0 && z >= 0 && z < 16) {
+        negX->setTorchlight(x + 16, y, z, val);
+    }
+
+    //positive Z
+    if (x >= 0 && x < 16 && z >= 16) {
+        posZ->setTorchlight(x, y, z - 16, val);
+    }
+    //negative Z
+    if (x >= 0 && x < 16 && z < 0) {
+        negZ->setTorchlight(x, y, z + 16, val);
+    }
+
+    //positive X positive Z
+    if (x >= 16 &&  z >= 16) {
+        posXposZ->setTorchlight(x - 16, y, z - 16, val);
+    }
+    //positive X negative Z
+    if (x >= 16 && z < 0) {
+        posXnegZ->setTorchlight(x - 16, y, z + 16, val);
+    }
+
+    //negative X positive Z
+    if (x < 0 &&  z >= 16) {
+        negXposZ->setTorchlight(x + 16, y, z - 16, val);
+    }
+    //negative X negative Z
+    if (x < 0 && z < 0) {
+        negXnegZ->setTorchlight(x + 16, y, z + 16, val);
     }
 }
 

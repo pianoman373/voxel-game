@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ChunkMesh.hpp"
+#include "World.hpp"
 
 #include <crucible/AABB.hpp>
 #include <crucible/Material.hpp>
@@ -26,11 +27,7 @@ public:
 
     ChunkRenderer(int chunk_x, int chunk_z);
 
-    char getBlock(ChunkRemeshJob &job, int x, int y, int z);
-
-    int getSunlight(ChunkRemeshJob &job, int x, int y, int z);
-
-    void generateMesh(ChunkRemeshJob &job);
+    void generateMesh(ChunkNeighborhood &neighborhood);
 
     void render(Material *mat);
 };

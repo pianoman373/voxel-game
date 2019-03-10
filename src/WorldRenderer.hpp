@@ -10,7 +10,7 @@
 #include <thread>
 
 #include "ChunkRenderer.hpp"
-
+#include "World.hpp"
 #include "readerwriterqueue.h"
 
 class World;
@@ -18,19 +18,7 @@ class World;
 struct ChunkRemeshJob {
     std::shared_ptr<ChunkRenderer> renderer;
 
-    std::shared_ptr<Chunk> center;
-
-    std::shared_ptr<Chunk> posX;
-    std::shared_ptr<Chunk> negX;
-
-    std::shared_ptr<Chunk> posZ;
-    std::shared_ptr<Chunk> negZ;
-
-    std::shared_ptr<Chunk> posXposZ;
-    std::shared_ptr<Chunk> posXnegZ;
-
-    std::shared_ptr<Chunk> negXposZ;
-    std::shared_ptr<Chunk> negXnegZ;
+    ChunkNeighborhood neighborhood;
 };
 
 using namespace moodycamel;

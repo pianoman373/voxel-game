@@ -65,5 +65,9 @@ public:
 
 	void propagateSunlight(ChunkNeighborhood &neighborhood, std::queue<vec3i> &lightBfsQueue);
 
-	void unPropagateSunlight(ChunkNeighborhood &neighborhood, std::queue<vec4i> &lightBfsQueue);
+	void unPropagateSunlight(ChunkNeighborhood &neighborhood, std::queue<vec4i> &lightRemovalQueue);
+
+    void propagateTorchlight(ChunkNeighborhood &neighborhood, std::queue<vec3i> &lightBfsQueue);
+
+    void unPropagateTorchlight(ChunkNeighborhood &neighborhood, std::queue<vec4i> &lightRemovalQueue);
 };

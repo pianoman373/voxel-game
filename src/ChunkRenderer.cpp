@@ -17,99 +17,7 @@ ChunkRenderer::ChunkRenderer(int chunk_x, int chunk_z) {
 const float textureSize = 16.0f;
 const float AO = 0.3333f;
 
-char ChunkRenderer::getBlock(ChunkRemeshJob &job, int x, int y, int z) {
-
-    //center
-    if (x >= 0 && x < 16 && z >= 0 && z < 16) {
-        return job.center->getBlock(x, y, z);
-    }
-
-    //positive X
-    if (x >= 16 && z >= 0 && z < 16) {
-        return job.posX->getBlock(x - 16, y, z);
-    }
-    //negative X
-    if (x < 0 && z >= 0 && z < 16) {
-        return job.negX->getBlock(x + 16, y, z);
-    }
-
-    //positive Z
-    if (x >= 0 && x < 16 && z >= 16) {
-        return job.posZ->getBlock(x, y, z - 16);
-    }
-    //negative Z
-    if (x >= 0 && x < 16 && z < 0) {
-        return job.negZ->getBlock(x, y, z + 16);
-    }
-
-
-    //positive X positive Z
-    if (x >= 16 &&  z >= 16) {
-        return job.posXposZ->getBlock(x - 16, y, z - 16);
-    }
-    //positive X negative Z
-    if (x >= 16 && z < 0) {
-        return job.posXnegZ->getBlock(x - 16, y, z + 16);
-    }
-
-    //negative X positive Z
-    if (x < 0 &&  z >= 16) {
-        return job.negXposZ->getBlock(x + 16, y, z - 16);
-    }
-    //negative X negative Z
-    if (x < 0 && z < 0) {
-        return job.negXnegZ->getBlock(x + 16, y, z + 16);
-    }
-
-    return 1;
-}
-
-int ChunkRenderer::getSunlight(ChunkRemeshJob &job, int x, int y, int z) {
-    //center
-    if (x >= 0 && x < 16 && z >= 0 && z < 16) {
-        return job.center->getSunlight(x, y, z);
-    }
-
-    //positive X
-    if (x >= 16 && z >= 0 && z < 16) {
-        return job.posX->getSunlight(x - 16, y, z);
-    }
-    //negative X
-    if (x < 0 && z >= 0 && z < 16) {
-        return job.negX->getSunlight(x + 16, y, z);
-    }
-
-    //positive Z
-    if (x >= 0 && x < 16 && z >= 16) {
-        return job.posZ->getSunlight(x, y, z - 16);
-    }
-    //negative Z
-    if (x >= 0 && x < 16 && z < 0) {
-        return job.negZ->getSunlight(x, y, z + 16);
-    }
-
-    //positive X positive Z
-    if (x >= 16 &&  z >= 16) {
-        return job.posXposZ->getSunlight(x - 16, y, z - 16);
-    }
-    //positive X negative Z
-    if (x >= 16 && z < 0) {
-        return job.posXnegZ->getSunlight(x - 16, y, z + 16);
-    }
-
-    //negative X positive Z
-    if (x < 0 &&  z >= 16) {
-        return job.negXposZ->getSunlight(x + 16, y, z - 16);
-    }
-    //negative X negative Z
-    if (x < 0 && z < 0) {
-        return job.negXnegZ->getSunlight(x + 16, y, z + 16);
-    }
-
-    return 15;
-}
-
-void ChunkRenderer::generateMesh(ChunkRemeshJob &job) {
+void ChunkRenderer::generateMesh(ChunkNeighborhood &neighborhood) {
     float bias = 0.00001f;
 
     int highestY = 0;
@@ -118,7 +26,7 @@ void ChunkRenderer::generateMesh(ChunkRemeshJob &job) {
         for (int z = 0; z < 16; z++) {
             for (int y = 0; y < 256; y++) {
 
-                int block_X_Y_Z = getBlock(job, x, y, z);
+                int block_X_Y_Z = neighborhood.getBlock(x, y, z);
 
 
                 if (block_X_Y_Z == 0) {
@@ -132,42 +40,42 @@ void ChunkRenderer::generateMesh(ChunkRemeshJob &job) {
                 Block *block = BlockRegistry::getBlock(block_X_Y_Z);
 
 
-                bool block_X_posY_Z = !BlockRegistry::getBlock(getBlock(job, x, y + 1, z))->isSolid();
-                bool block_X_negY_Z = !BlockRegistry::getBlock(getBlock(job, x, y - 1, z))->isSolid();
+                bool block_X_posY_Z = !BlockRegistry::getBlock(neighborhood.getBlock(x, y + 1, z))->isSolid();
+                bool block_X_negY_Z = !BlockRegistry::getBlock(neighborhood.getBlock(x, y - 1, z))->isSolid();
 
-                bool block_X_Y_negZ = !BlockRegistry::getBlock(getBlock(job, x, y, z - 1))->isSolid();
-                bool block_X_posY_negZ = !BlockRegistry::getBlock(getBlock(job, x, y + 1, z - 1))->isSolid();
-                bool block_X_negY_negZ = !BlockRegistry::getBlock(getBlock(job, x, y - 1, z - 1))->isSolid();
+                bool block_X_Y_negZ = !BlockRegistry::getBlock(neighborhood.getBlock(x, y, z - 1))->isSolid();
+                bool block_X_posY_negZ = !BlockRegistry::getBlock(neighborhood.getBlock(x, y + 1, z - 1))->isSolid();
+                bool block_X_negY_negZ = !BlockRegistry::getBlock(neighborhood.getBlock(x, y - 1, z - 1))->isSolid();
 
-                bool block_X_Y_posZ = !BlockRegistry::getBlock(getBlock(job, x, y, z + 1))->isSolid();
-                bool block_X_posY_posZ = !BlockRegistry::getBlock(getBlock(job, x, y + 1, z + 1))->isSolid();
-                bool block_X_negY_posZ = !BlockRegistry::getBlock(getBlock(job, x, y - 1, z + 1))->isSolid();
-
-
-                bool block_posX_Y_Z = !BlockRegistry::getBlock(getBlock(job, x + 1, y, z))->isSolid();
-                bool block_posX_posY_Z = !BlockRegistry::getBlock(getBlock(job, x + 1, y + 1, z))->isSolid();
-                bool block_posX_negY_Z = !BlockRegistry::getBlock(getBlock(job, x + 1, y - 1, z))->isSolid();
-
-                bool block_posX_Y_negZ = !BlockRegistry::getBlock(getBlock(job, x + 1, y, z - 1))->isSolid();
-                bool block_posX_posY_negZ = !BlockRegistry::getBlock(getBlock(job, x + 1, y + 1, z - 1))->isSolid();
-                bool block_posX_negY_negZ = !BlockRegistry::getBlock(getBlock(job, x + 1, y - 1, z - 1))->isSolid();
-
-                bool block_posX_Y_posZ = !BlockRegistry::getBlock(getBlock(job, x + 1, y, z + 1))->isSolid();
-                bool block_posX_posY_posZ = !BlockRegistry::getBlock(getBlock(job, x + 1, y + 1, z + 1))->isSolid();
-                bool block_posX_negY_posZ = !BlockRegistry::getBlock(getBlock(job, x + 1, y - 1, z + 1))->isSolid();
+                bool block_X_Y_posZ = !BlockRegistry::getBlock(neighborhood.getBlock(x, y, z + 1))->isSolid();
+                bool block_X_posY_posZ = !BlockRegistry::getBlock(neighborhood.getBlock(x, y + 1, z + 1))->isSolid();
+                bool block_X_negY_posZ = !BlockRegistry::getBlock(neighborhood.getBlock(x, y - 1, z + 1))->isSolid();
 
 
-                bool block_negX_Y_Z = !BlockRegistry::getBlock(getBlock(job, x - 1, y, z))->isSolid();
-                bool block_negX_posY_Z = !BlockRegistry::getBlock(getBlock(job, x - 1, y + 1, z))->isSolid();
-                bool block_negX_negY_Z = !BlockRegistry::getBlock(getBlock(job, x - 1, y - 1, z))->isSolid();
+                bool block_posX_Y_Z = !BlockRegistry::getBlock(neighborhood.getBlock(x + 1, y, z))->isSolid();
+                bool block_posX_posY_Z = !BlockRegistry::getBlock(neighborhood.getBlock(x + 1, y + 1, z))->isSolid();
+                bool block_posX_negY_Z = !BlockRegistry::getBlock(neighborhood.getBlock(x + 1, y - 1, z))->isSolid();
 
-                bool block_negX_Y_negZ = !BlockRegistry::getBlock(getBlock(job, x - 1, y, z - 1))->isSolid();
-                bool block_negX_posY_negZ = !BlockRegistry::getBlock(getBlock(job, x - 1, y + 1, z - 1))->isSolid();
-                bool block_negX_negY_negZ = !BlockRegistry::getBlock(getBlock(job, x - 1, y - 1, z - 1))->isSolid();
+                bool block_posX_Y_negZ = !BlockRegistry::getBlock(neighborhood.getBlock(x + 1, y, z - 1))->isSolid();
+                bool block_posX_posY_negZ = !BlockRegistry::getBlock(neighborhood.getBlock(x + 1, y + 1, z - 1))->isSolid();
+                bool block_posX_negY_negZ = !BlockRegistry::getBlock(neighborhood.getBlock(x + 1, y - 1, z - 1))->isSolid();
 
-                bool block_negX_Y_posZ = !BlockRegistry::getBlock(getBlock(job, x - 1, y, z + 1))->isSolid();
-                bool block_negX_posY_posZ = !BlockRegistry::getBlock(getBlock(job, x - 1, y + 1, z + 1))->isSolid();
-                bool block_negX_negY_posZ = !BlockRegistry::getBlock(getBlock(job, x - 1, y - 1, z + 1))->isSolid();
+                bool block_posX_Y_posZ = !BlockRegistry::getBlock(neighborhood.getBlock(x + 1, y, z + 1))->isSolid();
+                bool block_posX_posY_posZ = !BlockRegistry::getBlock(neighborhood.getBlock(x + 1, y + 1, z + 1))->isSolid();
+                bool block_posX_negY_posZ = !BlockRegistry::getBlock(neighborhood.getBlock(x + 1, y - 1, z + 1))->isSolid();
+
+
+                bool block_negX_Y_Z = !BlockRegistry::getBlock(neighborhood.getBlock(x - 1, y, z))->isSolid();
+                bool block_negX_posY_Z = !BlockRegistry::getBlock(neighborhood.getBlock(x - 1, y + 1, z))->isSolid();
+                bool block_negX_negY_Z = !BlockRegistry::getBlock(neighborhood.getBlock(x - 1, y - 1, z))->isSolid();
+
+                bool block_negX_Y_negZ = !BlockRegistry::getBlock(neighborhood.getBlock(x - 1, y, z - 1))->isSolid();
+                bool block_negX_posY_negZ = !BlockRegistry::getBlock(neighborhood.getBlock(x - 1, y + 1, z - 1))->isSolid();
+                bool block_negX_negY_negZ = !BlockRegistry::getBlock(neighborhood.getBlock(x - 1, y - 1, z - 1))->isSolid();
+
+                bool block_negX_Y_posZ = !BlockRegistry::getBlock(neighborhood.getBlock(x - 1, y, z + 1))->isSolid();
+                bool block_negX_posY_posZ = !BlockRegistry::getBlock(neighborhood.getBlock(x - 1, y + 1, z + 1))->isSolid();
+                bool block_negX_negY_posZ = !BlockRegistry::getBlock(neighborhood.getBlock(x - 1, y - 1, z + 1))->isSolid();
 
                 if (block_posX_Y_Z) { //+x face
                     vec2i textureCoord = block->getTextureCoord(EnumDirection::POSITIVE_X);
@@ -196,7 +104,8 @@ void ChunkRenderer::generateMesh(ChunkRemeshJob &job) {
                     if (!block_posX_Y_posZ) ao111 -= AO;
                     if (!block_posX_posY_Z) ao111 -= AO;
 
-                    float lightLevel = getSunlight(job, x+1, y, z) / 15.0f;
+                    float lightLevel = neighborhood.getSunlight(x+1, y, z) / 15.0f;
+                    lightLevel += neighborhood.getTorchlight(x+1, y, z) / 15.0f;
 
                     mesh.pushVertex(1.0f+x, 0.0f+y, 0.0f+z,  uv1.x, uv2.y,  ao100*lightLevel,  0);
                     mesh.pushVertex(1.0f+x, 1.0f+y, 0.0f+z,  uv1.x, uv1.y,  ao110*lightLevel,  0);
@@ -233,7 +142,8 @@ void ChunkRenderer::generateMesh(ChunkRemeshJob &job) {
                     if (!block_negX_Y_posZ) ao011 -= AO;
                     if (!block_negX_posY_Z) ao011 -= AO;
 
-                    float lightLevel = getSunlight(job, x-1, y, z) / 15.0f;
+                    float lightLevel = neighborhood.getSunlight(x-1, y, z) / 15.0f;
+                    lightLevel += neighborhood.getTorchlight(x-1, y, z) / 15.0f;
 
                     mesh.pushVertex( 0.0f+x, 1.0f+y, 1.0f+z,  uv1.x, uv1.y,  ao011*lightLevel,  1);
                     mesh.pushVertex( 0.0f+x, 1.0f+y, 0.0f+z,  uv2.x, uv1.y,  ao010*lightLevel,  1);
@@ -271,7 +181,8 @@ void ChunkRenderer::generateMesh(ChunkRemeshJob &job) {
                     if (!block_X_posY_posZ) ao111 -= AO;
                     if (!block_posX_posY_Z) ao111 -= AO;
 
-                    float lightLevel = getSunlight(job, x, y+1, z) / 15.0f;
+                    float lightLevel = neighborhood.getSunlight(x, y+1, z) / 15.0f;
+                    lightLevel += neighborhood.getTorchlight(x, y+1, z) / 15.0f;
 
                     mesh.pushVertex( 1.0f+x, 1.0f+y, 1.0f+z,  uv2.x, uv1.y,  ao111*lightLevel,  2);
                     mesh.pushVertex( 1.0f+x, 1.0f+y, 0.0f+z,  uv2.x, uv2.y,  ao110*lightLevel,  2);
@@ -308,7 +219,8 @@ void ChunkRenderer::generateMesh(ChunkRemeshJob &job) {
                     if (!block_X_negY_posZ) ao101 -= AO;
                     if (!block_posX_negY_Z) ao101 -= AO;
 
-                    float lightLevel = getSunlight(job, x, y-1, z) / 15.0f;
+                    float lightLevel = neighborhood.getSunlight(x, y-1, z) / 15.0f;
+                    lightLevel += neighborhood.getTorchlight(x, y-1, z) / 15.0f;
 
                     mesh.pushVertex( 0.0f+x, 0.0f+y, 0.0f+z,  uv1.x, uv2.y,  ao000*lightLevel,  3);
                     mesh.pushVertex( 1.0f+x, 0.0f+y, 0.0f+z,  uv2.x, uv2.y,  ao100*lightLevel,  3);
@@ -345,7 +257,8 @@ void ChunkRenderer::generateMesh(ChunkRemeshJob &job) {
                     if (!block_X_posY_posZ) ao111 -= AO;
                     if (!block_posX_Y_posZ) ao111 -= AO;
 
-                    float lightLevel = getSunlight(job, x, y, z+1) / 15.0f;
+                    float lightLevel = neighborhood.getSunlight(x, y, z+1) / 15.0f;
+                    lightLevel += neighborhood.getTorchlight(x, y, z+1) / 15.0f;
 
                     mesh.pushVertex( 0.0f+x, 0.0f+y, 1.0f+z,  uv1.x, uv2.y,  ao001*lightLevel,  4);
                     mesh.pushVertex( 1.0f+x, 0.0f+y, 1.0f+z,  uv2.x, uv2.y,  ao101*lightLevel,  4);
@@ -382,7 +295,8 @@ void ChunkRenderer::generateMesh(ChunkRemeshJob &job) {
                     if (!block_X_posY_negZ) ao110 -= AO;
                     if (!block_posX_Y_negZ) ao110 -= AO;
 
-                    float lightLevel = getSunlight(job, x, y, z-1) / 15.0f;
+                    float lightLevel = neighborhood.getSunlight(x, y, z-1) / 15.0f;
+                    lightLevel += neighborhood.getTorchlight(x, y, z-1) / 15.0f;
 
                     mesh.pushVertex( 1.0f+x, 1.0f+y, 0.0f+z,  uv2.x, uv1.y,  ao110*lightLevel,  5);
                     mesh.pushVertex( 1.0f+x, 0.0f+y, 0.0f+z,  uv2.x, uv2.y,  ao100*lightLevel,  5);

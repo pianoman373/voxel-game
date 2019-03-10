@@ -33,11 +33,15 @@ struct ChunkNeighborhood {
 
     char getBlock(int x, int y, int z);
 
-    int getSunlight(int x, int y, int z);
-
     void setBlock(int x, int y, int z, char block);
 
+    int getSunlight(int x, int y, int z);
+
     void setSunlight(int x, int y, int z, int val);
+
+    int getTorchlight(int x, int y, int z);
+
+    void setTorchlight(int x, int y, int z, int val);
 };
 
 
