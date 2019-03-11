@@ -5,6 +5,7 @@
 #include <crucible/Material.hpp>
 
 #include "ChunkMesh.hpp"
+#include "Block.hpp"
 
 #include <queue>
 #include <mutex>
@@ -49,9 +50,9 @@ public:
 
     ~Chunk();
 
-    char getBlock(int x, int y, int z);
+    Block &getBlock(int x, int y, int z);
 
-    void setBlock(int x, int y, int z, char block);
+    void setBlock(int x, int y, int z, Block &block);
 
 	int getSunlight(int x, int y, int z);
 

@@ -3,7 +3,7 @@
 #include <crucible/Renderer.hpp>
 #include <crucible/IBL.hpp>
 
-char ChunkNeighborhood::getBlock(int x, int y, int z) {
+Block &ChunkNeighborhood::getBlock(int x, int y, int z) {
     //center
     if (x >= 0 && x < 16 && z >= 0 && z < 16) {
         return center->getBlock(x, y, z);
@@ -45,11 +45,8 @@ char ChunkNeighborhood::getBlock(int x, int y, int z) {
         return negXnegZ->getBlock(x + 16, y, z + 16);
     }
 
-    return 0;
-}
 
-void ChunkNeighborhood::setBlock(int x, int y, int z, char block) {
-
+    return center->getBlock(x, y, z);
 }
 
 int ChunkNeighborhood::getSunlight(int x, int y, int z) {
@@ -241,7 +238,7 @@ void World::init(Context ctx) {
 void World::update(float delta) {
 }
 
-int World::getBlock(int x, int y, int z) {
+Block &World::getBlock(int x, int y, int z) {
     int xp = x >> 4;
     int zp = z >> 4;
 
@@ -250,7 +247,7 @@ int World::getBlock(int x, int y, int z) {
     return c->getBlock(x & 15, y, z & 15);
 }
 
-void World::setBlock(int x, int y, int z, int block) {
+void World::setBlock(int x, int y, int z, Block &block) {
     int xp = x >> 4;
     int zp = z >> 4;
 
@@ -355,8 +352,8 @@ bool World::raycastBlocks(vec3 origin, vec3 direction, float maxDistance, vec3i 
             for (int x = 0; x < 16; x++) {
                 for (int y = 0; y < 256; y++) {
                     for (int z = 0; z < 16; z++) {
-                        char block = c->getBlock(x, y, z);
-                        if (block != 0) {
+                        Block &block = c->getBlock(x, y, z);
+                        if (block.getID() != 0) {
                             AABB blockAbb = AABB(chunkPos + vec3(x, y, z), chunkPos + vec3(x + 1, y + 1, z + 1));
 
                             if (blockAbb.raycast(origin, direction * maxDistance, point, normal)) {
@@ -399,7 +396,7 @@ std::vector<AABB> World::getCollisions(AABB test) {
                 int zp = z >> 4;
 
                 if (chunkExists(xp, zp)) {
-                    if (getBlock(x, y, z) != 0) {
+                    if (getBlock(x, y, z).getID() != 0) {
                         AABB blockAbb = AABB(vec3(x, y, z), vec3(x+1, y+1, z+1));
 
                         returnVector.push_back(blockAbb);

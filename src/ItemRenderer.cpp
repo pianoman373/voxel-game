@@ -16,7 +16,7 @@ void ItemRenderer::init() {
     itemShader.loadFile("resources/item.vsh", "resources/item.fsh");
 }
 
-void ItemRenderer::renderBlockItem(int blockID, float x, float y, float size) {
+void ItemRenderer::renderBlockItem(Block &block, float x, float y, float size) {
     vec2 position = vec2(x, y);
 
     itemShader.bind();
@@ -34,7 +34,7 @@ void ItemRenderer::renderBlockItem(int blockID, float x, float y, float size) {
 
     mat4 projection = orthographic(0.0f, res.x, res.y, 0.0f, -1.0f, 1.0f);
 
-    vec2i textureCoord = BlockRegistry::getBlock(blockID)->getTextureCoord(EnumDirection::POSITIVE_Y);
+    vec2i textureCoord = block.getTextureCoord(EnumDirection::POSITIVE_Y);
 
     float textureSize = 16.0f;
 

@@ -26,10 +26,10 @@ void ChunkRenderer::generateMesh(ChunkNeighborhood &neighborhood) {
         for (int z = 0; z < 16; z++) {
             for (int y = 0; y < 256; y++) {
 
-                int block_X_Y_Z = neighborhood.getBlock(x, y, z);
+                Block &block_X_Y_Z = neighborhood.getBlock(x, y, z);
 
 
-                if (block_X_Y_Z == 0) {
+                if (block_X_Y_Z.getID() == 0) {
                     continue;
                 }
 
@@ -37,48 +37,46 @@ void ChunkRenderer::generateMesh(ChunkNeighborhood &neighborhood) {
                     highestY = y;
                 }
 
-                Block *block = BlockRegistry::getBlock(block_X_Y_Z);
+
+                bool block_X_posY_Z = !neighborhood.getBlock(x, y + 1, z).isSolid();
+                bool block_X_negY_Z = !neighborhood.getBlock(x, y - 1, z).isSolid();
+
+                bool block_X_Y_negZ = !neighborhood.getBlock(x, y, z - 1).isSolid();
+                bool block_X_posY_negZ = !neighborhood.getBlock(x, y + 1, z - 1).isSolid();
+                bool block_X_negY_negZ = !neighborhood.getBlock(x, y - 1, z - 1).isSolid();
+
+                bool block_X_Y_posZ = !neighborhood.getBlock(x, y, z + 1).isSolid();
+                bool block_X_posY_posZ = !neighborhood.getBlock(x, y + 1, z + 1).isSolid();
+                bool block_X_negY_posZ = !neighborhood.getBlock(x, y - 1, z + 1).isSolid();
 
 
-                bool block_X_posY_Z = !BlockRegistry::getBlock(neighborhood.getBlock(x, y + 1, z))->isSolid();
-                bool block_X_negY_Z = !BlockRegistry::getBlock(neighborhood.getBlock(x, y - 1, z))->isSolid();
+                bool block_posX_Y_Z = !neighborhood.getBlock(x + 1, y, z).isSolid();
+                bool block_posX_posY_Z = !neighborhood.getBlock(x + 1, y + 1, z).isSolid();
+                bool block_posX_negY_Z = !neighborhood.getBlock(x + 1, y - 1, z).isSolid();
 
-                bool block_X_Y_negZ = !BlockRegistry::getBlock(neighborhood.getBlock(x, y, z - 1))->isSolid();
-                bool block_X_posY_negZ = !BlockRegistry::getBlock(neighborhood.getBlock(x, y + 1, z - 1))->isSolid();
-                bool block_X_negY_negZ = !BlockRegistry::getBlock(neighborhood.getBlock(x, y - 1, z - 1))->isSolid();
+                bool block_posX_Y_negZ = !neighborhood.getBlock(x + 1, y, z - 1).isSolid();
+                bool block_posX_posY_negZ = !neighborhood.getBlock(x + 1, y + 1, z - 1).isSolid();
+                bool block_posX_negY_negZ = !neighborhood.getBlock(x + 1, y - 1, z - 1).isSolid();
 
-                bool block_X_Y_posZ = !BlockRegistry::getBlock(neighborhood.getBlock(x, y, z + 1))->isSolid();
-                bool block_X_posY_posZ = !BlockRegistry::getBlock(neighborhood.getBlock(x, y + 1, z + 1))->isSolid();
-                bool block_X_negY_posZ = !BlockRegistry::getBlock(neighborhood.getBlock(x, y - 1, z + 1))->isSolid();
-
-
-                bool block_posX_Y_Z = !BlockRegistry::getBlock(neighborhood.getBlock(x + 1, y, z))->isSolid();
-                bool block_posX_posY_Z = !BlockRegistry::getBlock(neighborhood.getBlock(x + 1, y + 1, z))->isSolid();
-                bool block_posX_negY_Z = !BlockRegistry::getBlock(neighborhood.getBlock(x + 1, y - 1, z))->isSolid();
-
-                bool block_posX_Y_negZ = !BlockRegistry::getBlock(neighborhood.getBlock(x + 1, y, z - 1))->isSolid();
-                bool block_posX_posY_negZ = !BlockRegistry::getBlock(neighborhood.getBlock(x + 1, y + 1, z - 1))->isSolid();
-                bool block_posX_negY_negZ = !BlockRegistry::getBlock(neighborhood.getBlock(x + 1, y - 1, z - 1))->isSolid();
-
-                bool block_posX_Y_posZ = !BlockRegistry::getBlock(neighborhood.getBlock(x + 1, y, z + 1))->isSolid();
-                bool block_posX_posY_posZ = !BlockRegistry::getBlock(neighborhood.getBlock(x + 1, y + 1, z + 1))->isSolid();
-                bool block_posX_negY_posZ = !BlockRegistry::getBlock(neighborhood.getBlock(x + 1, y - 1, z + 1))->isSolid();
+                bool block_posX_Y_posZ = !neighborhood.getBlock(x + 1, y, z + 1).isSolid();
+                bool block_posX_posY_posZ = !neighborhood.getBlock(x + 1, y + 1, z + 1).isSolid();
+                bool block_posX_negY_posZ = !neighborhood.getBlock(x + 1, y - 1, z + 1).isSolid();
 
 
-                bool block_negX_Y_Z = !BlockRegistry::getBlock(neighborhood.getBlock(x - 1, y, z))->isSolid();
-                bool block_negX_posY_Z = !BlockRegistry::getBlock(neighborhood.getBlock(x - 1, y + 1, z))->isSolid();
-                bool block_negX_negY_Z = !BlockRegistry::getBlock(neighborhood.getBlock(x - 1, y - 1, z))->isSolid();
+                bool block_negX_Y_Z = !neighborhood.getBlock(x - 1, y, z).isSolid();
+                bool block_negX_posY_Z = !neighborhood.getBlock(x - 1, y + 1, z).isSolid();
+                bool block_negX_negY_Z = !neighborhood.getBlock(x - 1, y - 1, z).isSolid();
 
-                bool block_negX_Y_negZ = !BlockRegistry::getBlock(neighborhood.getBlock(x - 1, y, z - 1))->isSolid();
-                bool block_negX_posY_negZ = !BlockRegistry::getBlock(neighborhood.getBlock(x - 1, y + 1, z - 1))->isSolid();
-                bool block_negX_negY_negZ = !BlockRegistry::getBlock(neighborhood.getBlock(x - 1, y - 1, z - 1))->isSolid();
+                bool block_negX_Y_negZ = !neighborhood.getBlock(x - 1, y, z - 1).isSolid();
+                bool block_negX_posY_negZ = !neighborhood.getBlock(x - 1, y + 1, z - 1).isSolid();
+                bool block_negX_negY_negZ = !neighborhood.getBlock(x - 1, y - 1, z - 1).isSolid();
 
-                bool block_negX_Y_posZ = !BlockRegistry::getBlock(neighborhood.getBlock(x - 1, y, z + 1))->isSolid();
-                bool block_negX_posY_posZ = !BlockRegistry::getBlock(neighborhood.getBlock(x - 1, y + 1, z + 1))->isSolid();
-                bool block_negX_negY_posZ = !BlockRegistry::getBlock(neighborhood.getBlock(x - 1, y - 1, z + 1))->isSolid();
+                bool block_negX_Y_posZ = !neighborhood.getBlock(x - 1, y, z + 1).isSolid();
+                bool block_negX_posY_posZ = !neighborhood.getBlock(x - 1, y + 1, z + 1).isSolid();
+                bool block_negX_negY_posZ = !neighborhood.getBlock(x - 1, y - 1, z + 1).isSolid();
 
                 if (block_posX_Y_Z) { //+x face
-                    vec2i textureCoord = block->getTextureCoord(EnumDirection::POSITIVE_X);
+                    vec2i textureCoord = block_X_Y_Z.getTextureCoord(EnumDirection::POSITIVE_X);
 
                     vec2 uv1 = vec2((textureCoord.x / textureSize), (textureCoord.y / textureSize)) + bias;
                     vec2 uv2 = vec2(((textureCoord.x + 1) / textureSize), ((textureCoord.y + 1) / textureSize)) - bias;
@@ -116,7 +114,7 @@ void ChunkRenderer::generateMesh(ChunkNeighborhood &neighborhood) {
                     mesh.pushVertex(1.0f+x, 0.0f+y, 0.0f+z,  uv1.x, uv2.y,  ao100*lightLevel,  0);
                 }
                 if (block_negX_Y_Z) { //-x face
-                    vec2i textureCoord = block->getTextureCoord(EnumDirection::NEGATIVE_X);
+                    vec2i textureCoord = block_X_Y_Z.getTextureCoord(EnumDirection::NEGATIVE_X);
 
                     vec2 uv1 = vec2((textureCoord.x / textureSize), (textureCoord.y / textureSize)) + bias;
                     vec2 uv2 = vec2(((textureCoord.x + 1) / textureSize), ((textureCoord.y + 1) / textureSize)) - bias;
@@ -155,7 +153,7 @@ void ChunkRenderer::generateMesh(ChunkNeighborhood &neighborhood) {
                 }
 
                 if (block_X_posY_Z) { //top face
-                    vec2i textureCoord = block->getTextureCoord(EnumDirection::POSITIVE_Y);
+                    vec2i textureCoord = block_X_Y_Z.getTextureCoord(EnumDirection::POSITIVE_Y);
 
                     vec2 uv1 = vec2((textureCoord.x / textureSize), (textureCoord.y / textureSize)) + bias;
                     vec2 uv2 = vec2(((textureCoord.x + 1) / textureSize), ((textureCoord.y + 1) / textureSize)) - bias;
@@ -193,7 +191,7 @@ void ChunkRenderer::generateMesh(ChunkNeighborhood &neighborhood) {
                     mesh.pushVertex( 1.0f+x, 1.0f+y, 1.0f+z,  uv2.x, uv1.y,  ao111*lightLevel,  2);
                 }
                 if (block_X_negY_Z) { //bottom face
-                    vec2i textureCoord = block->getTextureCoord(EnumDirection::NEGATIVE_Y);
+                    vec2i textureCoord = block_X_Y_Z.getTextureCoord(EnumDirection::NEGATIVE_Y);
 
                     vec2 uv1 = vec2((textureCoord.x / textureSize), (textureCoord.y / textureSize)) + bias;
                     vec2 uv2 = vec2(((textureCoord.x + 1) / textureSize), ((textureCoord.y + 1) / textureSize)) - bias;
@@ -231,7 +229,7 @@ void ChunkRenderer::generateMesh(ChunkNeighborhood &neighborhood) {
                     mesh.pushVertex( 0.0f+x, 0.0f+y, 0.0f+z,  uv1.x, uv2.y,  ao000*lightLevel,  3);
                 }
                 if (block_X_Y_posZ) { //+z face
-                    vec2i textureCoord = block->getTextureCoord(EnumDirection::POSITIVE_Z);
+                    vec2i textureCoord = block_X_Y_Z.getTextureCoord(EnumDirection::POSITIVE_Z);
 
                     vec2 uv1 = vec2((textureCoord.x / textureSize), (textureCoord.y / textureSize)) + bias;
                     vec2 uv2 = vec2(((textureCoord.x + 1) / textureSize), ((textureCoord.y + 1) / textureSize)) - bias;
@@ -269,7 +267,7 @@ void ChunkRenderer::generateMesh(ChunkNeighborhood &neighborhood) {
                     mesh.pushVertex( 0.0f+x, 0.0f+y, 1.0f+z,  uv1.x, uv2.y,  ao001*lightLevel,  4);
                 }
                 if (block_X_Y_negZ) { //-z face
-                    vec2i textureCoord = block->getTextureCoord(EnumDirection::NEGATIVE_Z);
+                    vec2i textureCoord = block_X_Y_Z.getTextureCoord(EnumDirection::NEGATIVE_Z);
 
                     vec2 uv1 = vec2((textureCoord.x / textureSize), (textureCoord.y / textureSize)) + bias;
                     vec2 uv2 = vec2(((textureCoord.x + 1) / textureSize), ((textureCoord.y + 1) / textureSize)) - bias;

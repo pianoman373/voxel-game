@@ -17,5 +17,5 @@ public:
 
     void init();
 
-    void renderBlockItem(int blockID, float x, float y, float size);
+    void renderBlockItem(Block &block, float x, float y, float size);
 };

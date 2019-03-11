@@ -261,8 +261,7 @@ void Player::update(Camera &cam, float delta) {
 			int z = blockpos.z;
 
 
-
-            world.setBlock(x, y, z, 0);
+            world.setBlock(x, y, z, world.blockRegistry.getBlock(0));
 
             Packet p;
             uint16_t packetID = 4;
@@ -280,7 +279,7 @@ void Player::update(Camera &cam, float delta) {
             int z = blockpos.z + blocknormal.z;
             int blockID = client.lua.state.get<int>("hotbarSelectorPos")+1;
 
-            world.setBlock(x, y, z, blockID);
+            world.setBlock(x, y, z, world.blockRegistry.getBlock(blockID));
 
             Packet p;
             uint16_t packetID = 4;

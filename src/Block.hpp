@@ -7,6 +7,11 @@
 #include "sol.hpp"
 
 class Block {
+    friend class BlockRegistry;
+
+private:
+    int blockID;
+
 public:
     std::string name = "";
     vec3 color;
@@ -16,6 +21,8 @@ public:
     virtual vec2i getTextureCoord(EnumDirection dir);
 
     virtual bool isSolid();
+
+    int getID();
 };
 
 class LuaBlock : public Block {
@@ -33,17 +40,15 @@ public:
 
 class BlockRegistry {
 private:
-    //static std::map<int, Block*> registry;
-    static std::vector<Block*> registry;
+    std::map<int, Block*> registry;
 
 public:
-    static void init();
 
-    static void registerBlock(int id, Block *block);
+    void registerBlock(int id, Block *block);
 
-    static void registerBlockLua(int id, sol::table block);
+    void registerBlockLua(int id, sol::table block);
 
-    static Block *getBlock(int id);
+    Block &getBlock(int id);
 
-    static int registeredBlocks();
+    int registeredBlocks();
 };

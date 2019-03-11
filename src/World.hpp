@@ -7,6 +7,7 @@
 #include "Chunk.hpp"
 #include "Player.hpp"
 #include "ChunkRenderer.hpp"
+#include "Block.hpp"
 
 enum Context {
     CLIENT,
@@ -31,9 +32,7 @@ struct ChunkNeighborhood {
     std::shared_ptr<Chunk> negXposZ;
     std::shared_ptr<Chunk> negXnegZ;
 
-    char getBlock(int x, int y, int z);
-
-    void setBlock(int x, int y, int z, char block);
+    Block &getBlock(int x, int y, int z);
 
     int getSunlight(int x, int y, int z);
 
@@ -53,15 +52,17 @@ private:
     std::unordered_map<vec2i, std::shared_ptr<Chunk>> chunks;
 
 public:
+    BlockRegistry blockRegistry;
+
     World();
 
     void init(Context ctx);
 
     void update(float delta);
 
-    int getBlock(int x, int y, int z);
+    Block &getBlock(int x, int y, int z);
 
-    void setBlock(int x, int y, int z, int block);
+    void setBlock(int x, int y, int z, Block &block);
 
     std::shared_ptr<Chunk> getChunk(int x, int z);
 

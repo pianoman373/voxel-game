@@ -7,6 +7,7 @@
 #include <map>
 
 class Client;
+class World;
 
 struct LuaMod {
     std::string name;
@@ -24,7 +25,7 @@ public:
 
     void addClientSideFunctions(Client &client);
 
-    void addCommonFunctions();
+    void addCommonFunctions(World &world);
 
     void init();
 

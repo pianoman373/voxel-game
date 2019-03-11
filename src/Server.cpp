@@ -81,7 +81,7 @@ void Server::receivePackets() {
 
             std::cout << "(Server) setblock at : " << x << ", " << y << ", " << z << std::endl;
 
-            world.setBlock(x, y, z, blockID);
+            world.setBlock(x, y, z, world.blockRegistry.getBlock(blockID));
 
             Packet returnPacket;
             returnPacket << packetID << x << y << z << blockID;
@@ -95,17 +95,14 @@ static float getHeight(int x, int z) {
     return Noise::ridgedNoise(x / 10.0f, z / 10.0f, 5, 0.01f, 0.5f) * 50.0f + 80.0f;
 }
 
-static void nilFunction(int id, sol::table block) {
-
-}
-
 void Server::init(int port) {
     network.init(port);
 
     world.init(Context::SERVER);
 
     lua.init();
-    //lua.addCommonFunctions();
+    lua.addCommonFunctions(world);
+    lua.runScripts();
     lua.state.script_file("mods/base/worldgen.lua", sol::script_default_on_error);
 
     auto start = std::chrono::high_resolution_clock::now();

@@ -22,7 +22,6 @@ LuaHandler::LuaHandler(): state(sol::c_call<decltype(&panic_handler), &panic_han
 }
 
 void LuaHandler::addClientSideFunctions(Client &client) {
-    state["api"]["registerBlock"] = BlockRegistry::registerBlockLua;
     state["api"]["renderSpriteColor"] = [](float positionX, float positionY, float sizeX, float sizeY, float colorR, float colorG, float colorB, float colorA) {
         GuiRenderer::renderSprite({positionX, positionY}, {sizeX, sizeY}, {colorR, colorG, colorB, colorA});
     };
@@ -33,7 +32,7 @@ void LuaHandler::addClientSideFunctions(Client &client) {
         GuiRenderer::renderSprite({positionX, positionY}, {sizeX, sizeY}, {uvU1, uvV1, uvU2, uvV2},{1.0f, 1.0f, 1.0f, 1.0f}, tex);
     };
     state["api"]["renderBlockItem"] = [&](int blockID, float x, float y, float size) {
-        client.itemRenderer.renderBlockItem(blockID, x, y, size);
+        client.itemRenderer.renderBlockItem(client.world.blockRegistry.getBlock(blockID), x, y, size);
     };
 
     state["api"]["getTexture"] = [&](std::string path) {
@@ -52,11 +51,15 @@ void LuaHandler::addClientSideFunctions(Client &client) {
 
 }
 
-void LuaHandler::addCommonFunctions() {
+void LuaHandler::addCommonFunctions(World &world) {
     state.get<sol::table>("api").set_function("registerEventHandler", [&](std::string name, sol::function cb)
     {
         eventHandlers[name].push_back(cb);
     });
+
+    state["api"]["registerBlock"] = [&](int id, sol::table block) {
+        world.blockRegistry.registerBlockLua(id, block);
+    };
 }
 
 void LuaHandler::init() {

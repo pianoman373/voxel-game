@@ -129,7 +129,7 @@ void Client::receivePackets() {
 
             p >> x >> y >> z >> blockID;
 
-            world.setBlock(x, y, z, blockID);
+            world.setBlock(x, y, z, world.blockRegistry.getBlock(blockID));
         }
     }
 }
@@ -159,12 +159,10 @@ void Client::init(std::string address, int port) {
     camera.position = vec3(3.0f, 62.0f, 3.0f);
     camera.direction = vec3(0.0f, 0.0f, 1.0f);
 
-    BlockRegistry::init();
-
     itemRenderer.init();
 
     lua.init();
-    lua.addCommonFunctions();
+    lua.addCommonFunctions(world);
     lua.addClientSideFunctions(*this);
     lua.runScripts();
 

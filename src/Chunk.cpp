@@ -107,21 +107,15 @@ void Chunk::unSerialize(uint8_t *dataIn, int dataLength) {
     }
 }
 
-char Chunk::getBlock(int x, int y, int z) {
+Block &Chunk::getBlock(int x, int y, int z) {
     int index = (y * 16 * 16) + (x * 16) + z;
     if (x > -1 && x < 16 && y > -1 && y < 256 && z > -1 && z < 16) {
-		return blocks[index];
+		return world.blockRegistry.getBlock(blocks[index]);
     }
-	return 1;//cm->getBlock((this->chunk_x * CHUNK_SIZE) + x, (this->chunk_y * CHUNK_SIZE) + y, (this->chunk_z * CHUNK_SIZE) + z);
+	return world.blockRegistry.getBlock(0);//cm->getBlockID((this->chunk_x * CHUNK_SIZE) + x, (this->chunk_y * CHUNK_SIZE) + y, (this->chunk_z * CHUNK_SIZE) + z);
 }
 
-//WIP
-int Chunk::getBlockFromWorld(int x, int y, int z) {
-    //return cm->getBlock((this->chunk_x * CHUNK_SIZE) + x, (this->chunk_y * CHUNK_SIZE) + y, (this->chunk_z * CHUNK_SIZE) + z);
-    return getBlock(x, y, z);
-}
-
-void Chunk::setBlock(int x, int y, int z, char block) {
+void Chunk::setBlock(int x, int y, int z, Block &block) {
     if (x < 16 && x >= 0 && y < 256 && y >= 0 && z < 16 && z >= 0) {
         isDirty = true;
 
@@ -129,8 +123,8 @@ void Chunk::setBlock(int x, int y, int z, char block) {
 
         unsigned char originalBlock = blocks[index];
 
-        if (block == 0) {
-            blocks[index] = block;
+        if (!block.isSolid()) {
+            blocks[index] = block.getID();
 
             std::queue<vec3i> sunlightBfsQueue;
             std::queue<vec3i> torchlightBfsQueue;
@@ -161,8 +155,8 @@ void Chunk::setBlock(int x, int y, int z, char block) {
             }
 
         }
-        else if (block != 0) {
-            blocks[index] = block;
+        else {
+            blocks[index] = block.getID();
 
             std::queue<vec4i> lightRemovalQueue;
             lightRemovalQueue.emplace(x, y, z, 15);
@@ -172,7 +166,7 @@ void Chunk::setBlock(int x, int y, int z, char block) {
             unPropagateSunlight(neighborhood, lightRemovalQueue);
 
 
-            if (block == 8) { //glowstone
+            if (block.getID() == 8) { //glowstone
                 std::queue<vec3i> lightBfsQueue;
                 lightBfsQueue.emplace(x, y, z);
 
@@ -188,9 +182,6 @@ void Chunk::setBlock(int x, int y, int z, char block) {
 
                 unPropagateTorchlight(neighborhood, lightRemovalQueue);
             }
-        }
-        else {
-            blocks[index] = block;
         }
     }
 }
@@ -274,33 +265,33 @@ void Chunk::propagateSunlight(ChunkNeighborhood &neighborhood, std::queue<vec3i>
 
         int lightLevel = neighborhood.getSunlight(node.x, node.y, node.z);
 
-        if (neighborhood.getBlock(node.x - 1, node.y, node.z) == 0 && neighborhood.getSunlight(node.x - 1, node.y, node.z) + 2 <= lightLevel) {
+        if (!neighborhood.getBlock(node.x - 1, node.y, node.z).isSolid() && neighborhood.getSunlight(node.x - 1, node.y, node.z) + 2 <= lightLevel) {
             neighborhood.setSunlight(node.x - 1, node.y, node.z, lightLevel - 1);
 
             lightBfsQueue.emplace(node.x - 1, node.y, node.z);
         }
-        if (neighborhood.getBlock(node.x + 1, node.y, node.z) == 0 && neighborhood.getSunlight(node.x + 1, node.y, node.z) + 2 <= lightLevel) {
+        if (!neighborhood.getBlock(node.x + 1, node.y, node.z).isSolid() && neighborhood.getSunlight(node.x + 1, node.y, node.z) + 2 <= lightLevel) {
             neighborhood.setSunlight(node.x + 1, node.y, node.z, lightLevel - 1);
 
             lightBfsQueue.emplace(node.x + 1, node.y, node.z);
         }
-        if (neighborhood.getBlock(node.x, node.y - 1, node.z) == 0 && neighborhood.getSunlight(node.x, node.y - 1, node.z) < lightLevel) {
+        if (!neighborhood.getBlock(node.x, node.y - 1, node.z).isSolid() && neighborhood.getSunlight(node.x, node.y - 1, node.z) < lightLevel) {
             neighborhood.setSunlight(node.x, node.y - 1, node.z, lightLevel);
 
             lightBfsQueue.emplace(node.x, node.y - 1, node.z);
         }
-        if (neighborhood.getBlock(node.x, node.y + 1, node.z) == 0 && neighborhood.getSunlight(node.x, node.y + 1, node.z) + 2 <= lightLevel) {
+        if (!neighborhood.getBlock(node.x, node.y + 1, node.z).isSolid() && neighborhood.getSunlight(node.x, node.y + 1, node.z) + 2 <= lightLevel) {
             neighborhood.setSunlight(node.x, node.y + 1, node.z, lightLevel - 1);
 
             lightBfsQueue.emplace(node.x, node.y + 1, node.z);
         }
 
-        if (neighborhood.getBlock(node.x, node.y, node.z - 1) == 0 && neighborhood.getSunlight(node.x, node.y, node.z - 1) + 2 <= lightLevel) {
+        if (!neighborhood.getBlock(node.x, node.y, node.z - 1).isSolid() && neighborhood.getSunlight(node.x, node.y, node.z - 1) + 2 <= lightLevel) {
             neighborhood.setSunlight(node.x, node.y, node.z - 1, lightLevel - 1);
 
             lightBfsQueue.emplace(node.x, node.y, node.z - 1);
         }
-        if (neighborhood.getBlock(node.x, node.y, node.z + 1) == 0 && neighborhood.getSunlight(node.x, node.y, node.z + 1) + 2 <= lightLevel) {
+        if (!neighborhood.getBlock(node.x, node.y, node.z + 1).isSolid() && neighborhood.getSunlight(node.x, node.y, node.z + 1) + 2 <= lightLevel) {
             neighborhood.setSunlight(node.x, node.y, node.z + 1, lightLevel - 1);
 
             lightBfsQueue.emplace(node.x, node.y, node.z + 1);
@@ -415,33 +406,33 @@ void Chunk::propagateTorchlight(ChunkNeighborhood &neighborhood, std::queue<vec3
 
         int lightLevel = neighborhood.getTorchlight(node.x, node.y, node.z);
 
-        if (neighborhood.getBlock(node.x - 1, node.y, node.z) == 0 && neighborhood.getTorchlight(node.x - 1, node.y, node.z) + 2 <= lightLevel) {
+        if (!neighborhood.getBlock(node.x - 1, node.y, node.z).isSolid() && neighborhood.getTorchlight(node.x - 1, node.y, node.z) + 2 <= lightLevel) {
             neighborhood.setTorchlight(node.x - 1, node.y, node.z, lightLevel - 1);
 
             lightBfsQueue.emplace(node.x - 1, node.y, node.z);
         }
-        if (neighborhood.getBlock(node.x + 1, node.y, node.z) == 0 && neighborhood.getTorchlight(node.x + 1, node.y, node.z) + 2 <= lightLevel) {
+        if (!neighborhood.getBlock(node.x + 1, node.y, node.z).isSolid() && neighborhood.getTorchlight(node.x + 1, node.y, node.z) + 2 <= lightLevel) {
             neighborhood.setTorchlight(node.x + 1, node.y, node.z, lightLevel - 1);
 
             lightBfsQueue.emplace(node.x + 1, node.y, node.z);
         }
-        if (neighborhood.getBlock(node.x, node.y - 1, node.z) == 0 && neighborhood.getTorchlight(node.x, node.y - 1, node.z) < lightLevel) {
+        if (!neighborhood.getBlock(node.x, node.y - 1, node.z).isSolid() && neighborhood.getTorchlight(node.x, node.y - 1, node.z) < lightLevel) {
             neighborhood.setTorchlight(node.x, node.y - 1, node.z, lightLevel - 1);
 
             lightBfsQueue.emplace(node.x, node.y - 1, node.z);
         }
-        if (neighborhood.getBlock(node.x, node.y + 1, node.z) == 0 && neighborhood.getTorchlight(node.x, node.y + 1, node.z) + 2 <= lightLevel) {
+        if (!neighborhood.getBlock(node.x, node.y + 1, node.z).isSolid() && neighborhood.getTorchlight(node.x, node.y + 1, node.z) + 2 <= lightLevel) {
             neighborhood.setTorchlight(node.x, node.y + 1, node.z, lightLevel - 1);
 
             lightBfsQueue.emplace(node.x, node.y + 1, node.z);
         }
 
-        if (neighborhood.getBlock(node.x, node.y, node.z - 1) == 0 && neighborhood.getTorchlight(node.x, node.y, node.z - 1) + 2 <= lightLevel) {
+        if (!neighborhood.getBlock(node.x, node.y, node.z - 1).isSolid() && neighborhood.getTorchlight(node.x, node.y, node.z - 1) + 2 <= lightLevel) {
             neighborhood.setTorchlight(node.x, node.y, node.z - 1, lightLevel - 1);
 
             lightBfsQueue.emplace(node.x, node.y, node.z - 1);
         }
-        if (neighborhood.getBlock(node.x, node.y, node.z + 1) == 0 && neighborhood.getTorchlight(node.x, node.y, node.z + 1) + 2 <= lightLevel) {
+        if (!neighborhood.getBlock(node.x, node.y, node.z + 1).isSolid() && neighborhood.getTorchlight(node.x, node.y, node.z + 1) + 2 <= lightLevel) {
             neighborhood.setTorchlight(node.x, node.y, node.z + 1, lightLevel - 1);
 
             lightBfsQueue.emplace(node.x, node.y, node.z + 1);
