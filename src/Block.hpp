@@ -22,12 +22,15 @@ public:
 
     virtual bool isSolid();
 
+    virtual int getLightLevel();
+
     int getID();
 };
 
 class LuaBlock : public Block {
     std::vector<vec2i> textureCoords;
     bool solid;
+    int lightLevel;
 
 public:
     LuaBlock(sol::table table);
@@ -35,6 +38,8 @@ public:
     vec2i getTextureCoord(EnumDirection dir);
 
     bool isSolid();
+
+    int getLightLevel();
 
 };
 

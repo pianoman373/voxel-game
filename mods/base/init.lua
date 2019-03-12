@@ -67,7 +67,8 @@ api.registerBlock(8, {
     name = "Glowstone",
     textures = {
         {9, 6}
-    }
+    },
+    lightLevel = 15
 })
 
 api.registerBlock(9, {

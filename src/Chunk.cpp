@@ -12,13 +12,6 @@
 Chunk::Chunk(World &world, int x, int z): world(world) {
     chunk_x = x;
     chunk_z = z;
-
-    this->transform = Transform(vec3(chunk_x * 16, 0.0f, chunk_z * 16), quaternion(), vec3(1.0f));
-}
-
-Chunk::~Chunk() {
-    mesh.clear();
-	mesh.destroy();
 }
 
 int rleEncode(uint8_t *input, int inputLength, uint8_t *output) {
@@ -121,7 +114,7 @@ void Chunk::setBlock(int x, int y, int z, Block &block) {
 
         int index = (y * 16 * 16) + (x * 16) + z;
 
-        unsigned char originalBlock = blocks[index];
+        Block &originalBlock = world.blockRegistry.getBlock(blocks[index]);
 
         if (!block.isSolid()) {
             blocks[index] = block.getID();
@@ -142,9 +135,9 @@ void Chunk::setBlock(int x, int y, int z, Block &block) {
             ChunkNeighborhood neighborhood = world.getChunkNeighborhood(chunk_x, chunk_z);
             propagateSunlight(neighborhood, sunlightBfsQueue);
 
-            if (originalBlock == 8) {
+            if (originalBlock.getLightLevel() > 0) {
                 std::queue<vec4i> lightRemovalQueue;
-                lightRemovalQueue.emplace(x, y, z, 15);
+                lightRemovalQueue.emplace(x, y, z, originalBlock.getLightLevel());
 
                 setTorchlight(x, y, z, 0);
 
@@ -166,11 +159,11 @@ void Chunk::setBlock(int x, int y, int z, Block &block) {
             unPropagateSunlight(neighborhood, lightRemovalQueue);
 
 
-            if (block.getID() == 8) { //glowstone
+            if (block.getLightLevel() > 0) { //glowstone
                 std::queue<vec3i> lightBfsQueue;
                 lightBfsQueue.emplace(x, y, z);
 
-                setTorchlight(x, y, z, 15);
+                setTorchlight(x, y, z, block.getLightLevel());
 
                 propagateTorchlight(neighborhood, lightBfsQueue);
             }

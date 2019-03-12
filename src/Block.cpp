@@ -16,6 +16,10 @@ bool Block::isSolid() {
     return true;
 }
 
+int Block::getLightLevel() {
+
+}
+
 int Block::getID() {
     return blockID;
 }
@@ -24,6 +28,7 @@ int Block::getID() {
 LuaBlock::LuaBlock(sol::table table) {
     name = table["name"].get_or(std::string("Untitled"));
     solid = table["solid"].get_or(true);
+    lightLevel = table["lightLevel"].get_or(0);
 
     sol::table textures = table["textures"];
 
@@ -55,6 +60,10 @@ vec2i LuaBlock::getTextureCoord(EnumDirection dir) {
 
 bool LuaBlock::isSolid() {
     return solid;
+}
+
+int LuaBlock::getLightLevel() {
+    return lightLevel;
 }
 
 void BlockRegistry::registerBlock(int id, Block *block) {

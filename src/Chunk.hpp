@@ -14,12 +14,6 @@ class ChunkNeighborhood;
 class World;
 
 class Chunk {
-private:
-    int getBlockFromWorld(int x, int y, int z);
-	bool rebuild = false;
-
-
-	Transform transform;
 	World &world;
 
 
@@ -28,16 +22,12 @@ public:
 	unsigned char lightMap[16 * 16 * 256] = { 0 };
     bool isDirty = false;
 
-    ChunkMesh mesh;
-
-    AABB aabb;
-
     int chunk_x;
     int chunk_z;
 
     /**
      * Serializes the chunk data into the provided array, and returns the actual length of the data.
-     * The input array must be at least 32*32*32*2 elements.
+     * The input array must be at least 32*32*256*2 elements.
      */
     int serialize(uint8_t *dataOut);
 
@@ -47,8 +37,6 @@ public:
     void unSerialize(uint8_t *dataIn, int dataLength);
 
     Chunk(World &world, int x, int z);
-
-    ~Chunk();
 
     Block &getBlock(int x, int y, int z);
 

@@ -1,6 +1,8 @@
 #pragma once
 
 #include <crucible/Camera.hpp>
+#include <crucible/Model.hpp>
+#include <crucible/Material.hpp>
 
 #include "NetworkManagerClient.hpp"
 #include "World.hpp"
@@ -37,6 +39,11 @@ public:
     TextureRegistry textureRegistry;
     LuaHandler lua;
     ItemRenderer itemRenderer;
+
+    Model playerModel;
+    Texture playerTexture;
+    Transform playerTransform;
+    Material playerMaterial;
 
     Client();
 
