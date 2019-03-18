@@ -8,6 +8,7 @@
 #include <crucible/Util.hpp>
 #include <crucible/Input.hpp>
 #include <crucible/GuiRenderer.hpp>
+#include <crucible/AssimpFile.hpp>
 
 #include <cstring>
 
@@ -162,7 +163,14 @@ void Client::init(std::string address, int port) {
     itemRenderer.init();
 
     playerTexture.load("resources/player-armor.png");
-    playerModel.importFile("resources/player-armor.obj", false);
+
+    AssimpFile playerFile("resources/player-armor.fbx");
+    playerModel = playerFile.getModel(false);
+
+    root = playerFile.getSkeletonNew();
+
+    Animation anim = playerFile.getAnimation();
+    anim.applyToSkeleton(1.0f, root);
 
     playerMaterial.setPBRUniforms(playerTexture, 1.0f, 0.0f);
 
@@ -226,7 +234,7 @@ void Client::render() {
 
     worldRenderer.render(camera);
 
-    Renderer::render(&playerModel.nodes[0].mesh, &playerMaterial, &playerTransform);
+    Renderer::render(&playerModel.nodes[0].mesh, &playerMaterial, &playerTransform, nullptr, &root);
 
 
     for (auto const& x : playerPositions)

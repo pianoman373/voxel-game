@@ -3,6 +3,7 @@
 #include <crucible/Camera.hpp>
 #include <crucible/Model.hpp>
 #include <crucible/Material.hpp>
+#include <crucible/Bone.hpp>
 
 #include "NetworkManagerClient.hpp"
 #include "World.hpp"
@@ -44,6 +45,8 @@ public:
     Texture playerTexture;
     Transform playerTransform;
     Material playerMaterial;
+
+    Bone root;
 
     Client();
 
