@@ -75,8 +75,6 @@ public:
 
     void deleteAllChunks();
 
-    void shutdown();
-
     std::unordered_map<vec2i, std::shared_ptr<Chunk>> getChunks();
 
     /**

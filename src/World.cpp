@@ -328,10 +328,6 @@ void World::deleteAllChunks() {
     }
 }
 
-void World::shutdown() {
-    chunks.clear();
-}
-
 bool World::chunkExists(int x, int z) {
     bool exists = chunks.find({x, z}) != chunks.end();
 

@@ -213,7 +213,6 @@ void Client::render() {
     frustum.setupInternals(camera.fov, (float)Window::getWindowSize().x/(float)Window::getWindowSize().y, 0.1f, 1000.0f);
     //if (Input::isKeyDown(Input::KEY_LEFT_CONTROL))
     frustum.updateCamPosition(camera);
-
     //frustum.renderDebug();
 
 
@@ -231,14 +230,7 @@ void Client::render() {
 
     vec2 size = vec2((float)Window::getWindowSize().x, (float)Window::getWindowSize().y);
 
-
-    //render crosshair
-//    GuiRenderer::renderSprite(size / 2.0f, vec2(20.0f, 3.0f), vec4(1.0f));
-//    GuiRenderer::renderSprite(size / 2.0f, vec2(3.0f, 20.0f), vec4(1.0f));
-
     lua.pushEvent("renderGUI", size.x, size.y);
-
-//    itemRenderer.renderBlockItem(2, size.x/2.0f, size.y/2.0f, 30.0f);
 
     Window::end();
 }
