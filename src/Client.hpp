@@ -41,13 +41,6 @@ public:
     LuaHandler lua;
     ItemRenderer itemRenderer;
 
-    Model playerModel;
-    Texture playerTexture;
-    Transform playerTransform;
-    Material playerMaterial;
-
-    Bone root;
-
     Client();
 
     ~Client();

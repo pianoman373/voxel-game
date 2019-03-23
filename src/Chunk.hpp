@@ -21,6 +21,7 @@ public:
 	unsigned char blocks[16 * 16 * 256] = { 0 };
 	unsigned char lightMap[16 * 16 * 256] = { 0 };
     bool isDirty = false;
+    bool changedFromDisk = false;
 
     int chunk_x;
     int chunk_z;
@@ -41,6 +42,8 @@ public:
     Block &getBlock(int x, int y, int z);
 
     void setBlock(int x, int y, int z, Block &block);
+
+    void setBlockRaw(int x, int y, int z, int id);
 
 	int getSunlight(int x, int y, int z);
 

@@ -3,6 +3,7 @@
 #include "Noise.hpp"
 
 #include <iostream>
+#include <fstream>
 #include <enet/enet.h>
 
 #include <chrono>
@@ -15,6 +16,19 @@ Server::Server(): network(*this) {
 
 Server::~Server() {
     delete[] rleCache;
+}
+
+bool Server::isWorldSavePresent() {
+    std::ifstream i("save/info.json");
+    json j;
+
+    if (i) {
+        i >> j;
+
+        return j["generated"];
+    }
+
+    return false;
 }
 
 void Server::update() {
@@ -91,38 +105,20 @@ void Server::receivePackets() {
     }
 }
 
-static float getHeight(int x, int z) {
-    return Noise::ridgedNoise(x / 10.0f, z / 10.0f, 5, 0.01f, 0.5f) * 50.0f + 80.0f;
-}
-
-void Server::init(int port) {
-    network.init(port);
-
-    world.init(Context::SERVER);
-
-    lua.init();
-    lua.addCommonFunctions(world);
-    lua.runScripts();
-    lua.state.script_file("mods/base/worldgen.lua", sol::script_default_on_error);
-
+void Server::generateTerrain() {
     auto start = std::chrono::high_resolution_clock::now();
 
+    int progress = 0;
+    int i = 0;
 
-//    sol::protected_function f(lua.state["generateWorld"]);
-//    sol::protected_function_result result = f();
-//    if (result.valid()) {
-//
-//    }
-//    else {
-//        // Call failed
-//        sol::error err = result;
-//        std::cout << err.what() << std::endl;
-//    }
+    int worldSize = 32;
 
-    for (int x = 0; x < 32; x++) {
-        for (int z = 0; z < 32; z++) {
-            sol::protected_function f(lua.state["generateWorldNew"]);
-            sol::protected_function_result result = f(x, z);
+    std::cout << "generating terrain..." << std::endl;
+
+    for (int x = 0; x < worldSize; x++) {
+        for (int z = 0; z < worldSize; z++) {
+            sol::protected_function f(lua.state["generateWorld"]);
+            sol::protected_function_result result = f(x, z, world.getChunk(x, z));
             if (result.valid()) {
 
             }
@@ -131,13 +127,16 @@ void Server::init(int port) {
                 sol::error err = result;
                 std::cout << err.what() << std::endl;
             }
-        }
-    }
 
-    //generate lighting
-    for (int x = 0; x < 32; x++) {
-        for (int z = 0; z < 32; z++) {
-            world.getChunk(x, z)->calculateSunLighting();
+            i++;
+
+            int currentProgress = (int)(((float)i / ((float)worldSize*(float)worldSize)) * 100.0f);
+
+            if (currentProgress != progress) {
+                progress = currentProgress;
+
+                std::cout << progress << "% complete." << std::endl;
+            }
         }
     }
 
@@ -146,47 +145,68 @@ void Server::init(int port) {
 
     std::cout << "completed in " << seconds << "s " << std::endl;
 
-//    int range = 16;
-//
-//    sol::protected_function f(lua.state["api"]["generateChunk"]);
-//
-//
-//
-//    int i = 0;
-//    int lastPercentage = 0;
-//
-//    auto start = std::chrono::high_resolution_clock::now();
-//
-//    for (int x = 0; x < range; x++) {
-//        for (int z = 0; z < range; z++) {
-//            int percentage = ((float)i / ((float)range * (float)range)) * 100.0f;
-//            if (percentage != lastPercentage) {
-//                std::cout << "(Server) Generating terrain: " << percentage << "%" << std::endl;
-//                lastPercentage = percentage;
-//            }
-//
-//
-//            Chunk *chunk = world.getChunk(x, z);
-//
-//            generateTerrain(chunk);
-//            sol::table t = f(x, z);
-//            for (int i = 0; i < t.size(); i++) {
-//                chunk->blocks[i] = t.get<int>(i);
-//            }
-//
-////            sol::protected_function_result result = f(x, z);
-////            if (result.valid()) {
-////                sol::table t = result;
-////
-////
-////            }
-////            else {
-////                // Call failed
-////                sol::error err = result;
-////                std::cout << err.what() << std::endl;
-////            }
-//            i++;
-//        }
+    std::cout << "generating lighting..." << std::endl;
+
+    //generate lighting
+    for (int x = 0; x < 32; x++) {
+        for (int z = 0; z < 32; z++) {
+            world.getChunk(x, z)->calculateSunLighting();
+        }
+    }
+}
+
+void Server::init(int port) {
+    network.init(port);
+
+    world.init(Context::SERVER);
+    world.setDeleteCallback([&] (std::shared_ptr<Chunk> chunk) {
+        if (chunk->changedFromDisk) {
+            std::cout << "saving chunk" << std::endl;
+
+            chunkIO.saveChunk(chunk);
+        }
+    });
+
+    lua.init();
+    lua.addCommonFunctions(world);
+    lua.runScripts();
+    lua.state.script_file("mods/base/worldgen.lua", sol::script_default_on_error);
+
+    lua.state.new_usertype<Chunk>( "Chunk",
+        // typical member function that returns a variable
+        "setBlockRaw", &Chunk::setBlockRaw
+    );
+
+    if (isWorldSavePresent()) {
+        std::cout << "loading chunks from disk..." << std::endl;
+
+        for (int x = 0; x < 32; x++) {
+            for (int z = 0; z < 32; z++) {
+                chunkIO.loadChunk(world.getChunk(x, z));
+            }
+        }
+    }
+    else {
+        generateTerrain();
+
+        for (int x = 0; x < 32; x++) {
+            for (int z = 0; z < 32; z++) {
+                chunkIO.saveChunk(world.getChunk(x, z));
+            }
+        }
+
+
+        std::ofstream i("save/info.json");
+        json j;
+
+        j["generated"] = true;
+
+        if (i) {
+            i << j;
+        }
+    }
+
+    std::cout << "complete!" << std::endl;
 }
 
 void Server::run(bool &running, int port) {
@@ -198,9 +218,12 @@ void Server::run(bool &running, int port) {
         update();
 
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
     }
 
     std::cout << "Shutting down server" << std::endl;
+
+    world.deleteAllChunks();
+
+    std::cout << "shutdown complete" << std::endl;
 
 }

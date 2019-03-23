@@ -245,7 +245,7 @@ void Player::update(Camera &cam, float delta) {
     }
     position.z += velocityDistance.z;
 
-    cam.setPosition(position + vec3(0.0f, 0.7f, 0.0f) - cam.direction*1.5f + cam.getRight()*0.5f);
+    cam.setPosition(position + vec3(0.0f, 0.7f, 0.0f));
 
     //block placing
     vec3i blockpos;

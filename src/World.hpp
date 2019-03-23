@@ -48,6 +48,7 @@ class World {
 private:
     Context ctx;
 
+    std::function<void(std::shared_ptr<Chunk>)> deleteCallback;
 
     std::unordered_map<vec2i, std::shared_ptr<Chunk>> chunks;
 
@@ -72,6 +73,8 @@ public:
 
     void deleteChunk(int x, int z);
 
+    void deleteAllChunks();
+
     void shutdown();
 
     std::unordered_map<vec2i, std::shared_ptr<Chunk>> getChunks();
@@ -89,4 +92,6 @@ public:
      * Returns all AABB's in the world that collide with the given test AABB
      */
     std::vector<AABB> getCollisions(AABB test);
+
+    void setDeleteCallback(std::function<void(std::shared_ptr<Chunk>)> deleteCallback);
 };

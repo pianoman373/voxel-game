@@ -308,8 +308,23 @@ ChunkNeighborhood World::getChunkNeighborhood(int x, int z) {
 
 void World::deleteChunk(int x, int z) {
     if (chunkExists(x, z)) {
-        //std::cout << "deleting chunk" << std::endl;
+        if (deleteCallback) {
+            deleteCallback(getChunk(x, z));
+        }
+
         chunks.erase({x, z});
+    }
+}
+
+void World::deleteAllChunks() {
+    std::vector<vec2i> chunkPositions;
+
+    for (auto const &ref: chunks) {
+        chunkPositions.push_back(ref.first);
+    }
+
+    for (int i = 0; i < chunkPositions.size(); i++) {
+        deleteChunk(chunkPositions[i].x, chunkPositions[i].y);
     }
 }
 
@@ -407,4 +422,8 @@ std::vector<AABB> World::getCollisions(AABB test) {
     }
 
     return returnVector;
+}
+
+void World::setDeleteCallback(std::function<void(std::shared_ptr<Chunk>)> deleteCallback) {
+    this->deleteCallback = deleteCallback;
 }

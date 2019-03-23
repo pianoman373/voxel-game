@@ -111,6 +111,7 @@ Block &Chunk::getBlock(int x, int y, int z) {
 void Chunk::setBlock(int x, int y, int z, Block &block) {
     if (x < 16 && x >= 0 && y < 256 && y >= 0 && z < 16 && z >= 0) {
         isDirty = true;
+        changedFromDisk = true;
 
         int index = (y * 16 * 16) + (x * 16) + z;
 
@@ -179,6 +180,14 @@ void Chunk::setBlock(int x, int y, int z, Block &block) {
     }
 }
 
+void Chunk::setBlockRaw(int x, int y, int z, int id) {
+    if (x < 16 && x >= 0 && y < 256 && y >= 0 && z < 16 && z >= 0) {
+        int index = (y * 16 * 16) + (x * 16) + z;
+
+        blocks[index] = id;
+    }
+}
+
 // Get the bits XXXX0000
 
 int Chunk::getSunlight(int x, int y, int z) {
@@ -199,6 +208,7 @@ void Chunk::setSunlight(int x, int y, int z, int val) {
 
     if (x < 16 && x >= 0 && y < 256 && y >= 0 && z < 16 && z >= 0) {
         isDirty = true;
+        changedFromDisk = true;
 
         lightMap[index] = (lightMap[index] & 0xF) | (val << 4);
     }
@@ -227,6 +237,7 @@ void Chunk::setTorchlight(int x, int y, int z, int val) {
 
     if (x < 16 && x >= 0 && y < 256 && y >= 0 && z < 16 && z >= 0) {
         isDirty = true;
+        changedFromDisk = true;
 
         lightMap[index] = (lightMap[index] & 0xF0) | val;
     }

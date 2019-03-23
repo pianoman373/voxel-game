@@ -3,6 +3,7 @@
 #include "NetworkManagerServer.hpp"
 #include "World.hpp"
 #include "LuaHandler.hpp"
+#include "ChunkIO.hpp"
 
 
 class Server {
@@ -11,12 +12,15 @@ public:
     NetworkManagerServer network;
     LuaHandler lua;
     uint8_t *rleCache;
+    ChunkIO chunkIO;
+
+    bool isWorldSavePresent();
 
     void update();
 
     void receivePackets();
 
-    void generateTerrain(Chunk *c);
+    void generateTerrain();
 
     void init(int port);
 

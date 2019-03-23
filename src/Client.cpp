@@ -162,18 +162,6 @@ void Client::init(std::string address, int port) {
 
     itemRenderer.init();
 
-    playerTexture.load("resources/player-armor.png");
-
-    AssimpFile playerFile("resources/player-armor.fbx");
-    playerModel = playerFile.getModel(false);
-
-    root = playerFile.getSkeletonNew();
-
-    Animation anim = playerFile.getAnimation();
-    anim.applyToSkeleton(1.0f, root);
-
-    playerMaterial.setPBRUniforms(playerTexture, 1.0f, 0.0f);
-
     lua.init();
     lua.addCommonFunctions(world);
     lua.addClientSideFunctions(*this);
@@ -228,13 +216,8 @@ void Client::render() {
 
     //frustum.renderDebug();
 
-    playerTransform.position = player.position - vec3(0.0f, 1.0f, 0.0f);
-    playerTransform.scale = vec3(0.32f);
-
 
     worldRenderer.render(camera);
-
-    Renderer::render(&playerModel.nodes[0].mesh, &playerMaterial, &playerTransform, nullptr, &root);
 
 
     for (auto const& x : playerPositions)

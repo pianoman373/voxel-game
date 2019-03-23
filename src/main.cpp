@@ -68,20 +68,15 @@ int main(int argc, char *argv[]) {
 
     }
     else {
-        std::thread *thread0 = new std::thread([&]() {
+        std::thread thread0([&]() {
             s->run(running, 1234);
         });
-        thread0->detach();
 
         c->run(running, "localhost", 1234);
 
         running = false;
 
-        if (thread0->joinable()) {
-            thread0->join();
-        }
-
-        delete thread0;
+        thread0.join();
     }
 
     delete s;
