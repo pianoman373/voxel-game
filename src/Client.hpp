@@ -10,7 +10,7 @@
 #include "WorldRenderer.hpp"
 #include "LuaHandler.hpp"
 #include "Settings.hpp"
-#include "TextureRegistry.hpp"
+#include "Registry.hpp"
 #include "ItemRenderer.hpp"
 
 #include <crucible/Frustum.hpp>
@@ -37,7 +37,7 @@ public:
     Player player;
     Frustum frustum;
     Settings settings;
-    TextureRegistry textureRegistry;
+    Registry registry;
     LuaHandler lua;
     ItemRenderer itemRenderer;
 

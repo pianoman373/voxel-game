@@ -31,6 +31,8 @@ public:
 
     void runScripts();
 
+    void runClientScripts();
+
     void runScript(std::string script);
 
     template<typename... Args>

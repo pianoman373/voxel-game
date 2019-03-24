@@ -32,7 +32,7 @@ void ItemRenderer::renderBlockItem(Block &block, float x, float y, float size) {
 
     mat4 view;
 
-    mat4 projection = orthographic(0.0f, res.x, res.y, 0.0f, -1.0f, 1.0f);
+    mat4 projection = orthographic(0.0f, res.x, 0.0f, res.y, -1.0f, 1.0f);
 
     vec2i textureCoord = block.getTextureCoord(EnumDirection::POSITIVE_Y);
 

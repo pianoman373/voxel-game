@@ -6,7 +6,7 @@ ffi.cdef[[
 ]]
 local C = ffi.C
 
-require("mods.base.api")
+require("base:api.lua")
 
 --helper function
 local function getHeight(x, z)

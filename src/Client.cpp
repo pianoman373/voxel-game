@@ -166,6 +166,9 @@ void Client::init(std::string address, int port) {
     lua.addCommonFunctions(world);
     lua.addClientSideFunctions(*this);
     lua.runScripts();
+    lua.runClientScripts();
+
+    std::cout << "ran client scripts" << std::endl;
 
     world.init(Context::CLIENT);
     worldRenderer.init();
@@ -173,8 +176,6 @@ void Client::init(std::string address, int port) {
     player.position = vec3(16*16, 250, 18*16);
     vec2i playerChunkPosition = vec2i((int)player.position.x >> 4, (int)player.position.z >> 4);
     manageChunks(playerChunkPosition);
-
-    lua.pushEvent("client_init");
 }
 
 void Client::update(float delta) {
@@ -197,8 +198,6 @@ void Client::update(float delta) {
 
         network.sendPacket(p);
     }
-
-
 
     vec2i playerChunkPosition = vec2i((int)camera.position.x >> 4, (int)camera.position.z >> 4);
 

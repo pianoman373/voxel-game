@@ -8,6 +8,8 @@
 #include <crucible/Input.hpp>
 #include <crucible/GuiRenderer.hpp>
 
+#include <fstream>
+
 static void panic_handler(sol::optional<std::string> maybe_msg) {
     std::cerr << "Lua is in a panic state and will now abort() the application" << std::endl;
     if (maybe_msg) {
@@ -31,15 +33,24 @@ void LuaHandler::addClientSideFunctions(Client &client) {
     state["api"]["renderSpriteTexture"] = [](float positionX, float positionY, float sizeX, float sizeY, float uvU1, float uvV1, float uvU2, float uvV2, Texture &tex) {
         GuiRenderer::renderSprite({positionX, positionY}, {sizeX, sizeY}, {uvU1, uvV1, uvU2, uvV2},{1.0f, 1.0f, 1.0f, 1.0f}, tex);
     };
+    state["api"]["renderText"] = [&](float x, float y, std::string text, const Font &font, float r, float g, float b, float a) {
+        GuiRenderer::renderText({x, y}, text, font, {r, g, b, a});
+    };
     state["api"]["renderBlockItem"] = [&](int blockID, float x, float y, float size) {
         client.itemRenderer.renderBlockItem(client.world.blockRegistry.getBlock(blockID), x, y, size);
     };
 
     state["api"]["getTexture"] = [&](std::string path) {
-        return client.textureRegistry.getTexture(path);
+        return client.registry.getTexture(path);
     };
     state["api"]["registerTexture"] = [&](std::string path) {
-        client.textureRegistry.registerTexture(path);
+        client.registry.registerTexture(path);
+    };
+    state["api"]["getFont"] = [&](std::string path) {
+        return client.registry.getFont(path);
+    };
+    state["api"]["registerFont"] = [&](std::string path) {
+        client.registry.registerFont(path);
     };
 
     state["api"]["getScroll"] = []() {
@@ -60,6 +71,14 @@ void LuaHandler::addCommonFunctions(World &world) {
     state["api"]["registerBlock"] = [&](int id, sol::table block) {
         world.blockRegistry.registerBlockLua(id, block);
     };
+
+    state["require"] = [&] (const std::string &file) {
+        std::string delimiter = ":";
+        std::string modName = file.substr(0, file.find(delimiter));
+        std::string modPath = file.substr(file.find(delimiter)+1, file.size());
+
+        return state.require_file(file, "mods/" + modName + "/" + modPath);
+    };
 }
 
 void LuaHandler::init() {
@@ -71,7 +90,6 @@ void LuaHandler::init() {
                          sol::lib::io,
                          sol::lib::math,
                          sol::lib::os,
-                         sol::lib::package,
                          sol::lib::string,
                          sol::lib::table,
                          sol::lib::utf8,
@@ -98,6 +116,14 @@ void LuaHandler::runScripts() {
         LuaMod &mod = loadedMods[i];
 
         state.script_file(mod.rootFolder.appendFile("init.lua"), sol::script_default_on_error);
+    }
+}
+
+void LuaHandler::runClientScripts() {
+    for (int i = 0; i < loadedMods.size(); i++) {
+        LuaMod &mod = loadedMods[i];
+
+        state.script_file(mod.rootFolder.appendFile("init_client.lua"), sol::script_default_on_error);
     }
 }
 

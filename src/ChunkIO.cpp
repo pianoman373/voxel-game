@@ -303,7 +303,6 @@ bool ChunkIO::chunkIsSaved(std::shared_ptr<Chunk> c) {
     }
 
     return false;
-
 }
 
 void ChunkIO::flushSaveBuffer() {
