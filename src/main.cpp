@@ -18,16 +18,9 @@ Client *c;
 #define FFI extern "C"
 #endif
 
-FFI void setChunk(int x, int z, uint8_t *data) {
-    memcpy(s->world.getChunk(x, z)->blocks, data, 16*16*256);
-}
-
-FFI float ridgedNoise(float x, float y, int octaves, float frequency, float persistence) {
-    return Noise::ridgedNoise(x, y, octaves, frequency, persistence);
-}
-
-FFI float noise3D(float x, float y, float z) {
-    return SimplexNoise::noise(x, y, z);
+FFI unsigned char* getChunkData(void *c) {
+    Chunk* object_pointer = *static_cast<Chunk**>(c);
+    return object_pointer->blocks;
 }
 
 int main(int argc, char *argv[]) {

@@ -116,8 +116,37 @@ void Server::generateTerrain() {
 
     for (int x = 0; x < WORLD_SIZE; x++) {
         for (int z = 0; z < WORLD_SIZE; z++) {
-            sol::protected_function f(lua.state["generateWorld"]);
-            sol::protected_function_result result = f(x, z, world.getChunk(x, z), world);
+            sol::protected_function f(lua.state["generateChunk"]);
+            sol::protected_function_result result = f(x, z, world.getChunk(x, z).get());
+            if (result.valid()) {
+
+            }
+            else {
+                // Call failed
+                sol::error err = result;
+                std::cout << err.what() << std::endl;
+            }
+
+            i++;
+
+            int currentProgress = (int)(((float)i / ((float)WORLD_SIZE*(float)WORLD_SIZE)) * 100.0f);
+
+            if (currentProgress != progress) {
+                progress = currentProgress;
+
+                std::cout << progress << "% complete." << std::endl;
+            }
+        }
+    }
+    i = 0;
+    progress = 0;
+
+    std::cout << "decorating terrain..." << std::endl;
+
+    for (int x = 0; x < WORLD_SIZE; x++) {
+        for (int z = 0; z < WORLD_SIZE; z++) {
+            sol::protected_function f(lua.state["decorateChunk"]);
+            sol::protected_function_result result = f(x, z, world);
             if (result.valid()) {
 
             }
@@ -173,12 +202,20 @@ void Server::init(int port) {
 
     lua.state.new_usertype<Chunk>( "Chunk",
         // typical member function that returns a variable
-        "setBlockRaw", &Chunk::setBlockRaw
+        "setBlockRaw", &Chunk::setBlockRaw,
+        "blocks", &Chunk::blocks
     );
 
     lua.state.new_usertype<World>( "World",
             // typical member function that returns a variable
-            "setBlockRaw", &World::setBlockRaw
+            "setBlockRaw", &World::setBlockRaw,
+            "getBlock", &World::getBlock
+
+    );
+
+    lua.state.new_usertype<Block>( "Block",
+            // typical member function that returns a variable
+            "getID", &Block::getID
     );
 
     if (false) {
