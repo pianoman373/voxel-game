@@ -247,6 +247,19 @@ Block &World::getBlock(int x, int y, int z) {
     return c->getBlock(x & 15, y, z & 15);
 }
 
+void World::setBlockRaw(int x, int y, int z, int blockID) {
+    int xp = x >> 4;
+    int zp = z >> 4;
+
+    int xc = x & 15;
+    int yc = y;
+    int zc = z & 15;
+
+    std::shared_ptr<Chunk> c = getChunk(xp, zp);
+
+    c->setBlockRaw(xc, yc, zc, blockID);
+}
+
 void World::setBlock(int x, int y, int z, Block &block) {
     int xp = x >> 4;
     int zp = z >> 4;

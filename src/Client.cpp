@@ -22,8 +22,6 @@
 
 #include <strstream>
 
-
-
 Client::Client(): network(*this), worldRenderer(world), player(world, *this), itemRenderer(*this) {
     rleCache = new uint8_t[16*16*256*5];
 }
@@ -135,14 +133,20 @@ void Client::receivePackets() {
     }
 }
 
-void Client::init(std::string address, int port) {
+void Client::init() {
     std::cout << "running client" << std::endl;
 
     settings.load("settings.json");
 
-    network.init(address, port);
+    Input::registerKeyPressedCallback([&] (int key) {
+        lua.pushEvent("key_press", key);
+    });
 
-    Window::create({1400, 800}, "Voxel Game", false, settings.vsync);
+    Input::registerCharPressedCallback([&] (int key) {
+        lua.pushEvent("char_press", (char)key);
+    });
+
+    Window::create({1400, 800}, "Cube Quest", false, settings.vsync);
 
     Renderer::init(settings.shadows, settings.shadow_resolution, 1400*settings.resolution_scale, 800*settings.resolution_scale);
     Renderer::settings.vignette = false;
@@ -167,8 +171,12 @@ void Client::init(std::string address, int port) {
     lua.addClientSideFunctions(*this);
     lua.runScripts();
     lua.runClientScripts();
+}
 
-    std::cout << "ran client scripts" << std::endl;
+void Client::connectToServer(std::string address, int port) {
+    std::cout << "connecting to server" << std::endl;
+
+    network.init(address, port);
 
     world.init(Context::CLIENT);
     worldRenderer.init();
@@ -176,6 +184,18 @@ void Client::init(std::string address, int port) {
     player.position = vec3(16*16, 250, 18*16);
     vec2i playerChunkPosition = vec2i((int)player.position.x >> 4, (int)player.position.z >> 4);
     manageChunks(playerChunkPosition);
+
+    inGame = true;
+}
+
+void Client::connectToIntegratedServer() {
+    integratedServer = new Server();
+
+    serverThread = new std::thread([&]() {
+        integratedServer->run(running, 1234);
+    });
+
+    connectToServer("localhost", 1234);
 }
 
 void Client::update(float delta) {
@@ -207,8 +227,6 @@ void Client::update(float delta) {
 }
 
 void Client::render() {
-    Window::begin();
-
     frustum.setupInternals(camera.fov, (float)Window::getWindowSize().x/(float)Window::getWindowSize().y, 0.1f, 1000.0f);
     //if (Input::isKeyDown(Input::KEY_LEFT_CONTROL))
     frustum.updateCamPosition(camera);
@@ -229,28 +247,47 @@ void Client::render() {
 
     vec2 size = vec2((float)Window::getWindowSize().x, (float)Window::getWindowSize().y);
 
-    lua.pushEvent("renderGUI", size.x, size.y);
-
-    Window::end();
+    lua.pushEvent("gui_ingame", size.x, size.y);
 }
 
-void Client::run(bool &running, std::string address, int port) {
-    init(address, port);
+void Client::run() {
+    init();
 
     while (Window::isOpen()) {
-        static float deltaTime;
-        static float lastFrameTime = Window::getTime();
+        Window::begin();
 
-        float currentFrameTime = Window::getTime();
-        deltaTime = currentFrameTime - lastFrameTime;
-        lastFrameTime = currentFrameTime;
+        if (inGame) {
+            static float deltaTime;
+            static float lastFrameTime = Window::getTime();
+
+            float currentFrameTime = Window::getTime();
+            deltaTime = currentFrameTime - lastFrameTime;
+            lastFrameTime = currentFrameTime;
 
 
-        update(deltaTime);
-        render();
+            update(deltaTime);
+            render();
+        }
+        else {
+            //main menu
+            Renderer::flush(camera);
+
+            vec2 size = vec2((float)Window::getWindowSize().x, (float)Window::getWindowSize().y);
+            lua.pushEvent("gui_main_menu", size.x, size.y);
+        }
+
+        Window::end();
     }
+    running = false;
 
     std::cout << "Shutting down client" << std::endl;
 
     enet_deinitialize();
+
+    if (integratedServer) {
+        serverThread->join();
+
+        delete integratedServer;
+        delete serverThread;
+    }
 }

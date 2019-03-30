@@ -9,6 +9,7 @@
 #include <chrono>
 #include <thread>
 
+#define WORLD_SIZE 32
 
 Server::Server(): network(*this) {
     rleCache = new uint8_t[16*16*256*5];
@@ -111,14 +112,12 @@ void Server::generateTerrain() {
     int progress = 0;
     int i = 0;
 
-    int worldSize = 32;
-
     std::cout << "generating terrain..." << std::endl;
 
-    for (int x = 0; x < worldSize; x++) {
-        for (int z = 0; z < worldSize; z++) {
+    for (int x = 0; x < WORLD_SIZE; x++) {
+        for (int z = 0; z < WORLD_SIZE; z++) {
             sol::protected_function f(lua.state["generateWorld"]);
-            sol::protected_function_result result = f(x, z, world.getChunk(x, z));
+            sol::protected_function_result result = f(x, z, world.getChunk(x, z), world);
             if (result.valid()) {
 
             }
@@ -130,7 +129,7 @@ void Server::generateTerrain() {
 
             i++;
 
-            int currentProgress = (int)(((float)i / ((float)worldSize*(float)worldSize)) * 100.0f);
+            int currentProgress = (int)(((float)i / ((float)WORLD_SIZE*(float)WORLD_SIZE)) * 100.0f);
 
             if (currentProgress != progress) {
                 progress = currentProgress;
@@ -148,8 +147,8 @@ void Server::generateTerrain() {
     std::cout << "generating lighting..." << std::endl;
 
     //generate lighting
-    for (int x = 0; x < 32; x++) {
-        for (int z = 0; z < 32; z++) {
+    for (int x = 0; x < WORLD_SIZE; x++) {
+        for (int z = 0; z < WORLD_SIZE; z++) {
             world.getChunk(x, z)->calculateSunLighting();
         }
     }
@@ -177,11 +176,16 @@ void Server::init(int port) {
         "setBlockRaw", &Chunk::setBlockRaw
     );
 
-    if (isWorldSavePresent()) {
+    lua.state.new_usertype<World>( "World",
+            // typical member function that returns a variable
+            "setBlockRaw", &World::setBlockRaw
+    );
+
+    if (false) {
         std::cout << "loading chunks from disk..." << std::endl;
 
-        for (int x = 0; x < 32; x++) {
-            for (int z = 0; z < 32; z++) {
+        for (int x = 0; x < WORLD_SIZE; x++) {
+            for (int z = 0; z < WORLD_SIZE; z++) {
                 chunkIO.loadChunk(world.getChunk(x, z));
             }
         }
@@ -189,8 +193,8 @@ void Server::init(int port) {
     else {
         generateTerrain();
 
-        for (int x = 0; x < 32; x++) {
-            for (int z = 0; z < 32; z++) {
+        for (int x = 0; x < WORLD_SIZE; x++) {
+            for (int z = 0; z < WORLD_SIZE; z++) {
                 chunkIO.saveChunk(world.getChunk(x, z));
             }
         }

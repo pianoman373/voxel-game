@@ -12,6 +12,7 @@
 #include "Settings.hpp"
 #include "Registry.hpp"
 #include "ItemRenderer.hpp"
+#include "Server.hpp"
 
 #include <crucible/Frustum.hpp>
 
@@ -26,9 +27,14 @@ private:
 
     std::unordered_map<vec2i, int> expectedChunks;
 
-
+    bool inGame = false;
 
     uint8_t *rleCache;
+
+    Server *integratedServer = nullptr;
+    std::thread *serverThread;
+
+    bool running = true;
 
 public:
     NetworkManagerClient network;
@@ -51,11 +57,15 @@ public:
 
     void receivePackets();
 
-    void init(std::string address, int port);
+    void init();
+
+    void connectToServer(std::string address, int port);
+
+    void connectToIntegratedServer();
 
     void update(float delta);
 
     void render();
 
-    void run(bool &running, std::string address, int port);
+    void run();
 };

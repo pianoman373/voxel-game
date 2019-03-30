@@ -48,37 +48,24 @@ int main(int argc, char *argv[]) {
             int port = atoi(argv[2]);
 
             s->run(running, port);
+
+            delete s;
         }
         else {
             std::cout << "Usage: voxel-game -s port" << std::endl;
         }
 
 
-    }
-    else if (argc > 1 && std::string(argv[1]) == "-c") {
-        if (argc > 3) {
-            std::string address = std::string(argv[2]);
-            int port = atoi(argv[3]);
 
-            c->run(running, address, port);
-        }
-        else {
-            std::cout << "Usage: voxel-game -c address port" << std::endl;
-        }
 
     }
     else {
-        std::thread thread0([&]() {
-            s->run(running, 1234);
-        });
+        c->run();
 
-        c->run(running, "localhost", 1234);
 
-        running = false;
-
-        thread0.join();
+        delete c;
     }
 
-    delete s;
-    delete c;
+
+
 }

@@ -63,6 +63,8 @@ public:
 
     Block &getBlock(int x, int y, int z);
 
+    void setBlockRaw(int x, int y, int z, int blockID);
+
     void setBlock(int x, int y, int z, Block &block);
 
     std::shared_ptr<Chunk> getChunk(int x, int z);

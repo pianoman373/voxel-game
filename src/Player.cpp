@@ -34,7 +34,7 @@ void Player::update(Camera &cam, float delta) {
     if (Input::isMouseGrabbed()) {
         vec2 offset = Input::getCursorPos() - lastpos;
         float xOffset = -offset.x / mouseSensitivity;
-        float yOffset = offset.y / mouseSensitivity;
+        float yOffset = -offset.y / mouseSensitivity;
 
         yRot += (yOffset);
         xRot += (xOffset);

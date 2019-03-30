@@ -95,8 +95,8 @@ api.registerBlock(11, {
 })
 
 api.registerBlock(12, {
-    name = "Thing",
+    name = "Water",
     textures = {
-        {8, 0}
+        {14, 0}
     }
 })
