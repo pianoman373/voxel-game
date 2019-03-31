@@ -264,7 +264,7 @@ void Chunk::calculateHeightmap() {
             int y = 255;
 
             while (y > 0) {
-                if (getBlockID(x, y, z) != 0) {
+                if (getBlock(x, y, z).isSolid()) {
                     heightMap[x][z] = y;
                     break;
                 }

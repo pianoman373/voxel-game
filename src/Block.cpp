@@ -74,24 +74,35 @@ BlockRegistry::BlockRegistry() {
     }
 }
 
-void BlockRegistry::registerBlock(int id, Block *block) {
+void BlockRegistry::registerBlock(const std::string &id, Block *block) {
     //registry.insert(std::make_pair(id, block));
 //
 //    block->blockID = id;
 //    registry[id] = block;
 
-    delete registry[(unsigned char)id];
+    delete registry[(unsigned char)nextID];
 
-    block->blockID = id;
-    registry[(unsigned char)id] = block;
+    block->blockID = nextID;
+    registry[(unsigned char)nextID] = block;
+    nameRegistry[id] = nextID;
+
+    nextID++;
 }
 
-void BlockRegistry::registerBlockLua(int id, sol::table block) {
+void BlockRegistry::registerBlockLua(const std::string &id, sol::table block) {
     registerBlock(id, new LuaBlock(block));
 }
 
 Block &BlockRegistry::getBlock(int id) {
     return *registry[(unsigned char)id];
+}
+
+Block& BlockRegistry::getBlock(const std::string &id) {
+    if ( nameRegistry.find(id) == nameRegistry.end() ) {
+        return getBlock(0);
+    } else {
+        return getBlock(nameRegistry[id]);
+    }
 }
 
 int BlockRegistry::registeredBlocks() {

@@ -349,8 +349,29 @@ void LuaHandler::addCommonFunctions(World &world) {
         eventHandlers[name].push_back(cb);
     });
 
-    state["api"]["registerBlock"] = [&](int id, sol::table block) {
+    state.new_usertype<Chunk>( "Chunk",
+            // typical member function that returns a variable
+                                   "setBlockRaw", &Chunk::setBlockRaw,
+                                   "blocks", &Chunk::blocks
+    );
+
+    state.new_usertype<World>( "World",
+            // typical member function that returns a variable
+                                   "setBlockRaw", &World::setBlockRaw,
+                                   "getBlock", &World::getBlock
+
+    );
+
+    state.new_usertype<Block>( "Block",
+            // typical member function that returns a variable
+                                   "getID", &Block::getID
+    );
+
+    state["api"]["registerBlock"] = [&](const std::string &id, sol::table block) {
         world.blockRegistry.registerBlockLua(id, block);
+    };
+    state["api"]["getBlock"] = [&](const std::string &id) {
+        return world.blockRegistry.getBlock(id);
     };
 
     state["require"] = [&] (const std::string &file) {

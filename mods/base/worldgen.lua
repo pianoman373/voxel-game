@@ -38,10 +38,10 @@ local function getHeight(x, z)
     return multiplier * (ridgedNoise(x/5, z/5, 4, 0.01, 0.5) * 40 + 60)
 end
 
-local topBlock = 1 --grass
-local midBlock = 3 --dirt
-local fillerBlock = 2 --stone
-local waterBlock = 12
+local topBlock = api.getBlock("base:grass"):getID() --grass
+local midBlock = api.getBlock("base:dirt"):getID() --dirt
+local fillerBlock = api.getBlock("base:stone"):getID() --stone
+local waterBlock = api.getBlock("base:water"):getID()
 
 local heights = array2D(18) --heightmap includes adjacent chunk blocks
 
@@ -64,55 +64,58 @@ local function getSteep(x, z)
     return dot(finalNorm, vec3(0, 1, 0)) < 0.7
 end
 
+local wood = api.getBlock("base:wood"):getID()
+local leaves = api.getBlock("base:leaves"):getID()
+
 local function placeTree(x, y, z, world)
-    world:setBlockRaw(x, y, z, 6)
-    world:setBlockRaw(x, y+1, z, 6)
-    world:setBlockRaw(x, y+2, z, 6)
-    world:setBlockRaw(x, y+3, z, 6)
-    world:setBlockRaw(x, y+4, z, 6)
-    world:setBlockRaw(x, y+5, z, 6)
-    world:setBlockRaw(x, y+6, z, 6)
+    world:setBlockRaw(x, y, z, wood)
+    world:setBlockRaw(x, y+1, z, wood)
+    world:setBlockRaw(x, y+2, z, wood)
+    world:setBlockRaw(x, y+3, z, wood)
+    world:setBlockRaw(x, y+4, z, wood)
+    world:setBlockRaw(x, y+5, z, wood)
+    world:setBlockRaw(x, y+6, z, wood)
 
-    world:setBlockRaw(x-1, y+3, z, 7)
-    world:setBlockRaw(x+1, y+3, z, 7)
-    world:setBlockRaw(x, y+3, z-1, 7)
-    world:setBlockRaw(x, y+3, z+1, 7)
-
-
-    world:setBlockRaw(x-1, y+4, z, 7)
-    world:setBlockRaw(x+1, y+4, z, 7)
-    world:setBlockRaw(x, y+4, z-1, 7)
-    world:setBlockRaw(x, y+4, z+1, 7)
-    world:setBlockRaw(x-1, y+4, z-1, 7)
-    world:setBlockRaw(x+1, y+4, z+1, 7)
-    world:setBlockRaw(x-1, y+4, z+1, 7)
-    world:setBlockRaw(x+1, y+4, z-1, 7)
+    world:setBlockRaw(x-1, y+3, z, leaves)
+    world:setBlockRaw(x+1, y+3, z, leaves)
+    world:setBlockRaw(x, y+3, z-1, leaves)
+    world:setBlockRaw(x, y+3, z+1, leaves)
 
 
-    world:setBlockRaw(x-1, y+5, z, 7)
-    world:setBlockRaw(x+1, y+5, z, 7)
-    world:setBlockRaw(x, y+5, z-1, 7)
-    world:setBlockRaw(x, y+5, z+1, 7)
-    world:setBlockRaw(x-1, y+5, z-1, 7)
-    world:setBlockRaw(x+1, y+5, z+1, 7)
-    world:setBlockRaw(x-1, y+5, z+1, 7)
-    world:setBlockRaw(x+1, y+5, z-1, 7)
+    world:setBlockRaw(x-1, y+4, z, leaves)
+    world:setBlockRaw(x+1, y+4, z, leaves)
+    world:setBlockRaw(x, y+4, z-1, leaves)
+    world:setBlockRaw(x, y+4, z+1, leaves)
+    world:setBlockRaw(x-1, y+4, z-1, leaves)
+    world:setBlockRaw(x+1, y+4, z+1, leaves)
+    world:setBlockRaw(x-1, y+4, z+1, leaves)
+    world:setBlockRaw(x+1, y+4, z-1, leaves)
 
 
-    world:setBlockRaw(x-1, y+6, z, 7)
-    world:setBlockRaw(x+1, y+6, z, 7)
-    world:setBlockRaw(x, y+6, z-1, 7)
-    world:setBlockRaw(x, y+6, z+1, 7)
+    world:setBlockRaw(x-1, y+5, z, leaves)
+    world:setBlockRaw(x+1, y+5, z, leaves)
+    world:setBlockRaw(x, y+5, z-1, leaves)
+    world:setBlockRaw(x, y+5, z+1, leaves)
+    world:setBlockRaw(x-1, y+5, z-1, leaves)
+    world:setBlockRaw(x+1, y+5, z+1, leaves)
+    world:setBlockRaw(x-1, y+5, z+1, leaves)
+    world:setBlockRaw(x+1, y+5, z-1, leaves)
 
-    world:setBlockRaw(x, y+7, z, 7)
-    world:setBlockRaw(x-1, y+7, z, 7)
-    world:setBlockRaw(x+1, y+7, z, 7)
-    world:setBlockRaw(x, y+7, z-1, 7)
-    world:setBlockRaw(x, y+7, z+1, 7)
 
-    world:setBlockRaw(x, y+8, z, 7)
-    world:setBlockRaw(x, y+9, z, 7)
-    world:setBlockRaw(x, y+10, z, 7)
+    world:setBlockRaw(x-1, y+6, z, leaves)
+    world:setBlockRaw(x+1, y+6, z, leaves)
+    world:setBlockRaw(x, y+6, z-1, leaves)
+    world:setBlockRaw(x, y+6, z+1, leaves)
+
+    world:setBlockRaw(x, y+7, z, leaves)
+    world:setBlockRaw(x-1, y+7, z, leaves)
+    world:setBlockRaw(x+1, y+7, z, leaves)
+    world:setBlockRaw(x, y+7, z-1, leaves)
+    world:setBlockRaw(x, y+7, z+1, leaves)
+
+    world:setBlockRaw(x, y+8, z, leaves)
+    world:setBlockRaw(x, y+9, z, leaves)
+    world:setBlockRaw(x, y+10, z, leaves)
 
 end
 
@@ -126,7 +129,7 @@ decorateChunk = function(chunk_x, chunk_z, world)
             for y = 255, 0, -1 do
                 if world:getBlock(x, y, z):getID() == 0 then
 
-                elseif world:getBlock(x, y, z):getID() == 1 then
+                elseif world:getBlock(x, y, z):getID() == topBlock then
                     placeTree(x, y+1, z, world)
                 else
                     break

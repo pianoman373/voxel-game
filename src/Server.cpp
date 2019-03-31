@@ -195,24 +195,6 @@ void Server::init(int port) {
     lua.runScripts();
     lua.state.script_file("mods/base/worldgen.lua", sol::script_default_on_error);
 
-    lua.state.new_usertype<Chunk>( "Chunk",
-        // typical member function that returns a variable
-        "setBlockRaw", &Chunk::setBlockRaw,
-        "blocks", &Chunk::blocks
-    );
-
-    lua.state.new_usertype<World>( "World",
-            // typical member function that returns a variable
-            "setBlockRaw", &World::setBlockRaw,
-            "getBlock", &World::getBlock
-
-    );
-
-    lua.state.new_usertype<Block>( "Block",
-            // typical member function that returns a variable
-            "getID", &Block::getID
-    );
-
     if (isWorldSavePresent()) {
         std::cout << "loading chunks from disk..." << std::endl;
 

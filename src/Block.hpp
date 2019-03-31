@@ -46,15 +46,19 @@ public:
 class BlockRegistry {
 private:
     std::vector<Block*> registry;
+    std::map<std::string, int> nameRegistry;
+    int nextID = 1;
 
 public:
     BlockRegistry();
 
-    void registerBlock(int id, Block *block);
+    void registerBlock(const std::string &id, Block *block);
 
-    void registerBlockLua(int id, sol::table block);
+    void registerBlockLua(const std::string &id, sol::table block);
 
     Block &getBlock(int id);
+
+    Block &getBlock(const std::string &id);
 
     int registeredBlocks();
 };
