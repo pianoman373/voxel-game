@@ -10,7 +10,7 @@ class Block {
     friend class BlockRegistry;
 
 private:
-    int blockID;
+    int blockID = 0;
 
 public:
     std::string name = "";
@@ -45,9 +45,10 @@ public:
 
 class BlockRegistry {
 private:
-    std::map<int, Block*> registry;
+    std::vector<Block*> registry;
 
 public:
+    BlockRegistry();
 
     void registerBlock(int id, Block *block);
 

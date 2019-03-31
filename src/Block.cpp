@@ -13,7 +13,7 @@ vec2i Block::getTextureCoord(EnumDirection dir) {
 }
 
 bool Block::isSolid() {
-    return true;
+    return false;
 }
 
 int Block::getLightLevel() {
@@ -66,11 +66,24 @@ int LuaBlock::getLightLevel() {
     return lightLevel;
 }
 
+BlockRegistry::BlockRegistry() {
+    for (int i = 0; i < 255; i++) {
+        Block *b = new Block();
+        b->blockID = i;
+        registry.push_back(b);
+    }
+}
+
 void BlockRegistry::registerBlock(int id, Block *block) {
     //registry.insert(std::make_pair(id, block));
+//
+//    block->blockID = id;
+//    registry[id] = block;
+
+    delete registry[(unsigned char)id];
 
     block->blockID = id;
-    registry[id] = block;
+    registry[(unsigned char)id] = block;
 }
 
 void BlockRegistry::registerBlockLua(int id, sol::table block) {
@@ -78,18 +91,7 @@ void BlockRegistry::registerBlockLua(int id, sol::table block) {
 }
 
 Block &BlockRegistry::getBlock(int id) {
-    Block *b;
-
-    try {
-        b = registry.at(id);
-    }
-    catch (std::out_of_range exception) {
-        b = registry[0];
-    }
-
-    return *b;
-
-    //return *registry[id];
+    return *registry[(unsigned char)id];
 }
 
 int BlockRegistry::registeredBlocks() {
