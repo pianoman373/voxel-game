@@ -2,7 +2,7 @@ local gui = require("base:gui.lua")
 local string = require("string")
 
 
-local hotbarSelectorPos = 0
+hotbarSelectorPos = 0
 local inventory = false
 local hideUI = false
 

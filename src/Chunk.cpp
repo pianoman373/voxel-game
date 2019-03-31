@@ -100,20 +100,30 @@ void Chunk::unSerialize(uint8_t *dataIn, int dataLength) {
     }
 }
 
-Block &Chunk::getBlock(int x, int y, int z) {
+int Chunk::getBlockID(int x, int y, int z) {
     int index = (y * 16 * 16) + (x * 16) + z;
-    if (x > -1 && x < 16 && y > -1 && y < 256 && z > -1 && z < 16) {
-		return world.blockRegistry.getBlock(blocks[index]);
+    if (index >= 0 && index < 16*16*256) {
+        return blocks[index];
     }
-	return world.blockRegistry.getBlock(0);//cm->getBlockID((this->chunk_x * CHUNK_SIZE) + x, (this->chunk_y * CHUNK_SIZE) + y, (this->chunk_z * CHUNK_SIZE) + z);
+    return 0;
+}
+
+Block &Chunk::getBlock(int x, int y, int z) {
+    return world.blockRegistry.getBlock(getBlockID(x, y, z));
+}
+
+int Chunk::getHeight(int x, int z) {
+    return heightMap[x][z];
 }
 
 void Chunk::setBlock(int x, int y, int z, Block &block) {
-    if (x < 16 && x >= 0 && y < 256 && y >= 0 && z < 16 && z >= 0) {
+    int index = (y * 16 * 16) + (x * 16) + z;
+
+    if (index >= 0 && index < 16*16*256) {
         isDirty = true;
         changedFromDisk = true;
 
-        int index = (y * 16 * 16) + (x * 16) + z;
+
 
         Block &originalBlock = world.blockRegistry.getBlock(blocks[index]);
 
@@ -181,8 +191,10 @@ void Chunk::setBlock(int x, int y, int z, Block &block) {
 }
 
 void Chunk::setBlockRaw(int x, int y, int z, int id) {
-    if (x < 16 && x >= 0 && y < 256 && y >= 0 && z < 16 && z >= 0) {
-        int index = (y * 16 * 16) + (x * 16) + z;
+    int index = (y * 16 * 16) + (x * 16) + z;
+
+    if (index >= 0 && index < 16*16*256) {
+
 
         blocks[index] = id;
     }
@@ -193,7 +205,7 @@ void Chunk::setBlockRaw(int x, int y, int z, int id) {
 int Chunk::getSunlight(int x, int y, int z) {
     int index = (y * 16 * 16) + (x * 16) + z;
 
-    if (x < 16 && x >= 0 && y < 256 && y >= 0 && z < 16 && z >= 0) {
+    if (index >= 0 && index < 16*16*256) {
         return (lightMap[index] >> 4) & 0xF;
     }
     else {
@@ -206,7 +218,7 @@ int Chunk::getSunlight(int x, int y, int z) {
 void Chunk::setSunlight(int x, int y, int z, int val) {
     int index = (y * 16 * 16) + (x * 16) + z;
 
-    if (x < 16 && x >= 0 && y < 256 && y >= 0 && z < 16 && z >= 0) {
+    if (index >= 0 && index < 16*16*256) {
         isDirty = true;
         changedFromDisk = true;
 
@@ -223,7 +235,7 @@ void Chunk::setSunlight(int x, int y, int z, int val) {
 int Chunk::getTorchlight(int x, int y, int z) {
     int index = (y * 16 * 16) + (x * 16) + z;
 
-    if (x < 16 && x >= 0 && y < 256 && y >= 0 && z < 16 && z >= 0) {
+    if (index >= 0 && index < 16*16*256) {
         return lightMap[index] & 0xF;
     }
     else {
@@ -235,7 +247,7 @@ int Chunk::getTorchlight(int x, int y, int z) {
 void Chunk::setTorchlight(int x, int y, int z, int val) {
     int index = (y * 16 * 16) + (x * 16) + z;
 
-    if (x < 16 && x >= 0 && y < 256 && y >= 0 && z < 16 && z >= 0) {
+    if (index >= 0 && index < 16*16*256) {
         isDirty = true;
         changedFromDisk = true;
 
@@ -243,6 +255,22 @@ void Chunk::setTorchlight(int x, int y, int z, int val) {
     }
     else {
 
+    }
+}
+
+void Chunk::calculateHeightmap() {
+    for (int x = 0; x < 16; x++) {
+        for (int z = 0; z < 16; z++) {
+            int y = 255;
+
+            while (y > 0) {
+                if (getBlockID(x, y, z) != 0) {
+                    heightMap[x][z] = y;
+                    break;
+                }
+                y--;
+            }
+        }
     }
 }
 
@@ -258,44 +286,100 @@ void Chunk::calculateSunLighting() {
         }
     }
 
-    propagateSunlight(neighborhood, lightBfsQueue);
-}
-
-void Chunk::propagateSunlight(ChunkNeighborhood &neighborhood, std::queue<vec3i> &lightBfsQueue) {
+    // a more optimized version of propagateSunlight that uses the heightmap.
+    // only suitable for first time generation currently
     while (!lightBfsQueue.empty()) {
         // Get a reference to the front node.
-        vec3i node = lightBfsQueue.front();
+        vec3i &node = lightBfsQueue.front();
         lightBfsQueue.pop();
 
         int lightLevel = neighborhood.getSunlight(node.x, node.y, node.z);
 
-        if (!neighborhood.getBlock(node.x - 1, node.y, node.z).isSolid() && neighborhood.getSunlight(node.x - 1, node.y, node.z) + 2 <= lightLevel) {
-            neighborhood.setSunlight(node.x - 1, node.y, node.z, lightLevel - 1);
+        if (neighborhood.getHeight(node.x - 1, node.z) > node.y) {
+            if (!neighborhood.getBlockID(node.x - 1, node.y, node.z) != 0 && neighborhood.getSunlight(node.x - 1, node.y, node.z) + 2 <= lightLevel) {
+                neighborhood.setSunlight(node.x - 1, node.y, node.z, lightLevel - 1);
 
-            lightBfsQueue.emplace(node.x - 1, node.y, node.z);
+                lightBfsQueue.emplace(node.x - 1, node.y, node.z);
+            }
         }
-        if (!neighborhood.getBlock(node.x + 1, node.y, node.z).isSolid() && neighborhood.getSunlight(node.x + 1, node.y, node.z) + 2 <= lightLevel) {
-            neighborhood.setSunlight(node.x + 1, node.y, node.z, lightLevel - 1);
 
-            lightBfsQueue.emplace(node.x + 1, node.y, node.z);
+        if (neighborhood.getHeight(node.x + 1, node.z) > node.y) {
+            if (!neighborhood.getBlockID(node.x + 1, node.y, node.z) != 0 && neighborhood.getSunlight(node.x + 1, node.y, node.z) + 2 <= lightLevel) {
+                neighborhood.setSunlight(node.x + 1, node.y, node.z, lightLevel - 1);
+
+                lightBfsQueue.emplace(node.x + 1, node.y, node.z);
+            }
         }
-        if (!neighborhood.getBlock(node.x, node.y - 1, node.z).isSolid() && neighborhood.getSunlight(node.x, node.y - 1, node.z) < lightLevel) {
+
+        if (!neighborhood.getBlockID(node.x, node.y - 1, node.z) != 0 && neighborhood.getSunlight(node.x, node.y - 1, node.z) < lightLevel) {
             neighborhood.setSunlight(node.x, node.y - 1, node.z, lightLevel);
 
             lightBfsQueue.emplace(node.x, node.y - 1, node.z);
         }
-        if (!neighborhood.getBlock(node.x, node.y + 1, node.z).isSolid() && neighborhood.getSunlight(node.x, node.y + 1, node.z) + 2 <= lightLevel) {
+
+        if (!neighborhood.getBlockID(node.x, node.y + 1, node.z) != 0 && neighborhood.getSunlight(node.x, node.y + 1, node.z) + 2 <= lightLevel) {
             neighborhood.setSunlight(node.x, node.y + 1, node.z, lightLevel - 1);
 
             lightBfsQueue.emplace(node.x, node.y + 1, node.z);
         }
 
-        if (!neighborhood.getBlock(node.x, node.y, node.z - 1).isSolid() && neighborhood.getSunlight(node.x, node.y, node.z - 1) + 2 <= lightLevel) {
+        if (neighborhood.getHeight(node.x, node.z - 1) > node.y) {
+            if (!neighborhood.getBlockID(node.x, node.y, node.z - 1) != 0 && neighborhood.getSunlight(node.x, node.y, node.z - 1) + 2 <= lightLevel) {
+                neighborhood.setSunlight(node.x, node.y, node.z - 1, lightLevel - 1);
+
+                lightBfsQueue.emplace(node.x, node.y, node.z - 1);
+            }
+        }
+
+        if (neighborhood.getHeight(node.x, node.z+1) > node.y) {
+            if (!neighborhood.getBlockID(node.x, node.y, node.z + 1) != 0 && neighborhood.getSunlight(node.x, node.y, node.z + 1) + 2 <= lightLevel) {
+                neighborhood.setSunlight(node.x, node.y, node.z + 1, lightLevel - 1);
+
+                lightBfsQueue.emplace(node.x, node.y, node.z + 1);
+            }
+        }
+    }
+}
+
+void Chunk::propagateSunlight(ChunkNeighborhood &neighborhood, std::queue<vec3i> &lightBfsQueue) {
+    while (!lightBfsQueue.empty()) {
+        // Get a reference to the front node.
+        vec3i &node = lightBfsQueue.front();
+        lightBfsQueue.pop();
+
+        int lightLevel = neighborhood.getSunlight(node.x, node.y, node.z);
+
+        if (!neighborhood.getBlockID(node.x - 1, node.y, node.z) != 0 && neighborhood.getSunlight(node.x - 1, node.y, node.z) + 2 <= lightLevel) {
+            neighborhood.setSunlight(node.x - 1, node.y, node.z, lightLevel - 1);
+
+            lightBfsQueue.emplace(node.x - 1, node.y, node.z);
+        }
+
+        if (!neighborhood.getBlockID(node.x + 1, node.y, node.z) != 0 && neighborhood.getSunlight(node.x + 1, node.y, node.z) + 2 <= lightLevel) {
+            neighborhood.setSunlight(node.x + 1, node.y, node.z, lightLevel - 1);
+
+            lightBfsQueue.emplace(node.x + 1, node.y, node.z);
+        }
+
+        if (!neighborhood.getBlockID(node.x, node.y - 1, node.z) != 0 && neighborhood.getSunlight(node.x, node.y - 1, node.z) < lightLevel) {
+            neighborhood.setSunlight(node.x, node.y - 1, node.z, lightLevel);
+
+            lightBfsQueue.emplace(node.x, node.y - 1, node.z);
+        }
+
+        if (!neighborhood.getBlockID(node.x, node.y + 1, node.z) != 0 && neighborhood.getSunlight(node.x, node.y + 1, node.z) + 2 <= lightLevel) {
+            neighborhood.setSunlight(node.x, node.y + 1, node.z, lightLevel - 1);
+
+            lightBfsQueue.emplace(node.x, node.y + 1, node.z);
+        }
+
+        if (!neighborhood.getBlockID(node.x, node.y, node.z - 1) != 0 && neighborhood.getSunlight(node.x, node.y, node.z - 1) + 2 <= lightLevel) {
             neighborhood.setSunlight(node.x, node.y, node.z - 1, lightLevel - 1);
 
             lightBfsQueue.emplace(node.x, node.y, node.z - 1);
         }
-        if (!neighborhood.getBlock(node.x, node.y, node.z + 1).isSolid() && neighborhood.getSunlight(node.x, node.y, node.z + 1) + 2 <= lightLevel) {
+
+        if (!neighborhood.getBlockID(node.x, node.y, node.z + 1) != 0 && neighborhood.getSunlight(node.x, node.y, node.z + 1) + 2 <= lightLevel) {
             neighborhood.setSunlight(node.x, node.y, node.z + 1, lightLevel - 1);
 
             lightBfsQueue.emplace(node.x, node.y, node.z + 1);

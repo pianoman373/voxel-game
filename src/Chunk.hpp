@@ -20,6 +20,7 @@ class Chunk {
 public:
 	unsigned char blocks[16 * 16 * 256] = { 0 };
 	unsigned char lightMap[16 * 16 * 256] = { 0 };
+	unsigned char heightMap[16][16] = { 0 };
     bool isDirty = false;
     bool changedFromDisk = false;
 
@@ -39,7 +40,11 @@ public:
 
     Chunk(World &world, int x, int z);
 
+    int getBlockID(int x, int y, int z);
+
     Block &getBlock(int x, int y, int z);
+
+    int getHeight(int x, int z);
 
     void setBlock(int x, int y, int z, Block &block);
 
@@ -52,6 +57,8 @@ public:
 	int getTorchlight(int x, int y, int z);
 
 	void setTorchlight(int x, int y, int z, int val);
+
+	void calculateHeightmap();
 
 	void calculateSunLighting();
 

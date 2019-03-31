@@ -49,6 +49,98 @@ Block &ChunkNeighborhood::getBlock(int x, int y, int z) {
     return center->getBlock(x, y, z);
 }
 
+int ChunkNeighborhood::getHeight(int x, int z) {
+    //center
+    if (x >= 0 && x < 16 && z >= 0 && z < 16) {
+        return center->getHeight(x, z);
+    }
+
+    //positive X
+    if (x >= 16 && z >= 0 && z < 16) {
+        return posX->getHeight(x - 16, z);
+    }
+    //negative X
+    if (x < 0 && z >= 0 && z < 16) {
+        return negX->getHeight(x + 16, z);
+    }
+
+    //positive Z
+    if (x >= 0 && x < 16 && z >= 16) {
+        return posZ->getHeight(x, z - 16);
+    }
+    //negative Z
+    if (x >= 0 && x < 16 && z < 0) {
+        return negZ->getHeight(x, z + 16);
+    }
+
+    //positive X positive Z
+    if (x >= 16 &&  z >= 16) {
+        return posXposZ->getHeight(x - 16, z - 16);
+    }
+    //positive X negative Z
+    if (x >= 16 && z < 0) {
+        return posXnegZ->getHeight(x - 16, z + 16);
+    }
+
+    //negative X positive Z
+    if (x < 0 &&  z >= 16) {
+        return negXposZ->getHeight(x + 16, z - 16);
+    }
+    //negative X negative Z
+    if (x < 0 && z < 0) {
+        return negXnegZ->getHeight(x + 16, z + 16);
+    }
+
+
+    return center->getHeight(x, z);
+}
+
+int ChunkNeighborhood::getBlockID(int x, int y, int z) {
+    //center
+    if (x >= 0 && x < 16 && z >= 0 && z < 16) {
+        return center->getBlockID(x, y, z);
+    }
+
+    //positive X
+    if (x >= 16 && z >= 0 && z < 16) {
+        return posX->getBlockID(x - 16, y, z);
+    }
+    //negative X
+    if (x < 0 && z >= 0 && z < 16) {
+        return negX->getBlockID(x + 16, y, z);
+    }
+
+    //positive Z
+    if (x >= 0 && x < 16 && z >= 16) {
+        return posZ->getBlockID(x, y, z - 16);
+    }
+    //negative Z
+    if (x >= 0 && x < 16 && z < 0) {
+        return negZ->getBlockID(x, y, z + 16);
+    }
+
+    //positive X positive Z
+    if (x >= 16 &&  z >= 16) {
+        return posXposZ->getBlockID(x - 16, y, z - 16);
+    }
+    //positive X negative Z
+    if (x >= 16 && z < 0) {
+        return posXnegZ->getBlockID(x - 16, y, z + 16);
+    }
+
+    //negative X positive Z
+    if (x < 0 &&  z >= 16) {
+        return negXposZ->getBlockID(x + 16, y, z - 16);
+    }
+    //negative X negative Z
+    if (x < 0 && z < 0) {
+        return negXnegZ->getBlockID(x + 16, y, z + 16);
+    }
+
+
+    return center->getBlockID(x, y, z);
+}
+
 int ChunkNeighborhood::getSunlight(int x, int y, int z) {
     //center
     if (x >= 0 && x < 16 && z >= 0 && z < 16) {

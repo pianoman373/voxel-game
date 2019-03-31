@@ -109,9 +109,6 @@ void Server::receivePackets() {
 void Server::generateTerrain() {
     auto start = std::chrono::high_resolution_clock::now();
 
-    int progress = 0;
-    int i = 0;
-
     std::cout << "generating terrain..." << std::endl;
 
     for (int x = 0; x < WORLD_SIZE; x++) {
@@ -126,20 +123,8 @@ void Server::generateTerrain() {
                 sol::error err = result;
                 std::cout << err.what() << std::endl;
             }
-
-            i++;
-
-            int currentProgress = (int)(((float)i / ((float)WORLD_SIZE*(float)WORLD_SIZE)) * 100.0f);
-
-            if (currentProgress != progress) {
-                progress = currentProgress;
-
-                std::cout << progress << "% complete." << std::endl;
-            }
         }
     }
-    i = 0;
-    progress = 0;
 
     std::cout << "decorating terrain..." << std::endl;
 
@@ -155,25 +140,31 @@ void Server::generateTerrain() {
                 sol::error err = result;
                 std::cout << err.what() << std::endl;
             }
-
-            i++;
-
-            int currentProgress = (int)(((float)i / ((float)WORLD_SIZE*(float)WORLD_SIZE)) * 100.0f);
-
-            if (currentProgress != progress) {
-                progress = currentProgress;
-
-                std::cout << progress << "% complete." << std::endl;
-            }
         }
     }
 
     auto finish = std::chrono::high_resolution_clock::now();
     float seconds = std::chrono::duration_cast<std::chrono::milliseconds>(finish-start).count() / 1000.0f;
-
     std::cout << "completed in " << seconds << "s " << std::endl;
 
+
+    std::cout << "generating heightmaps..." << std::endl;
+    start = std::chrono::high_resolution_clock::now();
+
+    //generate lighting
+    for (int x = 0; x < WORLD_SIZE; x++) {
+        for (int z = 0; z < WORLD_SIZE; z++) {
+            world.getChunk(x, z)->calculateHeightmap();
+        }
+    }
+
+    finish = std::chrono::high_resolution_clock::now();
+    seconds = std::chrono::duration_cast<std::chrono::milliseconds>(finish-start).count() / 1000.0f;
+    std::cout << "completed in " << seconds << "s " << std::endl;
+
+
     std::cout << "generating lighting..." << std::endl;
+    start = std::chrono::high_resolution_clock::now();
 
     //generate lighting
     for (int x = 0; x < WORLD_SIZE; x++) {
@@ -181,6 +172,10 @@ void Server::generateTerrain() {
             world.getChunk(x, z)->calculateSunLighting();
         }
     }
+
+    finish = std::chrono::high_resolution_clock::now();
+    seconds = std::chrono::duration_cast<std::chrono::milliseconds>(finish-start).count() / 1000.0f;
+    std::cout << "completed in " << seconds << "s " << std::endl;
 }
 
 void Server::init(int port) {

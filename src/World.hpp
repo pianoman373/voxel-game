@@ -34,6 +34,10 @@ struct ChunkNeighborhood {
 
     Block &getBlock(int x, int y, int z);
 
+    int getBlockID(int x, int y, int z);
+
+    int getHeight(int x, int z);
+
     int getSunlight(int x, int y, int z);
 
     void setSunlight(int x, int y, int z, int val);

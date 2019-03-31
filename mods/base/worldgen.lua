@@ -35,7 +35,7 @@ end
 local function getHeight(x, z)
     local multiplier = clamp(x/128, 0, 1) * clamp(z/128, 0, 1) * clamp((size-z)/128, 0, 1) * clamp((size-x)/128, 0, 1)
 
-    return multiplier * (ridgedNoise(x/5, z/5, 5, 0.01, 0.5) * 40 + 60)
+    return multiplier * (ridgedNoise(x/5, z/5, 4, 0.01, 0.5) * 40 + 60)
 end
 
 local topBlock = 1 --grass
@@ -122,16 +122,21 @@ decorateChunk = function(chunk_x, chunk_z, world)
         local x = chunk_x*16 + math.random(0, 15)
         local z = chunk_z*16 + math.random(0, 15)
 
-        for y = 255, 0, -1 do
-            if world:getBlock(x, y, z):getID() == 0 then
+        if noise2D(x/255, z/255) > 0 then
+            for y = 255, 0, -1 do
+                if world:getBlock(x, y, z):getID() == 0 then
 
-            elseif world:getBlock(x, y, z):getID() == 1 then
-                placeTree(x, y+1, z, world)
-            else
-                break
+                elseif world:getBlock(x, y, z):getID() == 1 then
+                    placeTree(x, y+1, z, world)
+                else
+                    break
+                end
+
             end
-
         end
+
+
+
     end
 end
 
