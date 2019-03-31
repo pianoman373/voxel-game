@@ -90,7 +90,15 @@ api.registerEventHandler("gui_main_menu", function(width, height)
     end
 
     if gui.button("Multiplayer", 0, 200, 300, 50) then
-        api.connectToServer("localhost", 1000)
+        local t={}
+        for str in string.gmatch(address, "([^"..":".."]+)") do
+            table.insert(t, str)
+        end
+
+    print(t[1])
+    print(t[2])
+
+        api.connectToServer(t[1], tonumber(t[2]))
     end
 
     address = gui.textBox("Address", address, 0, 150, 200)

@@ -213,7 +213,7 @@ void Server::init(int port) {
             "getID", &Block::getID
     );
 
-    if (false) {
+    if (isWorldSavePresent()) {
         std::cout << "loading chunks from disk..." << std::endl;
 
         for (int x = 0; x < WORLD_SIZE; x++) {
