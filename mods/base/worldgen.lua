@@ -10,7 +10,7 @@ unsigned char* getChunkData(void *c)
 
 require("base:api.lua")
 
-local size = 16*32
+local size = 16*64
 
 local function ridgedNoise(x, y, octaves, frequency, persistence)
     local total = 0.0
@@ -35,7 +35,7 @@ end
 local function getHeight(x, z)
     local multiplier = clamp(x/128, 0, 1) * clamp(z/128, 0, 1) * clamp((size-z)/128, 0, 1) * clamp((size-x)/128, 0, 1)
 
-    return multiplier * (ridgedNoise(x/5, z/5, 4, 0.01, 0.5) * 40 + 60)
+    return multiplier * (ridgedNoise(x/5, z/5, 4, 0.01, 0.5) * 40 + 50)
 end
 
 local topBlock = api.getBlock("base:grass"):getID() --grass

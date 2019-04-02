@@ -105,13 +105,10 @@ void ChunkRenderer::generateMesh(ChunkNeighborhood &neighborhood) {
                     float lightLevel = neighborhood.getSunlight(x+1, y, z) / 15.0f;
                     lightLevel += neighborhood.getTorchlight(x+1, y, z) / 15.0f;
 
-                    mesh.pushVertex(1.0f+x, 0.0f+y, 0.0f+z,  uv1.x, uv2.y,  ao100*lightLevel,  0);
-                    mesh.pushVertex(1.0f+x, 1.0f+y, 0.0f+z,  uv1.x, uv1.y,  ao110*lightLevel,  0);
-                    mesh.pushVertex(1.0f+x, 1.0f+y, 1.0f+z,  uv2.x, uv1.y,  ao111*lightLevel,  0);
-
-                    mesh.pushVertex(1.0f+x, 1.0f+y, 1.0f+z,  uv2.x, uv1.y,  ao111*lightLevel,  0);
-                    mesh.pushVertex(1.0f+x, 0.0f+y, 1.0f+z,  uv2.x, uv2.y,  ao101*lightLevel,  0);
-                    mesh.pushVertex(1.0f+x, 0.0f+y, 0.0f+z,  uv1.x, uv2.y,  ao100*lightLevel,  0);
+                    mesh.pushFace(1+x, 0+y, 0+z,  uv1.x, uv2.y,  (uint8_t)(ao100*lightLevel*255.0f),  0,
+                    1+x, 1+y, 0+z,  uv1.x, uv1.y,  (uint8_t)(ao110*lightLevel*255.0f),  0,
+                    1+x, 1+y, 1+z,  uv2.x, uv1.y,  (uint8_t)(ao111*lightLevel*255.0f),  0,
+                    1+x, 0+y, 1+z,  uv2.x, uv2.y,  (uint8_t)(ao101*lightLevel*255.0f),  0);
                 }
                 if (block_negX_Y_Z) { //-x face
                     vec2i textureCoord = block_X_Y_Z.getTextureCoord(EnumDirection::NEGATIVE_X);
@@ -143,13 +140,10 @@ void ChunkRenderer::generateMesh(ChunkNeighborhood &neighborhood) {
                     float lightLevel = neighborhood.getSunlight(x-1, y, z) / 15.0f;
                     lightLevel += neighborhood.getTorchlight(x-1, y, z) / 15.0f;
 
-                    mesh.pushVertex( 0.0f+x, 1.0f+y, 1.0f+z,  uv1.x, uv1.y,  ao011*lightLevel,  1);
-                    mesh.pushVertex( 0.0f+x, 1.0f+y, 0.0f+z,  uv2.x, uv1.y,  ao010*lightLevel,  1);
-                    mesh.pushVertex( 0.0f+x, 0.0f+y, 0.0f+z,  uv2.x, uv2.y,  ao000*lightLevel,  1);
-
-                    mesh.pushVertex( 0.0f+x, 0.0f+y, 0.0f+z,  uv2.x, uv2.y,  ao000*lightLevel,  1);
-                    mesh.pushVertex( 0.0f+x, 0.0f+y, 1.0f+z,  uv1.x, uv2.y,  ao001*lightLevel,  1);
-                    mesh.pushVertex( 0.0f+x, 1.0f+y, 1.0f+z,  uv1.x, uv1.y,  ao011*lightLevel,  1);
+                    mesh.pushFace( 0+x, 1+y, 1+z,  uv1.x, uv1.y,  (uint8_t)(ao011*lightLevel*255.0f),  1,
+                    0+x, 1+y, 0+z,  uv2.x, uv1.y,  (uint8_t)(ao010*lightLevel*255.0f),  1,
+                    0+x, 0+y, 0+z,  uv2.x, uv2.y,  (uint8_t)(ao000*lightLevel*255.0f),  1,
+                    0+x, 0+y, 1+z,  uv1.x, uv2.y,  (uint8_t)(ao001*lightLevel*255.0f),  1);
                 }
 
                 if (block_X_posY_Z) { //top face
@@ -182,13 +176,10 @@ void ChunkRenderer::generateMesh(ChunkNeighborhood &neighborhood) {
                     float lightLevel = neighborhood.getSunlight(x, y+1, z) / 15.0f;
                     lightLevel += neighborhood.getTorchlight(x, y+1, z) / 15.0f;
 
-                    mesh.pushVertex( 1.0f+x, 1.0f+y, 1.0f+z,  uv2.x, uv1.y,  ao111*lightLevel,  2);
-                    mesh.pushVertex( 1.0f+x, 1.0f+y, 0.0f+z,  uv2.x, uv2.y,  ao110*lightLevel,  2);
-                    mesh.pushVertex( 0.0f+x, 1.0f+y, 0.0f+z,  uv1.x, uv2.y,  ao010*lightLevel,  2);
-
-                    mesh.pushVertex( 0.0f+x, 1.0f+y, 0.0f+z,  uv1.x, uv2.y,  ao010*lightLevel,  2);
-                    mesh.pushVertex( 0.0f+x, 1.0f+y, 1.0f+z,  uv1.x, uv1.y,  ao011*lightLevel,  2);
-                    mesh.pushVertex( 1.0f+x, 1.0f+y, 1.0f+z,  uv2.x, uv1.y,  ao111*lightLevel,  2);
+                    mesh.pushFace( 1+x, 1+y, 1+z,  uv2.x, uv1.y,  (uint8_t)(ao111*lightLevel*255.0f),  2,
+                    1+x, 1+y, 0+z,  uv2.x, uv2.y,  (uint8_t)(ao110*lightLevel*255.0f),  2,
+                    0+x, 1+y, 0+z,  uv1.x, uv2.y,  (uint8_t)(ao010*lightLevel*255.0f),  2,
+                    0+x, 1+y, 1+z,  uv1.x, uv1.y,  (uint8_t)(ao011*lightLevel*255.0f),  2);
                 }
                 if (block_X_negY_Z) { //bottom face
                     vec2i textureCoord = block_X_Y_Z.getTextureCoord(EnumDirection::NEGATIVE_Y);
@@ -220,13 +211,10 @@ void ChunkRenderer::generateMesh(ChunkNeighborhood &neighborhood) {
                     float lightLevel = neighborhood.getSunlight(x, y-1, z) / 15.0f;
                     lightLevel += neighborhood.getTorchlight(x, y-1, z) / 15.0f;
 
-                    mesh.pushVertex( 0.0f+x, 0.0f+y, 0.0f+z,  uv1.x, uv2.y,  ao000*lightLevel,  3);
-                    mesh.pushVertex( 1.0f+x, 0.0f+y, 0.0f+z,  uv2.x, uv2.y,  ao100*lightLevel,  3);
-                    mesh.pushVertex( 1.0f+x, 0.0f+y, 1.0f+z,  uv2.x, uv1.y,  ao101*lightLevel,  3);
-
-                    mesh.pushVertex( 1.0f+x, 0.0f+y, 1.0f+z,  uv2.x, uv1.y,  ao101*lightLevel,  3);
-                    mesh.pushVertex( 0.0f+x, 0.0f+y, 1.0f+z,  uv1.x, uv1.y,  ao001*lightLevel,  3);
-                    mesh.pushVertex( 0.0f+x, 0.0f+y, 0.0f+z,  uv1.x, uv2.y,  ao000*lightLevel,  3);
+                    mesh.pushFace( 0+x, 0+y, 0+z,  uv1.x, uv2.y,  (uint8_t)(ao000*lightLevel*255.0f),  3,
+                    1+x, 0+y, 0+z,  uv2.x, uv2.y,  (uint8_t)(ao100*lightLevel*255.0f),  3,
+                    1+x, 0+y, 1+z,  uv2.x, uv1.y,  (uint8_t)(ao101*lightLevel*255.0f),  3,
+                    0+x, 0+y, 1+z,  uv1.x, uv1.y,  (uint8_t)(ao001*lightLevel*255.0f),  3);
                 }
                 if (block_X_Y_posZ) { //+z face
                     vec2i textureCoord = block_X_Y_Z.getTextureCoord(EnumDirection::POSITIVE_Z);
@@ -258,13 +246,10 @@ void ChunkRenderer::generateMesh(ChunkNeighborhood &neighborhood) {
                     float lightLevel = neighborhood.getSunlight(x, y, z+1) / 15.0f;
                     lightLevel += neighborhood.getTorchlight(x, y, z+1) / 15.0f;
 
-                    mesh.pushVertex( 0.0f+x, 0.0f+y, 1.0f+z,  uv1.x, uv2.y,  ao001*lightLevel,  4);
-                    mesh.pushVertex( 1.0f+x, 0.0f+y, 1.0f+z,  uv2.x, uv2.y,  ao101*lightLevel,  4);
-                    mesh.pushVertex( 1.0f+x, 1.0f+y, 1.0f+z,  uv2.x, uv1.y,  ao111*lightLevel,  4);
-
-                    mesh.pushVertex( 1.0f+x, 1.0f+y, 1.0f+z,  uv2.x, uv1.y,  ao111*lightLevel,  4);
-                    mesh.pushVertex( 0.0f+x, 1.0f+y, 1.0f+z,  uv1.x, uv1.y,  ao011*lightLevel,  4);
-                    mesh.pushVertex( 0.0f+x, 0.0f+y, 1.0f+z,  uv1.x, uv2.y,  ao001*lightLevel,  4);
+                    mesh.pushFace( 0+x, 0+y, 1+z,  uv1.x, uv2.y, (uint8_t)(ao001*lightLevel*255.0f),  4,
+                    1+x, 0+y, 1+z,  uv2.x, uv2.y,  (uint8_t)(ao101*lightLevel*255.0f),  4,
+                    1+x, 1+y, 1+z,  uv2.x, uv1.y,  (uint8_t)(ao111*lightLevel*255.0f),  4,
+                    0+x, 1+y, 1+z,  uv1.x, uv1.y,  (uint8_t)(ao011*lightLevel*255.0f),  4);
                 }
                 if (block_X_Y_negZ) { //-z face
                     vec2i textureCoord = block_X_Y_Z.getTextureCoord(EnumDirection::NEGATIVE_Z);
@@ -296,13 +281,10 @@ void ChunkRenderer::generateMesh(ChunkNeighborhood &neighborhood) {
                     float lightLevel = neighborhood.getSunlight(x, y, z-1) / 15.0f;
                     lightLevel += neighborhood.getTorchlight(x, y, z-1) / 15.0f;
 
-                    mesh.pushVertex( 1.0f+x, 1.0f+y, 0.0f+z,  uv2.x, uv1.y,  ao110*lightLevel,  5);
-                    mesh.pushVertex( 1.0f+x, 0.0f+y, 0.0f+z,  uv2.x, uv2.y,  ao100*lightLevel,  5);
-                    mesh.pushVertex( 0.0f+x, 0.0f+y, 0.0f+z,  uv1.x, uv2.y,  ao000*lightLevel,  5);
-
-                    mesh.pushVertex( 0.0f+x, 0.0f+y, 0.0f+z,  uv1.x, uv2.y,  ao000*lightLevel,  5);
-                    mesh.pushVertex( 0.0f+x, 1.0f+y, 0.0f+z,  uv1.x, uv1.y,  ao010*lightLevel,  5);
-                    mesh.pushVertex( 1.0f+x, 1.0f+y, 0.0f+z,  uv2.x, uv1.y,  ao110*lightLevel,  5);
+                    mesh.pushFace( 1+x, 1+y, 0+z,  uv2.x, uv1.y,  (uint8_t)(ao110*lightLevel*255.0f),  5,
+                    1+x, 0+y, 0+z,  uv2.x, uv2.y,  (uint8_t)(ao100*lightLevel*255.0f),  5,
+                    0+x, 0+y, 0+z,  uv1.x, uv2.y,  (uint8_t)(ao000*lightLevel*255.0f),  5,
+                    0+x, 1+y, 0+z,  uv1.x, uv1.y,  (uint8_t)(ao010*lightLevel*255.0f),  5);
                 }
             }
         }

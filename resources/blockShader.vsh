@@ -1,9 +1,9 @@
 #version 330 core
 
 layout (location = 0) in vec3 position;
-layout (location = 1) in vec2 uvs;
-layout (location = 2) in float aos;
-layout (location = 3) in int normalIndex;
+layout (location = 1) in float aos;
+layout (location = 2) in int normalIndex;
+layout (location = 3) in vec2 uvs;
 
 uniform mat4 model;
 uniform mat4 view;
