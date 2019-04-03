@@ -14,6 +14,10 @@ Chunk::Chunk(World &world, int x, int z): world(world) {
     chunk_z = z;
 }
 
+Chunk::~Chunk() {
+
+}
+
 int rleEncode(uint8_t *input, int inputLength, uint8_t *output) {
     int i = 0;
     int outputIndex = 0;

@@ -8,6 +8,7 @@
 #include <crucible/Input.hpp>
 #include <crucible/GuiRenderer.hpp>
 #include <crucible/Window.hpp>
+#include <crucible/Resources.hpp>
 
 #include <imgui.h>
 
@@ -168,10 +169,11 @@ void LuaHandler::addClientSideFunctions(Client &client) {
     };
 
     state["api"]["getTexture"] = [&](std::string path) {
-        return client.registry.getTexture(path);
-    };
-    state["api"]["registerTexture"] = [&](std::string path) {
-        client.registry.registerTexture(path);
+        std::string delimiter = ":";
+        std::string modName = path.substr(0, path.find(delimiter));
+        std::string modPath = path.substr(path.find(delimiter)+1, path.size());
+
+        return Resources::getTexture("mods/" + modName + "/resources/" + modPath, true);
     };
     state["api"]["getFont"] = [&](std::string path) {
         return client.registry.getFont(path);

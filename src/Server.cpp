@@ -9,7 +9,7 @@
 #include <chrono>
 #include <thread>
 
-#define WORLD_SIZE 64
+#define WORLD_SIZE 128
 
 Server::Server(): network(*this) {
     rleCache = new uint8_t[16*16*256*5];

@@ -8,7 +8,6 @@ in vec3 fragPos;
 in vec3 fragNormal;
 in vec2 uv;
 in vec3 fragColor;
-in mat3 TBN;
 in float ao;
 
 uniform sampler2D albedoTex;
@@ -64,14 +63,7 @@ void main()
         metallic = metallicColor;
     }
 
-    if (normalTextured) {
-      normal = texture(normalTex, uv).rgb;
-      normal = normalize(normal * 2.0 - 1.0);
-      normal = normalize(TBN * normal);
-    }
-    else {
-        normal = fragNormal;
-    }
+    normal = fragNormal;
 
   gNormal = normalize(normal);
   gAlbedo = vec4(albedo.rgb * ao, 1.0);

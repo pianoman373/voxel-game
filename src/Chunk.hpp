@@ -40,6 +40,8 @@ public:
 
     Chunk(World &world, int x, int z);
 
+    ~Chunk();
+
     int getBlockID(int x, int y, int z);
 
     Block &getBlock(int x, int y, int z);

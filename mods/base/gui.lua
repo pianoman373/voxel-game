@@ -4,7 +4,7 @@ local gui = {}
 
 
 
-api.registerTexture("base:textures/GUI.png")
+api.getTexture("base:textures/GUI.png")
 api.registerFont("base:HelvetiPixel.ttf")
 
 

@@ -3,6 +3,7 @@
 
 #include <crucible/Renderer.hpp>
 #include <crucible/IBL.hpp>
+#include <crucible/Resources.hpp>
 
 static const std::vector<vec3> normalLookup = {
         {1.0f, 0.0f, 0.0f},
@@ -51,14 +52,14 @@ WorldRenderer::~WorldRenderer() {
 }
 
 void WorldRenderer::init() {
-    blockShader.loadFile("resources/blockShader.vsh", "resources/blockShader.fsh");
-    skyboxShader.loadFile("resources/skybox.vsh", "resources/skybox.fsh");
+    blockShader = Resources::getShader("resources/blockShader.vsh", "resources/blockShader.fsh");
+    skyboxShader = Resources::getShader("resources/skybox.vsh", "resources/skybox.fsh");
 
-    texture.load("resources/terrain.png", true);
-    texture_r.load("resources/terrain_r.png", true);
-    texture_m.load("resources/terrain_m.png", true);
-    texture_e.load("resources/terrain_e.png", true);
-    texture_n.load("resources/terrain_n.png", true);
+    texture = Resources::getTexture("resources/terrain.png", true);
+    texture_r = Resources::getTexture("resources/terrain_r.png", true);
+    texture_m = Resources::getTexture("resources/terrain_m.png", true);
+    texture_e = Resources::getTexture("resources/terrain_e.png", true);
+    texture_n = Resources::getTexture("resources/terrain_n.png", true);
 
 
     nearMaterial.setPBRUniforms(texture, 1.0f, 0.0f);

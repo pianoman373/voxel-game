@@ -27,19 +27,19 @@ void main()
 
     gl_Position = projection * viewPos;
 
-    mat3 normalMatrix = transpose(inverse(mat3(view * model)));
-    fragNormal = normalMatrix * normalLookup[normalIndex];
+    // mat3 normalMatrix = transpose(inverse(mat3()));
+    fragNormal = mat3(view * model) * normalLookup[normalIndex];
     uv = uvs;
 
 
     fragColor = vec3(1.0);
 
-    vec3 T = normalize(vec3(model * vec4(tangentLookup[normalIndex], 0.0)));
-    vec3 N = normalize(vec3(model * vec4(normalLookup[normalIndex], 0.0)));
-    // re-orthogonalize T with respect to N
-    T = normalize(T - dot(T, N) * N);
-    // then retrieve perpendicular vector B with the cross product of T and N
-    vec3 B = cross(N, T);
+    // vec3 T = normalize(vec3(model * vec4(tangentLookup[normalIndex], 0.0)));
+    // vec3 N = normalize(vec3(model * vec4(normalLookup[normalIndex], 0.0)));
+    // // re-orthogonalize T with respect to N
+    // T = normalize(T - dot(T, N) * N);
+    // // then retrieve perpendicular vector B with the cross product of T and N
+    // vec3 B = cross(N, T);
 
-    TBN = mat3(view) *  mat3(T, B, N);
+    // TBN = mat3(view) *  mat3(T, B, N);
 }

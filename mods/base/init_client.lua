@@ -6,7 +6,7 @@ hotbarSelectorPos = 0
 local inventory = false
 local hideUI = false
 
-api.registerTexture("base:textures/background.png")
+api.getTexture("base:textures/background.png")
 
 local function renderHotbar(width, height, img)
     local blockSize = 50

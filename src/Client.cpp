@@ -5,7 +5,6 @@
 #include <crucible/Window.hpp>
 #include <crucible/Renderer.hpp>
 #include <crucible/Primitives.hpp>
-#include <crucible/Util.hpp>
 #include <crucible/Input.hpp>
 #include <crucible/GuiRenderer.hpp>
 #include <crucible/AssimpFile.hpp>
@@ -266,7 +265,10 @@ void Client::run() {
 
 
             update(deltaTime);
+
             render();
+
+
         }
         else {
             //main menu

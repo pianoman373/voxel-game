@@ -5,15 +5,16 @@
 #include <crucible/Primitives.hpp>
 #include <crucible/Window.hpp>
 #include <crucible/Renderer.hpp>
+#include <crucible/Resources.hpp>
 
 ItemRenderer::ItemRenderer(Client &client): client(client) {
 
 }
 
 void ItemRenderer::init() {
-    Primitives::cube(mesh);
+    mesh = Primitives::cube();
 
-    itemShader.loadFile("resources/item.vsh", "resources/item.fsh");
+    itemShader = Resources::getShader("resources/item.vsh", "resources/item.fsh");
 }
 
 void ItemRenderer::renderBlockItem(Block &block, float x, float y, float size) {

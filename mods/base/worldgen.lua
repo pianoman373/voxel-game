@@ -10,7 +10,7 @@ unsigned char* getChunkData(void *c)
 
 require("base:api.lua")
 
-local size = 16*64
+local size = 16*128
 
 local function ridgedNoise(x, y, octaves, frequency, persistence)
     local total = 0.0
