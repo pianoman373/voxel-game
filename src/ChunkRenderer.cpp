@@ -302,7 +302,7 @@ void ChunkRenderer::render(Material *mat) {
         this->updateMesh = false;
     }
 
-    Renderer::render(this->mesh, *mat, transform, aabb);
+    Renderer::render(&this->mesh, mat, &transform, &aabb);
     //Renderer::debug.renderDebugAABB(aabb, vec3(0.0f, 1.0f, 0.0f));
 
    //Renderer::debug.renderDebugAABB(AABB(vec3(attachedChunk.chunk_x*16, 0, attachedChunk.chunk_z*16), vec3(attachedChunk.chunk_x*16, 0, attachedChunk.chunk_z*16) + vec3(16, 256, 16)), vec3(0.0f, 1.0f, 0.0f));

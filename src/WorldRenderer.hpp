@@ -5,6 +5,7 @@
 #include <crucible/Texture.hpp>
 #include <crucible/Material.hpp>
 #include <crucible/Camera.hpp>
+#include <crucible/DirectionalLight.hpp>
 
 #include <unordered_map>
 #include <thread>
@@ -46,6 +47,8 @@ private:
     std::thread *thread1;
     std::thread *thread2;
     std::thread *thread3;
+
+    DirectionalLight sun{normalize(vec3(-0.4f, -0.6f, -1.0f)), vec3(1.4f, 1.3f, 1.0f) * 3.0f, 2048};
 
 public:
     Texture texture;

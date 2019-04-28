@@ -73,7 +73,7 @@ void WorldRenderer::init() {
         nearMaterial.setUniformVec3("tangentLookup[" + std::to_string(i) + "]", tangentLookup[i]);
     }
 
-    Renderer::setSkyboxShader(skyboxShader);
+    //Renderer::setSkyboxShader(skyboxShader);
     IBL::generateIBLmaps(vec3(0.0f,  0.0f, 0.0f), Renderer::irradiance, Renderer::specular);
 
     thread0 = new std::thread([&]() {
@@ -99,6 +99,8 @@ void WorldRenderer::init() {
 
 void WorldRenderer::render(Camera &cam) {
     int regeneratedChunks = 0;
+
+    Renderer::renderDirectionalLight(&sun);
 
     for (auto &i : chunkRenderers) {
         std::shared_ptr<ChunkRenderer> cr = i.second;

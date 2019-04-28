@@ -147,18 +147,18 @@ void Client::init() {
 
     Window::create({1400, 800}, "Cube Quest", false, settings.vsync);
 
-    Renderer::init(settings.shadows, settings.shadow_resolution, 1400*settings.resolution_scale, 800*settings.resolution_scale);
-    Renderer::settings.vignette = false;
-    Renderer::settings.SSR = false;
-
-    Renderer::settings.ssao = settings.fancy_graphics;
-    Renderer::settings.bloom = settings.fancy_graphics;
-    Renderer::settings.fxaa = settings.fancy_graphics;
-
-    Renderer::settings.fogOuter = settings.render_distance*16.0f;
-    Renderer::settings.fogInner = Renderer::settings.fogOuter * 0.8f;
-
-    Renderer::setSun({normalize(vec3(-0.4f, -0.6f, -1.0f)), vec3(1.4f, 1.3f, 1.0f) * 3.0f});
+    Renderer::init(1400*settings.resolution_scale, 800*settings.resolution_scale);
+//    Renderer::settings.vignette = false;
+//    Renderer::settings.SSR = false;
+//
+//    Renderer::settings.ssao = settings.fancy_graphics;
+//    Renderer::settings.bloom = settings.fancy_graphics;
+//    Renderer::settings.fxaa = settings.fancy_graphics;
+//
+//    Renderer::settings.fogOuter = settings.render_distance*16.0f;
+//    Renderer::settings.fogInner = Renderer::settings.fogOuter * 0.8f;
+//
+//    Renderer::setSun({normalize(vec3(-0.4f, -0.6f, -1.0f)), vec3(1.4f, 1.3f, 1.0f) * 3.0f});
 
     camera.position = vec3(3.0f, 62.0f, 3.0f);
     camera.direction = vec3(0.0f, 0.0f, 1.0f);
