@@ -5,12 +5,9 @@
 
 #include <stdio.h>
 
-#include <unistd.h>
-
 inline bool fileExists(const std::string& name) {
-    bool exists = access( name.c_str(), F_OK ) != -1;
-
-    return exists;
+    std::ifstream infile(name);
+    return infile.good();
 }
 
 void ChunkIO::encodeInt(uint16_t val, unsigned char *buffer)
@@ -219,6 +216,8 @@ void ChunkIO::saveChunk(std::shared_ptr<Chunk> c) {
     mx.unlock();
 }
 
+static uint8_t compressedChunk[32*SECTOR_SIZE];
+
 void ChunkIO::loadChunk(std::shared_ptr<Chunk> c) {
     mx.lock();
     if (!c) {
@@ -265,7 +264,7 @@ void ChunkIO::loadChunk(std::shared_ptr<Chunk> c) {
 
         //std::cout << LOOKUP_TABLE_SIZE + ((index-1) * SECTOR_SIZE) << std::endl;
 
-        uint8_t compressedChunk[sectors*SECTOR_SIZE];
+        
 
         fread(compressedChunk, 1, sectors*SECTOR_SIZE, pFile);
 

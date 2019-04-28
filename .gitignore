@@ -39,3 +39,6 @@ cmake-build-*
 save*
 .idea
 .vs
+
+build*
+.vscode*

@@ -37,21 +37,21 @@ public:
 
     template<typename... Args>
     inline void pushEvent(std::string name, Args&&... args) {
-        std::vector<sol::function> callbacks = eventHandlers[name];
+        // std::vector<sol::function> callbacks = eventHandlers[name];
 
-        for (int i = 0; i < callbacks.size(); i++) {
-            sol::protected_function f = callbacks[i];
+        // for (int i = 0; i < callbacks.size(); i++) {
+        //     sol::protected_function f = callbacks[i];
 
-            sol::protected_function_result result = f(args...);
-            if (result.valid()) {
+        //     sol::protected_function_result result = f(args...);
+        //     if (result.valid()) {
 
-            }
-            else {
-                // Call failed
-                sol::error err = result;
-                std::cout << err.what() << std::endl;
-            }
-        }
+        //     }
+        //     else {
+        //         // Call failed
+        //         sol::error err = result;
+        //         std::cout << err.what() << std::endl;
+        //     }
+        // }
     }
 
     void registerEventHandler(std::string name, sol::function cb);

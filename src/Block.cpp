@@ -17,7 +17,7 @@ bool Block::isSolid() {
 }
 
 int Block::getLightLevel() {
-
+    return 0;
 }
 
 int Block::getID() {
