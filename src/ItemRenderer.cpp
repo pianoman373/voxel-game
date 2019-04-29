@@ -2,10 +2,10 @@
 #include "Block.hpp"
 #include "Client.hpp"
 
-#include <crucible/Primitives.hpp>
-#include <crucible/Window.hpp>
-#include <crucible/Renderer.hpp>
-#include <crucible/Resources.hpp>
+#include "core/Primitives.hpp"
+#include "core/Window.hpp"
+#include "core/Renderer.hpp"
+#include "core/Resources.hpp"
 
 ItemRenderer::ItemRenderer(Client &client): client(client) {
 

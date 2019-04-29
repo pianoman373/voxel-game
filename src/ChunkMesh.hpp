@@ -1,7 +1,7 @@
 #pragma once
 
-#include <crucible/IRenderable.hpp>
-#include <crucible/Math.hpp>
+#include "core/IRenderable.hpp"
+#include "core/Math.hpp"
 
 #include <vector>
 

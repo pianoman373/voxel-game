@@ -1,8 +1,8 @@
 #include "GuiMain.hpp"
 
-#include <crucible/GuiRenderer.hpp>
-#include <crucible/Window.hpp>
-#include <crucible/Input.hpp>
+#include "core/GuiRenderer.hpp"
+#include "core/Window.hpp"
+#include "core/Input.hpp"
 
 bool GuiMain::button(vec2 position, vec2 size) {
     vec4 color = vec4(0.5f, 0.5f, 0.5f, 1.0f);

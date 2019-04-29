@@ -4,10 +4,10 @@
 #include "Client.hpp"
 #include "Block.hpp"
 
-#include <crucible/AABB.hpp>
-#include <crucible/Renderer.hpp>
-#include <crucible/Camera.hpp>
-#include <crucible/Input.hpp>
+#include "core/AABB.hpp"
+#include "core/Renderer.hpp"
+#include "core/Camera.hpp"
+#include "core/Input.hpp"
 
 #include <imgui.h>
 #include <GLFW/glfw3.h>

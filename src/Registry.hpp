@@ -3,8 +3,8 @@
 #include <map>
 #include <string>
 
-#include <crucible/Texture.hpp>
-#include <crucible/Font.hpp>
+#include "core/Texture.hpp"
+#include "core/Font.hpp"
 
 class Registry {
 private:

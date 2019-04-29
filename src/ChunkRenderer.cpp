@@ -3,7 +3,7 @@
 #include "Block.hpp"
 #include "WorldRenderer.hpp"
 
-#include <crucible/Renderer.hpp>
+#include "core/Renderer.hpp"
 
 #include <queue>
 

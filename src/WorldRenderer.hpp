@@ -1,11 +1,11 @@
 #pragma once
 
 
-#include <crucible/Shader.hpp>
-#include <crucible/Texture.hpp>
-#include <crucible/Material.hpp>
-#include <crucible/Camera.hpp>
-#include <crucible/DirectionalLight.hpp>
+#include "core/Shader.hpp"
+#include "core/Texture.hpp"
+#include "core/Material.hpp"
+#include "core/Camera.hpp"
+#include "core/DirectionalLight.hpp"
 
 #include <unordered_map>
 #include <thread>
@@ -48,7 +48,7 @@ private:
     std::thread *thread2;
     std::thread *thread3;
 
-    DirectionalLight sun{normalize(vec3(-0.4f, -0.6f, -1.0f)), vec3(1.4f, 1.3f, 1.0f) * 3.0f, 2048};
+    DirectionalLight sun{normalize(vec3(-0.4f, -0.6f, -1.0f)), vec3(1.4f, 1.3f, 1.0f) * 3.0f, 2048, 3, 200.0f};
 
 public:
     Texture texture;

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <crucible/Mesh.hpp>
-#include <crucible/Shader.hpp>
+#include "core/Mesh.hpp"
+#include "core/Shader.hpp"
 
 class Block;
 class Client;

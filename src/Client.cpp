@@ -2,12 +2,12 @@
 #include "NetworkManagerClient.hpp"
 #include "Noise.hpp"
 
-#include <crucible/Window.hpp>
-#include <crucible/Renderer.hpp>
-#include <crucible/Primitives.hpp>
-#include <crucible/Input.hpp>
-#include <crucible/GuiRenderer.hpp>
-#include <crucible/AssimpFile.hpp>
+#include "core/Window.hpp"
+#include "core/Renderer.hpp"
+#include "core/Primitives.hpp"
+#include "core/Input.hpp"
+#include "core/GuiRenderer.hpp"
+#include "core/AssimpFile.hpp"
 
 #include <cstring>
 

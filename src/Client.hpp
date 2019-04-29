@@ -1,9 +1,9 @@
 #pragma once
 
-#include <crucible/Camera.hpp>
-#include <crucible/Model.hpp>
-#include <crucible/Material.hpp>
-#include <crucible/Bone.hpp>
+#include "core/Camera.hpp"
+#include "core/Model.hpp"
+#include "core/Material.hpp"
+#include "core/Bone.hpp"
 
 #include "NetworkManagerClient.hpp"
 #include "World.hpp"
@@ -14,7 +14,7 @@
 #include "ItemRenderer.hpp"
 #include "Server.hpp"
 
-#include <crucible/Frustum.hpp>
+#include "core/Frustum.hpp"
 
 
 #include <map>

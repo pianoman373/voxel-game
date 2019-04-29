@@ -1,6 +1,13 @@
-[submodule "lib/crucible"]
-	path = lib/crucible
-	url = https://github.com/pianoman373/crucible.git
 [submodule "lib/enet"]
 	path = lib/enet
 	url = https://github.com/lsalzman/enet.git
+[submodule "lib/glfw"]
+	path = lib/glfw
+	url = https://github.com/glfw/glfw
+[submodule "lib/stb"]
+	path = lib/stb
+	url = https://github.com/nothings/stb
+[submodule "lib/imgui"]
+	path = lib/imgui
+	url = https://github.com/ocornut/imgui.git
+	branch = docking

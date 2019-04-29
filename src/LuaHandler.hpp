@@ -2,7 +2,7 @@
 
 #include "sol.hpp"
 
-#include <crucible/Path.hpp>
+#include "core/Path.hpp"
 
 #include <map>
 

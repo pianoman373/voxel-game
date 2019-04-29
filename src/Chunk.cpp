@@ -2,9 +2,9 @@
 #include "World.hpp"
 #include "Block.hpp"
 
-#include <crucible/Renderer.hpp>
-#include <crucible/Mesh.hpp>
-#include <crucible/Math.hpp>
+#include "core/Renderer.hpp"
+#include "core/Mesh.hpp"
+#include "core/Math.hpp"
 
 #include <math.h>
 #include <queue>

@@ -1,36 +1,60 @@
 cmake_minimum_required(VERSION 3.0)
 project(voxel-game)
 
-option(CRUCIBLE_BUILD_EXAMPLES OFF)
-add_subdirectory(lib/crucible)
-
 add_subdirectory(lib/luajit)
 
 add_subdirectory(lib/enet)
 
+option(GLFW_BUILD_DOCS OFF)
+option(GLFW_BUILD_EXAMPLES OFF)
+option(GLFW_BUILD_TESTS OFF)
+add_subdirectory(lib/glfw)
+
+add_subdirectory(lib/freetype)
+
 include_directories(lib/crucible/include/
                     lib/luajit/src/
                     ${CMAKE_BINARY_DIR}/lib/luajit
-                    lib/crucible/lib/GLFW/include/
-                    lib/crucible/lib/bullet/src/
-                    lib/crucible/lib/assimp/include/
-                    lib/crucible/lib/stb/
-                    lib/crucible/lib/imgui/
                     lib/enet/include/
+
+                    lib/crucible/include/
+                    lib/GLFW/include/
+                    lib/stb/
+                    lib/imgui/
+                    lib/freetype/include/
                     )
 
 file(GLOB PROJECT_SOURCES src/*.cpp
                           src/*.c
+
+                          src/core/*.cpp
+                          src/core/*.c
+                          lib/imgui/imgui.cpp
+                          lib/imgui/imgui_demo.cpp
+                          lib/imgui/imgui_draw.cpp
+                          lib/imgui/imgui_widgets.cpp
+                          lib/imgui/examples/imgui_impl_glfw.cpp
+                          lib/imgui/examples/imgui_impl_opengl3.cpp
                           )
 file(GLOB PROJECT_HEADERS src/*.h
                           src/*.hpp
+
+                          src/core/*.h
+						  src/core/*.hpp
                           )
 
-add_definitions(-DSFML_STATIC -DGLFW_STATIC)
+add_definitions(-DGLFW_INCLUDE_NONE
+                -DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\"
+                -DGLFW_STATIC
+                -DIMGUI_IMPL_OPENGL_LOADER_GLAD)
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS})
 
-target_link_libraries(${PROJECT_NAME} crucible liblua enet ws2_32 winmm)
+if(WIN32)
+    target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES} opengl32 freetype liblua enet ws2_32 winmm)
+elseif(UNIX AND NOT APPLE)
+    target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES} GL freetype liblua enet)
+endif(WIN32)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 
@@ -44,3 +68,7 @@ else()
     endif()
 
 endif()
+
+
+source_group("Sources" FILES ${PROJECT_SOURCES})
+source_group("Headers" FILES ${PROJECT_HEADERS})

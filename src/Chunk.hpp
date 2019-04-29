@@ -1,8 +1,8 @@
 #pragma once
 
-#include <crucible/Mesh.hpp>
-#include <crucible/AABB.hpp>
-#include <crucible/Material.hpp>
+#include "core/Mesh.hpp"
+#include "core/AABB.hpp"
+#include "core/Material.hpp"
 
 #include "ChunkMesh.hpp"
 #include "Block.hpp"

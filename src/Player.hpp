@@ -1,6 +1,6 @@
 #pragma once
 
-#include <crucible/Math.hpp>
+#include "core/Math.hpp"
 
 class Camera;
 

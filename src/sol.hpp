@@ -1039,7 +1039,7 @@ namespace meta {
 #endif // C++17 features
 #include <functional>
 #if defined(SOL_USE_BOOST) && SOL_USE_BOOST
-#include <boost/functional/hash.hpp>
+#include <boost/functional/hash.hpp"
 #endif
 
 namespace sol {
@@ -3234,7 +3234,7 @@ namespace sol {
 // end of sol/in_place.hpp
 
 #if defined(SOL_USE_BOOST) && SOL_USE_BOOST
-#include <boost/optional.hpp>
+#include <boost/optional.hpp"
 #else
 // beginning of sol/optional_implementation.hpp
 
@@ -4603,7 +4603,7 @@ namespace sol {
 #endif
 #endif // C++17
 #ifdef SOL_USE_BOOST
-#include <boost/unordered_map.hpp>
+#include <boost/unordered_map.hpp"
 #else
 #include <unordered_map>
 #endif // Using Boost

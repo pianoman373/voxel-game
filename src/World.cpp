@@ -1,7 +1,7 @@
 #include "World.hpp"
 
-#include <crucible/Renderer.hpp>
-#include <crucible/IBL.hpp>
+#include "core/Renderer.hpp"
+#include "core/IBL.hpp"
 
 Block &ChunkNeighborhood::getBlock(int x, int y, int z) {
     //center

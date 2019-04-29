@@ -5,10 +5,10 @@
 #include "SimplexNoise.hpp"
 #include "Client.hpp"
 
-#include <crucible/Input.hpp>
-#include <crucible/GuiRenderer.hpp>
-#include <crucible/Window.hpp>
-#include <crucible/Resources.hpp>
+#include "core/Input.hpp"
+#include "core/GuiRenderer.hpp"
+#include "core/Window.hpp"
+#include "core/Resources.hpp"
 
 #include <imgui.h>
 

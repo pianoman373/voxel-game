@@ -1,9 +1,9 @@
 #include "WorldRenderer.hpp"
 #include "World.hpp"
 
-#include <crucible/Renderer.hpp>
-#include <crucible/IBL.hpp>
-#include <crucible/Resources.hpp>
+#include "core/Renderer.hpp"
+#include "core/IBL.hpp"
+#include "core/Resources.hpp"
 
 static const std::vector<vec3> normalLookup = {
         {1.0f, 0.0f, 0.0f},

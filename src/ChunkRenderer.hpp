@@ -3,8 +3,8 @@
 #include "ChunkMesh.hpp"
 #include "World.hpp"
 
-#include <crucible/AABB.hpp>
-#include <crucible/Material.hpp>
+#include "core/AABB.hpp"
+#include "core/Material.hpp"
 
 class Chunk;
 struct ChunkRemeshJob;
