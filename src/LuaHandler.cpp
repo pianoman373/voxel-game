@@ -353,8 +353,7 @@ void LuaHandler::addCommonFunctions(World &world) {
 
      state.new_usertype<Chunk>( "Chunk",
              // typical member function that returns a variable
-                                    "setBlockRaw", &Chunk::setBlockRaw,
-                                    "blocks", &Chunk::blocks
+                                    "setBlockRaw", &Chunk::setBlockRaw
      );
 
      state.new_usertype<World>( "World",

@@ -30,7 +30,7 @@ add_definitions(-DSFML_STATIC -DGLFW_STATIC)
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS})
 
-target_link_libraries(${PROJECT_NAME} crucible liblua enet)
+target_link_libraries(${PROJECT_NAME} crucible liblua enet ws2_32 winmm)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 

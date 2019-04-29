@@ -52,6 +52,12 @@ WorldRenderer::~WorldRenderer() {
 }
 
 void WorldRenderer::init() {
+    // add post processing effects
+    Renderer::postProcessingStack.push_back(std::shared_ptr<PostProcessor>(new SsaoPostProcessor())); // SSAO
+    Renderer::postProcessingStack.push_back(std::shared_ptr<PostProcessor>(new BloomPostProcessor())); // Bloom
+    Renderer::postProcessingStack.push_back(std::shared_ptr<PostProcessor>(new TonemapPostProcessor())); // Tonemapping
+    Renderer::postProcessingStack.push_back(std::shared_ptr<PostProcessor>(new FxaaPostProcessor())); // FXAA
+
     blockShader = Resources::getShader("resources/blockShader.vsh", "resources/blockShader.fsh");
     skyboxShader = Resources::getShader("resources/skybox.vsh", "resources/skybox.fsh");
 
