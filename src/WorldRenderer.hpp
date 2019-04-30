@@ -27,9 +27,10 @@ using namespace moodycamel;
 class WorldRenderer {
 private:
     World &world;
+    Client &client;
 
     Shader blockShader;
-    Shader skyboxShader;
+    Material skyboxMaterial;
 
 
 
@@ -48,7 +49,7 @@ private:
     std::thread *thread2;
     std::thread *thread3;
 
-    DirectionalLight sun{normalize(vec3(-0.4f, -0.6f, -1.0f)), vec3(1.4f, 1.3f, 1.0f) * 3.0f, 2048, 3, 200.0f};
+    DirectionalLight *sun = nullptr;
 
 public:
     Texture texture;
@@ -57,7 +58,7 @@ public:
     Texture texture_e;
     Texture texture_n;
 
-    WorldRenderer(World &world);
+    WorldRenderer(World &world, Client &client);
 
     ~WorldRenderer();
 

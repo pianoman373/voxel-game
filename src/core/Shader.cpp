@@ -249,7 +249,7 @@ float PCF(sampler2D depths, vec2 size, vec2 uv, float compare, float shadowRadiu
     float result = 0.0;
     
         for(int index=0; index < 8; index++){
-            vec2 off = poissonDisk[index]/shadowRadius*0.05;
+            vec2 off = poissonDisk[index]/shadowRadius*0.02;
             result += texture2DShadowLerp(depths, size, uv+off, compare);
         }
     

@@ -21,6 +21,14 @@ public:
     void postProcess(const Camera &cam, const Framebuffer &source, const Framebuffer &destination);
 };
 
+class FogPostProcessor: public PostProcessor {
+public:
+    float fogInner = 90.0f;
+    float fogOuter = 100.0f;
+
+    void postProcess(const Camera &cam, const Framebuffer &source, const Framebuffer &destination);
+};
+
 class SsaoPostProcessor: public PostProcessor {
 private:
     Framebuffer ssaoBuffer;

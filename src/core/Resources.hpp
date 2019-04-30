@@ -3,8 +3,8 @@
 #include "Path.hpp"
 #include "Shader.hpp"
 #include "Texture.hpp"
-#include "AssimpFile.hpp"
 #include "Material.hpp"
+#include "Mesh.hpp"
 
 namespace Resources {
     extern Mesh cubemapMesh;
@@ -38,6 +38,7 @@ namespace Resources {
     extern Shader ssrShader;
     extern Shader gammaCorrectShader;
     extern Shader bloomShader;
+    extern Shader fogShader;
 
 
 
@@ -53,8 +54,6 @@ namespace Resources {
     Shader &getShader(const Path &vertexShader, const Path &fragmentShader, const Path &geometryShader);
 
     Shader &getPostProcessingShader(const Path &path);
-
-    AssimpFile &getAssimpFile(const Path &path);
 
     Material &getMaterial(const Path &path);
 }

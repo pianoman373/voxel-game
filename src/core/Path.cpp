@@ -5,7 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <sstream>
-#include <tinydir.h>
+#include "tinydir.h"
 
 #ifdef _WIN32
 #include <windows.h>

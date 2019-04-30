@@ -48,7 +48,7 @@ vec3 lighting(vec3 fragPos, vec3 albedo, vec3 normal, float roughness, float met
     for (int i = 0; i < numCascades; i++) {
         if (distance < shadowDistances[i]) {
             vec4 fragLightSpace = lightSpaceMatrix[i] * vec4(fragPos, 1.0);
-            float bias = 0.001*tan(acos(cosTheta));
+            float bias = 0.0002;
 
             shadow = ShadowCalculationLinear(bias, fragLightSpace, shadowTextures[i], shadowDistances[i]);
             shadowColor = cascadeColors[i];

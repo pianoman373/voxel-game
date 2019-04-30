@@ -119,14 +119,13 @@ uniform DirectionalLight sun;
 
 uniform samplerCube stars;
 
-in vec3 direction;
-in float height;
+in vec3 fPosition;
 
 layout (location = 0) out vec4 outColor;
 layout (location = 1) out vec4 outColor1;
 
 void main() {
-    vec3 dir = -normalize(direction);
+    vec3 dir = -normalize(fPosition);
 
     float sunAmount = max( dot( dir, sun.direction ), 0.0 );
     vec3 atmoColor = mix( vec3(0.5,0.6,1.0), // bluish

@@ -67,7 +67,7 @@ DirectionalLight::DirectionalLight(vec3 direction, vec3 color, int shadowResolut
     m_shadowResolution = shadowResolution;
     m_hasShadows = true;
 
-    float cascadeSplitLambda = 0.5f;
+    float cascadeSplitLambda = 0.6f;
 
     float nearClip = 0.1f;
     float farClip = farDistance;
@@ -89,7 +89,7 @@ DirectionalLight::DirectionalLight(vec3 direction, vec3 color, int shadowResolut
         m_shadowDistances.push_back((d - nearClip));
     }
 
-    m_shadowDepth = farDistance;
+    m_shadowDepth = m_shadowDistances.back();
 }
 
 DirectionalLight::DirectionalLight(vec3 direction, vec3 color, int shadowResolution, std::vector<float> distances) {

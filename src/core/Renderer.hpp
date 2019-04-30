@@ -8,7 +8,6 @@
 #include "Frustum.hpp"
 #include "IRenderable.hpp"
 #include "PostProcessing.hpp"
-#include "Bone.hpp"
 #include "Mesh.hpp"
 #include "Model.hpp"
 #include "DirectionalLight.hpp"
@@ -22,7 +21,6 @@ struct RenderCall {
 	const Material *material;
 	const Transform *transform;
 	const AABB *aabb;
-	const Bone *bones;
 };
 
 namespace Renderer {
@@ -55,7 +53,7 @@ namespace Renderer {
     /**
      * General purpose abstraction of all render calls to an internal renderer.
      */
-    void render(const IRenderable *mesh, const Material *material, const Transform *transform, const AABB *aabb=nullptr, const Bone *bones=nullptr);
+    void render(const IRenderable *mesh, const Material *material, const Transform *transform, const AABB *aabb=nullptr);
 
     /**
      * Same as the general purpose render command, but accepts Models.
@@ -69,6 +67,8 @@ namespace Renderer {
 	Cubemap renderToProbe(const vec3 &position);
 
     void renderToFramebuffer(const Camera &cam, const Frustum &f, bool doFrustumCulling);
+
+    void clear();
 
 	/**
 	* Flush command with frustum culling disabled.

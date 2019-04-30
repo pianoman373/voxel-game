@@ -22,6 +22,7 @@ include_directories(lib/crucible/include/
                     lib/stb/
                     lib/imgui/
                     lib/freetype/include/
+                    lib/glad/include/
                     )
 
 file(GLOB PROJECT_SOURCES src/*.cpp
@@ -35,6 +36,7 @@ file(GLOB PROJECT_SOURCES src/*.cpp
                           lib/imgui/imgui_widgets.cpp
                           lib/imgui/examples/imgui_impl_glfw.cpp
                           lib/imgui/examples/imgui_impl_opengl3.cpp
+                          lib/glad/glad.c
                           )
 file(GLOB PROJECT_HEADERS src/*.h
                           src/*.hpp

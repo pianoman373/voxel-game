@@ -1,5 +1,6 @@
 #include "WorldRenderer.hpp"
 #include "World.hpp"
+#include "Client.hpp"
 
 #include "core/Renderer.hpp"
 #include "core/IBL.hpp"
@@ -23,7 +24,7 @@ static const std::vector<vec3> tangentLookup = {
         {-1.0f, 0.0f, 0.0f}
 };
 
-WorldRenderer::WorldRenderer(World &world): world(world) {
+WorldRenderer::WorldRenderer(World &world, Client &client): world(world), client(client) {
 
 }
 
@@ -49,17 +50,20 @@ WorldRenderer::~WorldRenderer() {
         thread3->join();
     }
     delete thread3;
+
+    delete sun;
 }
 
 void WorldRenderer::init() {
-    // add post processing effects
-    Renderer::postProcessingStack.push_back(std::shared_ptr<PostProcessor>(new SsaoPostProcessor())); // SSAO
-    Renderer::postProcessingStack.push_back(std::shared_ptr<PostProcessor>(new BloomPostProcessor())); // Bloom
-    Renderer::postProcessingStack.push_back(std::shared_ptr<PostProcessor>(new TonemapPostProcessor())); // Tonemapping
-    Renderer::postProcessingStack.push_back(std::shared_ptr<PostProcessor>(new FxaaPostProcessor())); // FXAA
+    sun = new DirectionalLight(normalize(vec3(-0.4f, -0.6f, -1.0f)), vec3(1.4f, 1.3f, 1.0f) * 3.0f, 2048, 3, client.settings.render_distance*16.0f);
 
     blockShader = Resources::getShader("resources/blockShader.vsh", "resources/blockShader.fsh");
-    skyboxShader = Resources::getShader("resources/skybox.vsh", "resources/skybox.fsh");
+
+    skyboxMaterial.deferred = false;
+    skyboxMaterial.setShader(Resources::getShader("resources/skybox.vsh", "resources/skybox.fsh"));
+    skyboxMaterial.setUniformVec3("sun.direction", sun->m_direction);
+    skyboxMaterial.setUniformVec3("sun.color", sun->m_color);
+    
 
     texture = Resources::getTexture("resources/terrain.png", true);
     texture_r = Resources::getTexture("resources/terrain_r.png", true);
@@ -78,9 +82,7 @@ void WorldRenderer::init() {
     for (int i = 0; i < tangentLookup.size(); i++) {
         nearMaterial.setUniformVec3("tangentLookup[" + std::to_string(i) + "]", tangentLookup[i]);
     }
-
-    //Renderer::setSkyboxShader(skyboxShader);
-    IBL::generateIBLmaps(vec3(0.0f,  0.0f, 0.0f), Renderer::irradiance, Renderer::specular);
+    
 
     thread0 = new std::thread([&]() {
         remeshThread(remeshQueue0);
@@ -101,12 +103,16 @@ void WorldRenderer::init() {
         remeshThread(remeshQueue3);
     });
     thread3->detach();
+
+    Renderer::renderSkybox(&skyboxMaterial);
+    IBL::generateIBLmaps(vec3(0.0f,  0.0f, 0.0f), Renderer::irradiance, Renderer::specular);
+    Renderer::clear();
 }
 
 void WorldRenderer::render(Camera &cam) {
     int regeneratedChunks = 0;
 
-    Renderer::renderDirectionalLight(&sun);
+    Renderer::renderDirectionalLight(sun);
 
     for (auto &i : chunkRenderers) {
         std::shared_ptr<ChunkRenderer> cr = i.second;
@@ -155,6 +161,8 @@ void WorldRenderer::render(Camera &cam) {
 //
 //        Renderer::debug.renderDebugAABB(vec3(pos.x * 16.0f, 0.0f, pos.y * 16.0f), vec3((pos.x+1) * 16.0f, 256.0f, (pos.y+1) * 16.0f), vec3(1.0f, 0.0f, 0.0f));
 //    }
+
+    Renderer::renderSkybox(&skyboxMaterial);
 }
 
 bool WorldRenderer::chunkRendererExists(int x, int z) {

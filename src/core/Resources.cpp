@@ -21,7 +21,6 @@
 static std::map<std::string, Texture> textureRegistry;
 static std::map<std::string, Shader> shaderRegistry;
 static std::map<std::string, Shader> postProcessingShaderRegistry;
-static std::map<std::string, AssimpFile> assimpFileRegistry;
 static std::map<std::string, Material> materialRegistry;
 
 static std::string readShader(std::ifstream &file, std::string directory) {
@@ -80,6 +79,7 @@ static void load() {
     Resources::ssrShader = Resources::getPostProcessingShader("resources/shaders/ssr.glsl");
     Resources::gammaCorrectShader = Resources::getPostProcessingShader("resources/shaders/gammaCorrect.glsl");
     Resources::bloomShader = Resources::getPostProcessingShader("resources/shaders/bloom.glsl");
+    Resources::fogShader = Resources::getPostProcessingShader("resources/shaders/fog.glsl");
 
     Resources::framebufferMesh = Primitives::framebuffer();
     Resources::cubemapMesh = Primitives::skybox();
@@ -152,6 +152,7 @@ namespace Resources {
     Shader ssrShader;
     Shader gammaCorrectShader;
     Shader bloomShader;
+    Shader fogShader;
 
     Texture brdf;
 
@@ -277,24 +278,6 @@ namespace Resources {
             postProcessingShaderRegistry.insert(std::make_pair(key, shader));
         }
         return postProcessingShaderRegistry.at(key);
-    }
-
-    AssimpFile &getAssimpFile(const Path &path) {
-        // if (assimpFileRegistry.find(path) == assimpFileRegistry.end()) {
-        //     std::cout << "loading Assimp file: " << path << std::endl;
-
-        //     const aiScene* scene = importer.ReadFile(path.toString(), aiProcess_Triangulate | aiProcess_CalcTangentSpace | aiProcess_OptimizeMeshes | aiProcess_JoinIdenticalVertices);
-
-        //     if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode)
-        //     {
-        //         std::cout << "ERROR::ASSIMP::" << importer.GetErrorString() << std::endl;
-        //     }
-
-        //     assimpFileRegistry.insert(std::make_pair(path, AssimpFile()));
-        //     assimpFileRegistry.at(path).load(scene, path.getParent());
-        // }
-
-        return assimpFileRegistry.at(path);
     }
 
     Material &getMaterial(const Path &path) {

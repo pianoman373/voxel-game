@@ -38,6 +38,20 @@ void TonemapPostProcessor::postProcess(const Camera &, const Framebuffer &source
     Resources::framebufferMesh.render();
 }
 
+void FogPostProcessor::postProcess(const Camera &, const Framebuffer &source, const Framebuffer &destination) {
+    destination.bind();
+    Resources::fogShader.bind();
+    Resources::fogShader.uniformInt("source", 0);
+    Renderer::getGBuffer().getAttachment(0).bind(1);
+    Resources::fogShader.uniformInt("gPosition", 1);
+
+    Resources::fogShader.uniformFloat("fogInner", fogInner);
+    Resources::fogShader.uniformFloat("fogOuter", fogOuter);
+
+    source.getAttachment(0).bind();
+    Resources::framebufferMesh.render();
+}
+
 
 SsaoPostProcessor::SsaoPostProcessor() {
     //setup SSAO

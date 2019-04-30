@@ -64,21 +64,6 @@ static void iterateCommandBuffer(std::vector<RenderCall> &buffer, const Camera &
 
         }
 
-        if (call.bones) {
-            s.uniformBool("doAnimation", true);
-
-            std::vector<mat4> skinningMatrices = call.bones->getSkinningTransforms();
-
-            for (size_t i = 0; i < skinningMatrices.size(); i++) {
-                mat4 trans = skinningMatrices.at(i);
-
-                s.uniformMat4("bones["+std::to_string(i)+"]", trans);
-            }
-        }
-        else {
-            s.uniformBool("doAnimation", false);
-        }
-
         if (call.transform) {
             s.uniformMat4("model", call.transform->getMatrix());
         }
@@ -178,13 +163,12 @@ namespace Renderer {
         directionalLights.push_back(light);
     }
 
-    void render(const IRenderable *mesh, const Material *material, const Transform *transform, const AABB *aabb, const Bone *bones) {
+    void render(const IRenderable *mesh, const Material *material, const Transform *transform, const AABB *aabb) {
         RenderCall call;
         call.mesh = mesh;
         call.material = material;
         call.transform = transform;
         call.aabb = aabb;
-        call.bones = bones;
 
         if (material->deferred) {
             renderQueue.push_back(call);
@@ -202,7 +186,7 @@ namespace Renderer {
     }
 
     void renderSkybox(const Material *material) {
-        render(&Resources::cubemapMesh, material, nullptr, nullptr, nullptr);
+        render(&Resources::cubemapMesh, material, nullptr, nullptr);
     }
 
     void renderToDepth(const Framebuffer &target, const Camera &cam, const Frustum &f, bool doFrustumCulling) {
@@ -337,6 +321,13 @@ namespace Renderer {
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         iterateCommandBuffer(renderQueueForward, cam, f, doFrustumCulling);
+    }
+
+    void clear() {
+        pointLights.clear();
+        directionalLights.clear();
+        renderQueue.clear();
+        renderQueueForward.clear();
     }
 
     void flush(const Camera &cam) {

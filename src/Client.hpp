@@ -3,7 +3,6 @@
 #include "core/Camera.hpp"
 #include "core/Model.hpp"
 #include "core/Material.hpp"
-#include "core/Bone.hpp"
 
 #include "NetworkManagerClient.hpp"
 #include "World.hpp"
