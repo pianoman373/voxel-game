@@ -6,6 +6,7 @@
 #include "rendering/Material.hpp"
 #include "rendering/Camera.hpp"
 #include "rendering/DirectionalLight.hpp"
+#include "Math.hpp"
 
 #include <unordered_map>
 #include <thread>
@@ -50,6 +51,9 @@ private:
     std::thread *thread3;
 
     DirectionalLight *sun = nullptr;
+
+    DirectionalLight *ambient1 = nullptr;
+    DirectionalLight *ambient2 = nullptr;
 
 public:
     Texture texture;

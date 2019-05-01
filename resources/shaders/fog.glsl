@@ -10,7 +10,8 @@ vec3 postProcess(vec2 texCoord) {
     float fogStrength = length(texture(gPosition, texCoord).rgb);
     fogStrength = smoothstep(fogInner, fogOuter, fogStrength);
 
-    vec3 fogColor = vec3(0.7,0.74,0.82)*1.15;
+    vec3 fogColor = vec3(0.7,0.74,0.82);
+    fogColor = pow(fogColor, vec3(2.2));
 
 	return mix(color, fogColor, fogStrength);
 }

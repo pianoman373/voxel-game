@@ -144,8 +144,11 @@ void Client::init() {
 
     Renderer::init(1400*settings.resolution_scale, 800*settings.resolution_scale);
     // add post processing effects
-    Renderer::postProcessingStack.push_back(std::shared_ptr<PostProcessor>(new SsaoPostProcessor())); // SSAO
-    Renderer::postProcessingStack.push_back(std::shared_ptr<PostProcessor>(new BloomPostProcessor())); // Bloom
+    if (settings.fancy_graphics) {
+        Renderer::postProcessingStack.push_back(std::shared_ptr<PostProcessor>(new SsaoPostProcessor())); // SSAO
+        Renderer::postProcessingStack.push_back(std::shared_ptr<PostProcessor>(new BloomPostProcessor())); // Bloom
+    }
+    
     Renderer::postProcessingStack.push_back(std::shared_ptr<PostProcessor>(new TonemapPostProcessor())); // Tonemapping
 
     FogPostProcessor *fog = new FogPostProcessor();
@@ -153,8 +156,10 @@ void Client::init() {
     fog->fogInner = fog->fogOuter * 0.8f;
     Renderer::postProcessingStack.push_back(std::shared_ptr<PostProcessor>(fog)); // Fog
 
+    if (settings.fancy_graphics) {
+        Renderer::postProcessingStack.push_back(std::shared_ptr<PostProcessor>(new FxaaPostProcessor())); // FXAA
+    }
     
-    Renderer::postProcessingStack.push_back(std::shared_ptr<PostProcessor>(new FxaaPostProcessor())); // FXAA
 
     camera.position = vec3(3.0f, 62.0f, 3.0f);
     camera.direction = vec3(0.0f, 0.0f, 1.0f);
@@ -250,6 +255,9 @@ void Client::run() {
 
     while (Window::isOpen()) {
         Window::begin();
+
+        camera.matchWindowResolution();
+        Renderer::matchWindowResolution(settings.resolution_scale);
 
         if (inGame) {
             static float deltaTime;
