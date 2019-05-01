@@ -1,11 +1,11 @@
 #include <iostream>
 #include <enet/enet.h>
 
-#include "Client.hpp"
-#include "Server.hpp"
+#include "client/Client.hpp"
+#include "server/Server.hpp"
 
-#include "Noise.hpp"
-#include "SimplexNoise.hpp"
+#include "util/Noise.hpp"
+#include "util/SimplexNoise.hpp"
 
 #include <thread>
 

@@ -23,13 +23,19 @@ include_directories(lib/crucible/include/
                     lib/imgui/
                     lib/freetype/include/
                     lib/glad/include/
+
+                    src/
                     )
 
 file(GLOB PROJECT_SOURCES src/*.cpp
                           src/*.c
 
-                          src/core/*.cpp
-                          src/core/*.c
+                          src/*/*.cpp
+                          src/*/*.c
+
+                          src/*/*/*.cpp
+                          src/*/*/*.c
+
                           lib/imgui/imgui.cpp
                           lib/imgui/imgui_demo.cpp
                           lib/imgui/imgui_draw.cpp
@@ -41,8 +47,11 @@ file(GLOB PROJECT_SOURCES src/*.cpp
 file(GLOB PROJECT_HEADERS src/*.h
                           src/*.hpp
 
-                          src/core/*.h
-						  src/core/*.hpp
+                          src/*/*.h
+                          src/*/*.hpp
+                          
+                          src/*/*/*.h
+						  src/*/*/*.hpp
                           )
 
 add_definitions(-DGLFW_INCLUDE_NONE
