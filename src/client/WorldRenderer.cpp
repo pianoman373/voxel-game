@@ -60,13 +60,13 @@ void WorldRenderer::init() {
 
     
     if (client.settings.shadows) {
-        ambient1 = new DirectionalLight(normalize(vec3(-0.9f, -1.2f, -1.0f)), vec3(0.7f, 0.8f, 1.2f)*2.5f);
-        ambient2 = new DirectionalLight(normalize(vec3(0.9f, 1.2f, 1.0f)), vec3(0.5f, 0.6f, 0.9f)*2.5f);
+        //ambient1 = new DirectionalLight(normalize(vec3(-0.9f, -1.2f, -1.0f)), vec3(0.7f, 0.8f, 1.2f)*2.5f);
+        //ambient2 = new DirectionalLight(normalize(vec3(0.9f, 1.2f, 1.0f)), vec3(0.5f, 0.6f, 0.9f)*2.5f);
         sun = new DirectionalLight(normalize(vec3(-0.4f, -0.6f, -1.0f)), vec3(1.4f, 1.3f, 1.0f) * 2.5f, client.settings.shadow_resolution, 3, client.settings.render_distance*16.0f);
     }
     else {
-        ambient1 = new DirectionalLight(normalize(vec3(-0.9f, -1.2f, -1.0f)), vec3(0.7f, 0.8f, 1.2f)*2.0f);
-        ambient2 = new DirectionalLight(normalize(vec3(0.9f, 1.2f, 1.0f)), vec3(0.5f, 0.6f, 0.9f)*3.5f);
+        //ambient1 = new DirectionalLight(normalize(vec3(-0.9f, -1.2f, -1.0f)), vec3(0.7f, 0.8f, 1.2f)*3.0f);
+        //ambient2 = new DirectionalLight(normalize(vec3(0.9f, 0.8f, 1.0f)), vec3(0.5f, 0.6f, 0.9f)*2.5f);
         sun = new DirectionalLight(normalize(vec3(-0.4f, -1.6f, -0.6f)), vec3(1.4f, 1.3f, 1.0f));
     }
     
@@ -126,8 +126,8 @@ void WorldRenderer::render(Camera &cam) {
     int regeneratedChunks = 0;
 
     Renderer::renderDirectionalLight(sun);
-    Renderer::renderDirectionalLight(ambient1);
-    Renderer::renderDirectionalLight(ambient2);
+    ///Renderer::renderDirectionalLight(ambient1);
+    //Renderer::renderDirectionalLight(ambient2);
 
     for (auto &i : chunkRenderers) {
         std::shared_ptr<ChunkRenderer> cr = i.second;

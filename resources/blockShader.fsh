@@ -66,6 +66,6 @@ void main()
     normal = fragNormal;
 
   gNormal = normalize(normal);
-  gAlbedo = vec4(albedo.rgb * ao, 1.0);
+  gAlbedo = vec4(albedo.rgb, ao);
   gRoughnessMetallic = vec4(roughness, metallic, 1.0, texture(emissionTex, uv).r);
 }  

@@ -15,7 +15,7 @@ ChunkRenderer::ChunkRenderer(int chunk_x, int chunk_z) {
 }
 
 const float textureSize = 16.0f;
-const float AO = 0.3333f;
+const float AO = 0.2f;
 
 void ChunkRenderer::generateMesh(ChunkNeighborhood &neighborhood) {
     float bias = 0.00001f;

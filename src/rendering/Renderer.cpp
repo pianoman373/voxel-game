@@ -238,6 +238,7 @@ namespace Renderer {
         Resources::deferredShader.uniformInt("gNormal", 1);
         Resources::deferredShader.uniformInt("gAlbedo", 2);
         Resources::deferredShader.uniformInt("gRoughnessMetallic", 3);
+        Resources::deferredShader.uniformMat4("view", cam.getView());
 
         Resources::framebufferMesh.render();
 
@@ -248,28 +249,6 @@ namespace Renderer {
         // ---------------------------------------------
         for (int i = 0; i < directionalLights.size(); i++) {
             directionalLights[i]->render(cam);
-        }
-
-        // Render point light lighting to the buffer
-        // ---------------------------------------------
-        if (pointLights.size() > 0) {
-            Resources::deferredPointShader.bind();
-
-            Resources::deferredPointShader.uniformInt("gPosition", 0);
-            Resources::deferredPointShader.uniformInt("gNormal", 1);
-            Resources::deferredPointShader.uniformInt("gAlbedo", 2);
-            Resources::deferredPointShader.uniformInt("gRoughnessMetallic", 3);
-
-            Resources::deferredPointShader.uniformInt("pointLightCount", (int) pointLights.size());
-            for (unsigned int i = 0; i < pointLights.size(); i++) {
-                Resources::deferredPointShader.uniformVec3("pointLights[" + std::to_string(i) + "].position",
-                                                    vec3(vec4(pointLights[i]->m_position, 1.0f) * cam.getView()));
-                Resources::deferredPointShader.uniformVec3("pointLights[" + std::to_string(i) + "].color", pointLights[i]->m_color);
-
-                Resources::deferredPointShader.uniformFloat("pointLights[" + std::to_string(i) + "].radius", pointLights[i]->m_radius);
-            }
-
-            Resources::framebufferMesh.render();
         }
 
         // Render ambient lighting to the buffer

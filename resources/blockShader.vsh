@@ -23,7 +23,7 @@ void main()
 {
     vec4 viewPos = view * model * vec4(position, 1.0);
     fragPos = viewPos.xyz;
-    ao = aos;
+    ao = pow(aos, 2.2);
 
     gl_Position = projection * viewPos;
 

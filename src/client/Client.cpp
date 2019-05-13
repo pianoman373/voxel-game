@@ -145,7 +145,7 @@ void Client::init() {
     Renderer::init(1400*settings.resolution_scale, 800*settings.resolution_scale);
     // add post processing effects
     if (settings.fancy_graphics) {
-        Renderer::postProcessingStack.push_back(std::shared_ptr<PostProcessor>(new SsaoPostProcessor())); // SSAO
+        //Renderer::postProcessingStack.push_back(std::shared_ptr<PostProcessor>(new SsaoPostProcessor())); // SSAO
         Renderer::postProcessingStack.push_back(std::shared_ptr<PostProcessor>(new BloomPostProcessor())); // Bloom
     }
     
