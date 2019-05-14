@@ -70,6 +70,49 @@ void Texture::bindNull(unsigned int unit) {
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+
+
+void TextureArray::load(const unsigned char *data, int width, int height, int layers, bool pixelated, bool singleChannel) {
+	glGenTextures(1,&id);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, id);
+
+	glTexImage3D(GL_TEXTURE_2D_ARRAY,
+             0,                 // mipmap level
+             GL_RGBA8,          // gpu texel format
+             width,             // width
+             height,             // height
+             layers,             // depth
+             0,                 // border
+             GL_RGBA,      // cpu pixel format
+             GL_UNSIGNED_BYTE,  // cpu pixel coord type
+             data);           // pixel data
+
+	glGenerateMipmap(GL_TEXTURE_2D_ARRAY);
+
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAX_LEVEL, 4);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+}
+
+void TextureArray::bind(unsigned int unit) const {
+	glActiveTexture(GL_TEXTURE0 + unit);
+	glBindTexture(GL_TEXTURE_2D_ARRAY, id);
+}
+
+unsigned int TextureArray::getID() const {
+	return id;
+}
+
+void TextureArray::destroy() {
+	glDeleteTextures(1, &id);
+	id = 0;
+}
+
+
+
+
 void Cubemap::load(const Path &file1, const Path &file2, const Path &file3,
 				   const Path &file4, const Path &file5, const Path &file6) {
     stbi_set_flip_vertically_on_load(false);

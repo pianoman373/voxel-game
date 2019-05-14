@@ -1,13 +1,5 @@
 local math = require("math")
 local noise2D = require("base:simplex2D.lua")
-
-local ffi = require("ffi")
-ffi.cdef[[
-unsigned char* getChunkData(void *c)
-]]
-
-
-
 require("base:api.lua")
 
 local size = 16*128
@@ -134,18 +126,14 @@ decorateChunk = function(chunk_x, chunk_z, world)
                 else
                     break
                 end
-
             end
         end
-
-
-
     end
 end
 
 
 generateChunk = function(chunk_x, chunk_z, chunk)
-    local data = ffi.C.getChunkData(chunk)
+    local data = internal.getChunkData(chunk)
 
     for x = 0, 17 do
         for z = 0, 17 do
@@ -162,20 +150,15 @@ generateChunk = function(chunk_x, chunk_z, chunk)
                 local index = (y * 16 * 16) + (x * 16) + z;
 
                 if steep then
-                    --chunk:setBlockRaw(x, y, z, fillerBlock)
                     data[index] = fillerBlock
                 else
                     if y < height - 5 then
---                        chunk:setBlockRaw(x, y, z, fillerBlock)
                         data[index] = fillerBlock
                     elseif y < height then
---                        chunk:setBlockRaw(x, y, z, midBlock)
                         data[index] = midBlock
                     elseif y == height then
---                        chunk:setBlockRaw(x, y, z, topBlock)
                         data[index] = topBlock
                     elseif y < 50 then
---                        chunk:setBlockRaw(x, y, z, waterBlock)
                         data[index] = waterBlock
                     end
                 end

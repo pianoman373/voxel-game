@@ -6,6 +6,8 @@
 #include "rendering/IBL.hpp"
 #include "rendering/Resources.hpp"
 
+#include <stb_image.h>
+
 static const std::vector<vec3> normalLookup = {
         {1.0f, 0.0f, 0.0f},
         {-1.0f, 0.0f, 0.0f},
@@ -57,6 +59,33 @@ WorldRenderer::~WorldRenderer() {
 }
 
 void WorldRenderer::init() {
+    std::vector<Path> paths = {"resources/grass.png", "resources/dirt.png"};
+    std::vector<unsigned char> data;
+
+    TextureArray texArray;
+    int width, height, components;
+
+    for (int i = 0; i < paths.size(); i++) {
+        
+        unsigned char* image = stbi_load(paths[i].toString().c_str(), &width, &height, &components, STBI_rgb_alpha);
+        int size = width*height*components;
+        
+        for (int j = 0; j < size; j++) {
+            data.push_back(image[j]);
+        }
+
+        if (image) {
+            stbi_image_free(image);
+        }
+        else {
+            std::cerr << "error loading texture: " << paths[i] << std::endl;
+        }
+    }
+
+    texArray.load(data.data(), width, height, paths.size());
+
+    Texture texture;
+    
 
     
     if (client.settings.shadows) {
@@ -87,6 +116,7 @@ void WorldRenderer::init() {
 
     nearMaterial.setPBRUniforms(texture, 1.0f, 0.0f);
     nearMaterial.setUniformTexture("emissionTex", texture_e, 5);
+    nearMaterial.setUniformTextureArray("texArray", texArray, 6);
     nearMaterial.setShader(blockShader);
 
     for (int i = 0; i < normalLookup.size(); i++) {

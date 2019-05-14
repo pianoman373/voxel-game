@@ -26,6 +26,7 @@ uniform sampler2D normalTex;
 uniform bool normalTextured;
 
 uniform sampler2D emissionTex;
+uniform sampler2DArray texArray;
 
 void main()
 {    
@@ -40,6 +41,7 @@ void main()
     if (albedoTextured) {
       vec4 texel = texture(albedoTex, uv);
         albedo = vec4(pow(texel.rgb, vec3(2.2)), texel.a);
+
 
       if (texel.a < 0.1) {
         discard;

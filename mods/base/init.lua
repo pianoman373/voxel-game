@@ -1,15 +1,5 @@
 print("Running Lua code...")
 
-
---
---api.registerBlock(0, {
---    name = "Air",
---    solid = false,
---    textures = {
---        {0, 0}
---    }
---})
-
 api.registerBlock("base:stone", {
     name = "Stone",
     textures = {
@@ -75,7 +65,7 @@ api.registerBlock("base:glowstone", {
     lightLevel = 15
 })
 
-api.registerBlock(9, {
+api.registerBlock("base:iron", {
     name = "Iron",
     textures = {
         {6, 1}

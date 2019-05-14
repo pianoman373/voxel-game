@@ -382,6 +382,14 @@ void LuaHandler::addCommonFunctions(World &world) {
 
          return state.require_file(file, "mods/" + modName + "/" + modPath);
      };
+
+     state.do_string(R"(
+        ffi = require("ffi")
+        ffi.cdef[[
+        unsigned char* getChunkData(void *c)
+        ]]
+        internal = ffi.C
+     )");
 }
 
 void LuaHandler::init() {

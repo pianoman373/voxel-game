@@ -51,7 +51,7 @@ vec3 postProcess(vec2 texCoord) {
 
     vec3 Normal = normalize(texture(gNormal, texCoord).rgb);
     vec3 Albedo = texture(gAlbedo, texCoord).rgb;
-    vec3 AO = texture(gAlbedo, texCoord).a;
+    float AO = texture(gAlbedo, texCoord).a;
 	vec4 RoughnessMetallic = texture(gRoughnessMetallic, texCoord);
 	float Roughness = RoughnessMetallic.r;
 	float Metallic = clamp(RoughnessMetallic.g, 0.0, 1.0);

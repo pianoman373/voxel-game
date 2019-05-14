@@ -21,6 +21,11 @@ struct UniformCubemap {
     unsigned int unit;
 };
 
+struct UniformTextureArray {
+    TextureArray tex;
+    unsigned int unit;
+};
+
 enum class BlendType {
     NORMAL,
     ADDITIVE
@@ -37,6 +42,8 @@ private:
     std::map<std::string, UniformTexture> textures;
 
     std::map<std::string, UniformCubemap> cubemaps;
+
+    std::map<std::string, UniformTextureArray> textureArrays;
 
     std::map<std::string, vec3> vec3Uniforms;
 
@@ -103,6 +110,8 @@ public:
 
     void setUniformCubemap(const std::string &name, const Cubemap &value, unsigned int unit = 0);
 
+    void setUniformTextureArray(const std::string &name, const TextureArray &value, unsigned int unit = 0);
+
     void setUniformVec3(const std::string &name, const vec3 &value);
 
     void setUniformFloat(const std::string &name, float value);
@@ -128,6 +137,8 @@ public:
     const std::map<std::string, UniformTexture> &getTextureUniforms() const;
 
     const std::map<std::string, UniformCubemap> &getCubemapUniforms() const;
+
+    const std::map<std::string, UniformTextureArray> &getTextureArrayUniforms() const;
 
     const std::map<std::string, vec3> &getVec3Uniforms() const;
 

@@ -24,6 +24,20 @@ public:
 	static void bindNull(unsigned int unit = 0);
 };
 
+class TextureArray {
+private:
+    unsigned int id = 0;
+public:
+
+    void load(const unsigned char *data, int width, int height, int layers, bool pixelated=false, bool singleChannel=false);
+
+    void bind(unsigned int unit = 0) const;
+
+    unsigned int getID() const;
+
+	void destroy();
+};
+
 class Cubemap {
 private:
     unsigned int id = 0;
