@@ -60,6 +60,18 @@ static void iterateCommandBuffer(std::vector<RenderCall> &buffer, const Camera &
             s.uniformMat4("view", cam.getView());
             s.uniformMat4("projection", cam.getProjection());
 
+            if (call.material->needsGbuffer) {
+                gBuffer.getAttachment(0).bind(0);
+                gBuffer.getAttachment(1).bind(1);
+                gBuffer.getAttachment(2).bind(2);
+                gBuffer.getAttachment(3).bind(3);
+
+                s.uniformInt("gPosition", 0);
+                s.uniformInt("gNormal", 1);
+                s.uniformInt("gAlbedo", 2);
+                s.uniformInt("gRoughnessMetallic", 3);
+            }
+
         }
 
         if (call.transform) {
@@ -287,10 +299,17 @@ namespace Renderer {
 
         // render the forward pass
         // -------------------------------
+        //glDisable(GL_CULL_FACE);
+
         glDepthFunc(GL_LEQUAL);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         iterateCommandBuffer(renderQueueForward, cam, f, doFrustumCulling);
+
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        ///glEnable(GL_CULL_FACE);
+
+        debug.flush(cam);
     }
 
     void clear() {
@@ -335,9 +354,11 @@ namespace Renderer {
 
                 step->postProcess(cam, *source, *destination);
 
-                Framebuffer *temp = destination;
-                destination = source;
-                source = temp;
+                if (i != postProcessingStack.size()-1) {
+                    Framebuffer *temp = destination;
+                    destination = source;
+                    source = temp;
+                }
             }
         }
         else {
@@ -346,8 +367,6 @@ namespace Renderer {
         endQuery();
 
         glDepthFunc(GL_LEQUAL);
-
-        debug.flush(cam);
 
         static bool lastKeydown = false;
         static bool debug = false;

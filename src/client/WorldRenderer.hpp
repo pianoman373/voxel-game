@@ -12,6 +12,7 @@
 #include <thread>
 
 #include "client/ChunkRenderer.hpp"
+#include "client/BlockTextureAtlas.hpp"
 #include "common/World.hpp"
 #include "readerwriterqueue.h"
 
@@ -33,9 +34,8 @@ private:
     Shader blockShader;
     Material skyboxMaterial;
 
-
-
     Material nearMaterial;
+    Material liquidMaterial;
 
     std::unordered_map<vec2i, std::shared_ptr<ChunkRenderer>> chunkRenderers;
 
@@ -56,11 +56,7 @@ private:
     DirectionalLight *ambient2 = nullptr;
 
 public:
-    Texture texture;
-    Texture texture_r;
-    Texture texture_m;
-    Texture texture_e;
-    Texture texture_n;
+    BlockTextureAtlas atlas;
 
     WorldRenderer(World &world, Client &client);
 

@@ -54,57 +54,10 @@ private:
 public:
 	std::string name;
     bool deferred = true;
+    bool needsGbuffer = false;
     BlendType blendType = BlendType::NORMAL;
 
     Material();
-
-    /**
-     * Json serialization. Working directory is needed in order to output correct texture paths.
-     */
-    void fromJson(const json &j, const Path &workingDirectory);
-
-	/**
-     * Json serialization. Working directory is needed in order to output correct texture paths.
-     */
-    json toJson(const Path &workingDirectory) const;
-
-	void setDefaultPBRUniforms();
-
-    //all combinations of textures vs floats etc
-    void setPBRUniforms(const vec3 &albedo, float roughness, float metallic);
-
-    void setPBRUniforms(const Texture &albedo, float roughness, float metallic);
-
-    void setPBRUniforms(const Texture &albedo, const Texture &roughness, float metallic);
-
-    void setPBRUniforms(const Texture &albedo, float roughness, const Texture &metallic);
-
-    void setPBRUniforms(const Texture &albedo, const Texture &roughness, const Texture &metallic);
-
-    void setPBRUniforms(const vec3 &albedo, const Texture &roughness, float metallic);
-
-    void setPBRUniforms(const vec3 &albedo, float roughness, const Texture &metallic);
-
-    void setPBRUniforms(const vec3 &albedo, const Texture &roughness, const Texture &metallic);
-
-	//with normal maps
-	void setPBRUniforms(const vec3 &albedo, float roughness, float metallic, const Texture &normal);
-
-	void setPBRUniforms(const Texture &albedo, float roughness, float metallic, const Texture &normal);
-
-	void setPBRUniforms(const Texture &albedo, const Texture &roughness, float metallic, const Texture &normal);
-
-	void setPBRUniforms(const Texture &albedo, float roughness, const Texture &metallic, const Texture &normal);
-
-	void setPBRUniforms(const Texture &albedo, const Texture &roughness, const Texture &metallic, const Texture &normal);
-
-	void setPBRUniforms(const vec3 &albedo, const Texture &roughness, float metallic, const Texture &normal);
-
-	void setPBRUniforms(const vec3 &albedo, float roughness, const Texture &metallic, const Texture &normal);
-
-	void setPBRUniforms(const vec3 &albedo, const Texture &roughness, const Texture &metallic, const Texture &normal);
-
-
 
     void setUniformTexture(const std::string &name, const Texture &value, unsigned int unit = 0);
 

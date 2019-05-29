@@ -129,7 +129,7 @@ void Chunk::setBlock(int x, int y, int z, Block &block) {
 
         Block &originalBlock = world.blockRegistry.getBlock(blocks[index]);
 
-        if (!block.isSolid()) {
+        if (!block.isSolid() && !block.isLiquid) {
             blocks[index] = block.getID();
 
             std::queue<vec3i> sunlightBfsQueue;
@@ -314,7 +314,13 @@ void Chunk::calculateSunLighting() {
         }
 
         if (!neighborhood.getBlock(node.x, node.y - 1, node.z).isSolid() && neighborhood.getSunlight(node.x, node.y - 1, node.z) < lightLevel) {
-            neighborhood.setSunlight(node.x, node.y - 1, node.z, lightLevel);
+            if (neighborhood.getBlock(node.x, node.y - 1, node.z).isLiquid) {
+                neighborhood.setSunlight(node.x, node.y - 1, node.z, lightLevel-1);
+            }
+            else {
+                neighborhood.setSunlight(node.x, node.y - 1, node.z, lightLevel);
+            }
+            
 
             lightBfsQueue.emplace(node.x, node.y - 1, node.z);
         }
@@ -364,7 +370,12 @@ void Chunk::propagateSunlight(ChunkNeighborhood &neighborhood, std::queue<vec3i>
         }
 
         if (!neighborhood.getBlock(node.x, node.y - 1, node.z).isSolid() && neighborhood.getSunlight(node.x, node.y - 1, node.z) < lightLevel) {
-            neighborhood.setSunlight(node.x, node.y - 1, node.z, lightLevel);
+            if (neighborhood.getBlock(node.x, node.y - 1, node.z).isLiquid) {
+                neighborhood.setSunlight(node.x, node.y - 1, node.z, lightLevel-1);
+            }
+            else {
+                neighborhood.setSunlight(node.x, node.y - 1, node.z, lightLevel);
+            }
 
             lightBfsQueue.emplace(node.x, node.y - 1, node.z);
         }
@@ -435,6 +446,13 @@ void Chunk::unPropagateSunlight(ChunkNeighborhood &neighborhood, std::queue<vec4
 
             // Emplace new node to queue. (could use push as well)
             lightRemovalQueue.emplace(node.x, node.y-1, node.z, lightLevel);
+
+            if (neighborhood.getBlock(node.x, node.y - 1, node.z).isLiquid) {
+                lightRemovalQueue.emplace(node.x, node.y-1, node.z, lightLevel-1);
+            }
+            else {
+                lightRemovalQueue.emplace(node.x, node.y-1, node.z, lightLevel);
+            }
 
         } else if (neighborLevel >= lightLevel) {
             lightBfsQueue.emplace(node.x, node.y-1, node.z);

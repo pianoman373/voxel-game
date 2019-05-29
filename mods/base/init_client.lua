@@ -6,10 +6,10 @@ hotbarSelectorPos = 0
 local inventory = false
 local hideUI = false
 
-api.getTexture("base:textures/background.png")
+api.getTexture("base:resources/textures/background.png")
 
 local function renderHotbar(width, height, img)
-    local blockSize = 50
+    local blockSize = 60
 
     hotbarSelectorPos = hotbarSelectorPos - api.input.getScroll();
 
@@ -25,7 +25,7 @@ local function renderHotbar(width, height, img)
     for i = 0, 11 do
         api.renderSpriteTexture(xOffset + (blockSize * i), 0,     blockSize, blockSize,           (1/8)*1, (1/8)*1, (1/8)*2, (1/8)*2,  img)
 
-        api.renderBlockItem(i + 1, xOffset + (blockSize * i) + (blockSize/2), blockSize / 2, 25);
+        api.renderBlockItem(i + 1, xOffset + (blockSize * i) + (blockSize/2), blockSize / 2, 30);
     end
 
     api.renderSpriteTexture(xOffset - (blockSize) + (hotbarSelectorPos * blockSize), -(blockSize),     blockSize*3, blockSize*3,           (1/8)*2, (1/8)*0, (1/8)*5, (1/8)*3,  img)
@@ -54,7 +54,7 @@ api.registerEventHandler("gui_ingame", function(width, height)
     end
 
 
-    local img = api.getTexture("base:textures/GUI.png")
+    local img = api.getTexture("base:resources/textures/GUI.png")
 
     local crosshairLength = 20
     local crosshairThickness = 3
@@ -78,7 +78,7 @@ end)
 local address = "localhost:3737"
 
 api.registerEventHandler("gui_main_menu", function(width, height)
-    local background = api.getTexture("base:textures/background.png")
+    local background = api.getTexture("base:resources/textures/background.png")
 
     api.renderSpriteTexture(0, 0, width, height, 0, 0, 1, 1, background)
 

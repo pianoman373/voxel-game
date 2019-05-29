@@ -6,68 +6,29 @@ layout (location = 3) out vec4 gRoughnessMetallic;
 
 in vec3 fragPos;
 in vec3 fragNormal;
-in vec2 uv;
+in vec3 uv;
 in vec3 fragColor;
 in float ao;
 
-uniform sampler2D albedoTex;
-uniform bool albedoTextured;
-uniform vec3 albedoColor;
-
-uniform sampler2D roughnessTex;
-uniform bool roughnessTextured;
-uniform float roughnessColor;
-
-uniform sampler2D metallicTex;
-uniform bool metallicTextured;
-uniform float metallicColor;
-
-uniform sampler2D normalTex;
-uniform bool normalTextured;
-
+uniform sampler2D tex;
 uniform sampler2D emissionTex;
 uniform sampler2DArray texArray;
 
 void main()
 {    
-    // store the fragment position vector in the first gbuffer texture
-    gPosition = fragPos;
+  // store the fragment position vector in the first gbuffer texture
+  gPosition = fragPos;
 
-  vec4 albedo;
-    float roughness;
-    float metallic;
-    vec3 normal;
+  vec4 albedo = texture(texArray, uv);
 
-    if (albedoTextured) {
-      vec4 texel = texture(albedoTex, uv);
-        albedo = vec4(pow(texel.rgb, vec3(2.2)), texel.a);
-
-
-      if (texel.a < 0.1) {
+    if (albedo.a < 0.1)
         discard;
-      }
-    }
-    else {
-        albedo = vec4(albedoColor, 1.0);
-    }
 
-    if (roughnessTextured) {
-        roughness = texture(roughnessTex, uv).r;
-    }
-    else {
-        roughness = roughnessColor;
-    }
-
-    if (metallicTextured) {
-        metallic = texture(metallicTex, uv).r;
-    }
-    else {
-        metallic = metallicColor;
-    }
-
-    normal = fragNormal;
+  float roughness = 1.0;
+  float metallic = 0.0;
+  vec3 normal = fragNormal;
 
   gNormal = normalize(normal);
-  gAlbedo = vec4(albedo.rgb, ao);
-  gRoughnessMetallic = vec4(roughness, metallic, 1.0, texture(emissionTex, uv).r);
+  gAlbedo = vec4(pow(albedo.rgb, vec3(2.2)), ao);
+  gRoughnessMetallic = vec4(roughness, metallic, 1.0, 0.0);
 }  

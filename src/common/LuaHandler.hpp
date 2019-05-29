@@ -55,4 +55,6 @@ public:
     }
 
     void registerEventHandler(std::string name, sol::function cb);
+
+    static std::string formatModPath(const std::string &input);
 };

@@ -10,7 +10,10 @@ uniform float bloomStrength;
 vec3 postProcess(vec2 texCoord) {
     vec3 color = texture(source, texCoord).rgb;
 
-    color += (texture(bloom0, texCoord).rgb*bloomStrength) + (texture(bloom1, texCoord).rgb*bloomStrength) + (texture(bloom2, texCoord).rgb*bloomStrength);
+    color += pow(texture(bloom0, texCoord).rgb, vec3(3))*bloomStrength + pow(texture(bloom1, texCoord).rgb, vec3(3))*bloomStrength + pow(texture(bloom2, texCoord).rgb, vec3(3))*bloomStrength;
+
+    //color = pow(texture(bloom2, texCoord).rgb, vec3(3))*bloomStrength;
+
 
 	return color;
 }

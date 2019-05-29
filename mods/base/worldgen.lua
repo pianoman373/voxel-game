@@ -34,6 +34,7 @@ local topBlock = api.getBlock("base:grass"):getID() --grass
 local midBlock = api.getBlock("base:dirt"):getID() --dirt
 local fillerBlock = api.getBlock("base:stone"):getID() --stone
 local waterBlock = api.getBlock("base:water"):getID()
+local shoreBlock = api.getBlock("base:sand"):getID()
 
 local heights = array2D(18) --heightmap includes adjacent chunk blocks
 
@@ -149,15 +150,23 @@ generateChunk = function(chunk_x, chunk_z, chunk)
             for y = 0, math.max(height, 50) do
                 local index = (y * 16 * 16) + (x * 16) + z;
 
-                if steep then
+                if y >= 53 and steep then
                     data[index] = fillerBlock
                 else
                     if y < height - 5 then
                         data[index] = fillerBlock
                     elseif y < height then
-                        data[index] = midBlock
+                        if y < 53 then
+                            data[index] = shoreBlock
+                        else
+                            data[index] = midBlock
+                        end
                     elseif y == height then
-                        data[index] = topBlock
+                        if y < 53 then
+                            data[index] = shoreBlock
+                        else
+                            data[index] = topBlock
+                        end
                     elseif y < 50 then
                         data[index] = waterBlock
                     end

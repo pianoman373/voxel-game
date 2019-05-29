@@ -6,41 +6,39 @@
 
 #include "sol.hpp"
 
+class Client;
+
 class Block {
     friend class BlockRegistry;
 
 private:
-    int blockID = 0;
+    sol::table table = sol::nil;
 
-public:
+    int blockID = 0;
     std::string name = "";
     vec3 color;
 
-    Block();
-
-    virtual vec2i getTextureCoord(EnumDirection dir);
-
-    virtual bool isSolid();
-
-    virtual int getLightLevel();
-
-    int getID();
-};
-
-class LuaBlock : public Block {
     std::vector<vec2i> textureCoords;
-    bool solid;
-    int lightLevel;
+    std::vector<int> textureIndices;
+    bool solid = false;
+    int lightLevel = 0;
 
 public:
-    LuaBlock(sol::table table);
+    bool isLiquid = false;
 
-    vec2i getTextureCoord(EnumDirection dir);
+    Block(sol::table table);
+
+    Block();
+
+    void clientInit(Client &client);
+
+    int getTextureIndex(EnumDirection dir);
 
     bool isSolid();
 
     int getLightLevel();
 
+    int getID();
 };
 
 class BlockRegistry {
@@ -61,4 +59,6 @@ public:
     Block &getBlock(const std::string &id);
 
     int registeredBlocks();
+
+    void clientInit(Client &client);
 };

@@ -39,7 +39,7 @@ private:
 public:
     float ssaoRadius = 4.0f;
     float strength = 1.0f;
-    int ssaoKernelSize = 6;
+    int ssaoKernelSize = 8;
     bool highQuality = true;
 
     SsaoPostProcessor();
@@ -60,7 +60,7 @@ private:
     Framebuffer bloomBuffer5;
 
 public:
-    float bloomStrength = 0.05f;
+    float bloomStrength = 3.0f;
 
     BloomPostProcessor();
 

@@ -512,7 +512,7 @@ std::vector<AABB> World::getCollisions(AABB test) {
                 int zp = z >> 4;
 
                 if (chunkExists(xp, zp)) {
-                    if (getBlock(x, y, z).getID() != 0) {
+                    if (getBlock(x, y, z).isSolid()) {
                         AABB blockAbb = AABB(vec3(x, y, z), vec3(x+1, y+1, z+1));
 
                         returnVector.push_back(blockAbb);

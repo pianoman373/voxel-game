@@ -2,7 +2,7 @@
 
 #include <glad/glad.h>
 
-void ChunkMesh::pushVertex(uint16_t positionX, uint16_t positionY, uint16_t positionZ, float u, float v, uint8_t ao, uint8_t index) {
+void ChunkMesh::pushVertex(uint16_t positionX, uint16_t positionY, uint16_t positionZ, float u, float v, float w, uint8_t ao, uint8_t index) {
     float f;
     uint32_t final = 0;
     final |= (positionX);
@@ -21,12 +21,9 @@ void ChunkMesh::pushVertex(uint16_t positionX, uint16_t positionY, uint16_t posi
     buffer.push_back(f);
 
 
-    final = 0;
-    final |= ((uint16_t)(u * 65536.0f));
-    final |= ((uint16_t)(v * 65536.0f) << 16);
-
-    *(uint32_t*)&f = final;
-    buffer.push_back(f);
+    buffer.push_back(u);
+    buffer.push_back(v);
+    buffer.push_back(w);
 
     bufferLength++;
 }
@@ -34,23 +31,24 @@ void ChunkMesh::pushVertex(uint16_t positionX, uint16_t positionY, uint16_t posi
 void ChunkMesh::pushFace(uint16_t positionX1, uint16_t positionY1, uint16_t positionZ1, float u1, float v1, uint8_t ao1, uint8_t index1,
                          uint16_t positionX2, uint16_t positionY2, uint16_t positionZ2, float u2, float v2, uint8_t ao2, uint8_t index2,
                          uint16_t positionX3, uint16_t positionY3, uint16_t positionZ3, float u3, float v3, uint8_t ao3, uint8_t index3,
-                         uint16_t positionX4, uint16_t positionY4, uint16_t positionZ4, float u4, float v4, uint8_t ao4, uint8_t index4) {
+                         uint16_t positionX4, uint16_t positionY4, uint16_t positionZ4, float u4, float v4, uint8_t ao4, uint8_t index4,
+                         float layer) {
 
     indicesBuffer.push_back(bufferLength);
-    pushVertex(positionX1, positionY1, positionZ1, u1, v1, ao1, index1);
+    pushVertex(positionX1, positionY1, positionZ1, u1, v1, layer, ao1, index1);
 
     indicesBuffer.push_back(bufferLength);
-    pushVertex(positionX2, positionY2, positionZ2, u2, v2, ao2, index2);
+    pushVertex(positionX2, positionY2, positionZ2, u2, v2, layer, ao2, index2);
 
     indicesBuffer.push_back(bufferLength);
-    pushVertex(positionX3, positionY3, positionZ3, u3, v3, ao3, index3);
+    pushVertex(positionX3, positionY3, positionZ3, u3, v3, layer, ao3, index3);
 
 
     indicesBuffer.push_back(bufferLength-1);
     //pushVertex(positionX3, positionY3, positionZ3, u3, v3, ao3, index3);
 
     indicesBuffer.push_back(bufferLength);
-    pushVertex(positionX4, positionY4, positionZ4, u4, v4, ao4, index4);
+    pushVertex(positionX4, positionY4, positionZ4, u4, v4, layer, ao4, index4);
 
     indicesBuffer.push_back(bufferLength-4);
     //pushVertex(positionX1, positionY1, positionZ1, u1, v1, ao1, index1);
@@ -86,7 +84,7 @@ void ChunkMesh::generate() {
     glBufferData(GL_ARRAY_BUFFER, data.size() * sizeof(float), &data[0], GL_STATIC_DRAW);
 
 
-    int stride = 12;
+    int stride = 20;
 
 
     long offset = 0;
@@ -108,7 +106,7 @@ void ChunkMesh::generate() {
 
     //uvs
     glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 2, GL_UNSIGNED_SHORT, GL_TRUE, stride, (GLvoid*)offset);
+    glVertexAttribPointer(3, 3, GL_FLOAT, GL_TRUE, stride, (GLvoid*)offset);
 }
 
 void ChunkMesh::clear() {

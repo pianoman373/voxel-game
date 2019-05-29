@@ -3,26 +3,26 @@ print("Running Lua code...")
 api.registerBlock("base:stone", {
     name = "Stone",
     textures = {
-        {1, 0}
+        "base:resources/blocks/stone.png"
     }
 })
 
 api.registerBlock("base:dirt", {
     name = "Dirt",
     textures = {
-        {2, 0}
+        "base:resources/blocks/dirt.png"
     }
 })
 
 api.registerBlock("base:grass", {
     name = "Grass",
     textures = {
-        {3, 0},
-        {3, 0},
-        {0, 0},
-        {2, 0},
-        {3, 0},
-        {3, 0}
+        "base:resources/blocks/grass.png",
+        "base:resources/blocks/grass.png",
+        "base:resources/blocks/grass-top.png",
+        "base:resources/blocks/dirt.png",
+        "base:resources/blocks/grass.png",
+        "base:resources/blocks/grass.png"
     }
 })
 
@@ -31,64 +31,57 @@ api.registerBlock("base:grass", {
 api.registerBlock("base:cobblestone", {
     name = "Cobblestone",
     textures = {
-        {0, 1}
+        "base:resources/blocks/cobblestone.png"
     }
 })
 
 api.registerBlock("base:planks", {
     name = "Planks",
     textures = {
-        {4, 0}
+        "base:resources/blocks/planks.png"
     }
 })
 
 api.registerBlock("base:wood", {
     name = "Wood",
     textures = {
-        {4, 1}
+        "base:resources/blocks/wood.png"
     }
 })
 
 api.registerBlock("base:leaves", {
     name = "Leaves",
     textures = {
-        {4, 3}
+        "base:resources/blocks/leaves.png"
     },
     solid = false
 })
 
 api.registerBlock("base:glowstone", {
     name = "Glowstone",
-    textures = {
-        {9, 6}
-    },
+    textures = nil,
     lightLevel = 15
 })
 
-api.registerBlock("base:iron", {
-    name = "Iron",
+api.registerBlock("base:sand", {
+    name = "Sand",
     textures = {
-        {6, 1}
-    }
+        "base:resources/blocks/sand.png"
+    },
 })
 
 api.registerBlock("base:gold", {
     name = "Gold",
-    textures = {
-        {7, 1}
-    }
+    textures = nil
 })
 
 api.registerBlock("base:bricks", {
     name = "Bricks",
-    textures = {
-        {7, 0}
-    }
+    textures = nil
 })
 
 api.registerBlock("base:water", {
     name = "Water",
-    textures = {
-        {14, 0}
-    }
+    isLiquid = true,
+    solid = false
 })

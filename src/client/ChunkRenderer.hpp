@@ -12,6 +12,7 @@ struct ChunkRemeshJob;
 class ChunkRenderer {
 private:
     ChunkMesh mesh;
+    ChunkMesh liquidMesh;
 
     AABB aabb;
 
@@ -29,5 +30,5 @@ public:
 
     void generateMesh(ChunkNeighborhood &neighborhood);
 
-    void render(Material *mat);
+    void render(Material *mat, Material *liquidMat);
 };

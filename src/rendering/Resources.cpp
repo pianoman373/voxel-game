@@ -20,7 +20,6 @@
 static std::map<std::string, Texture> textureRegistry;
 static std::map<std::string, Shader> shaderRegistry;
 static std::map<std::string, Shader> postProcessingShaderRegistry;
-static std::map<std::string, Material> materialRegistry;
 
 static std::string readShader(std::ifstream &file, std::string directory) {
     std::string source, line;
@@ -277,32 +276,5 @@ namespace Resources {
             postProcessingShaderRegistry.insert(std::make_pair(key, shader));
         }
         return postProcessingShaderRegistry.at(key);
-    }
-
-    Material &getMaterial(const Path &path) {
-        if (materialRegistry.find(path) == materialRegistry.end()) {
-            std::cout << "loading material: " << path << std::endl;
-            Material mat;
-
-            Path wd = path.getParent();
-
-
-            std::ifstream o(path);
-            if (o.is_open()) {
-                json j;
-
-                o >> j;
-
-                mat.fromJson(j, wd);
-            }
-            else {
-                std::cerr << "error loading material: " << path <<  std::endl;
-            }
-
-
-            materialRegistry.insert(std::make_pair(path, mat));
-        }
-
-        return materialRegistry.at(path);
     }
 }

@@ -1,69 +1,61 @@
 #include "common/Block.hpp"
 #include "client/Client.hpp"
 
+#include "common/LuaHandler.hpp"
+
 static Block defaultBlock;
 
 //Block
-Block::Block() {
+Block::Block(sol::table table) {
+    this->table = table;
+    name = table["name"].get_or(std::string("Untitled"));
+    solid = table["solid"].get_or(true);
+    lightLevel = table["lightLevel"].get_or(0);
+    isLiquid = table["isLiquid"].get_or(false);
 
+    for (int i = 0; i < 6; i++) {
+        textureIndices.push_back(0);
+    }
 }
 
-vec2i Block::getTextureCoord(EnumDirection dir) {
-    return vec2i(0, 0);
+Block::Block() {
+    
+}
+
+void Block::clientInit(Client &client) {
+    if (table != sol::nil) {
+        sol::table textures = table["textures"];
+
+        if (textures == sol::nil) {
+            
+        }
+        else if (textures.size() == 1) {
+            for (int i = 0; i < 6; i++) {
+                textureIndices[i] = client.worldRenderer.atlas.registerTexture(LuaHandler::formatModPath(textures[1]));
+            }
+        }
+        else if (textures.size() == 6) {
+            for (int i = 0; i < 6; i++) {
+                textureIndices[i] = client.worldRenderer.atlas.registerTexture(LuaHandler::formatModPath(textures[i+1]));
+            }
+        }
+    }
+}
+
+int Block::getTextureIndex(EnumDirection dir) {
+    return textureIndices[static_cast<int>(dir)];
 }
 
 bool Block::isSolid() {
-    return false;
+    return solid;
 }
 
 int Block::getLightLevel() {
-    return 0;
+    return lightLevel;
 }
 
 int Block::getID() {
     return blockID;
-}
-
-//LuaBlock
-LuaBlock::LuaBlock(sol::table table) {
-    name = table["name"].get_or(std::string("Untitled"));
-    solid = table["solid"].get_or(true);
-    lightLevel = table["lightLevel"].get_or(0);
-
-    sol::table textures = table["textures"];
-
-    if (textures == sol::nil) {
-        for (int i = 0; i < 6; i++) {
-            textureCoords.push_back({0, 0});
-        }
-    }
-    else if (textures.size() == 1) {
-        for (int i = 0; i < 6; i++) {
-            textureCoords.push_back({textures[1][1], textures[1][2]});
-        }
-    }
-    else if (textures.size() == 6) {
-        for (int i = 0; i < 6; i++) {
-            textureCoords.push_back({textures[i+1][1], textures[i+1][2]});
-        }
-    }
-    else {
-        for (int i = 0; i < 6; i++) {
-            textureCoords.push_back({0, 0});
-        }
-    }
-}
-
-vec2i LuaBlock::getTextureCoord(EnumDirection dir) {
-    return textureCoords[static_cast<int>(dir)];
-}
-
-bool LuaBlock::isSolid() {
-    return solid;
-}
-
-int LuaBlock::getLightLevel() {
-    return lightLevel;
 }
 
 BlockRegistry::BlockRegistry() {
@@ -90,7 +82,7 @@ void BlockRegistry::registerBlock(const std::string &id, Block *block) {
 }
 
 void BlockRegistry::registerBlockLua(const std::string &id, sol::table block) {
-    registerBlock(id, new LuaBlock(block));
+    registerBlock(id, new Block(block));
 }
 
 Block &BlockRegistry::getBlock(int id) {
@@ -107,4 +99,10 @@ Block& BlockRegistry::getBlock(const std::string &id) {
 
 int BlockRegistry::registeredBlocks() {
     return registry.size();
+}
+
+void BlockRegistry::clientInit(Client &client) {
+    for (int i = 0; i < registry.size(); i++) {
+        registry[i]->clientInit(client);
+    }
 }

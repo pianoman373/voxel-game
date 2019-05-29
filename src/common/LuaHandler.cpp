@@ -169,25 +169,21 @@ void LuaHandler::addClientSideFunctions(Client &client) {
      };
 
      state["api"]["getTexture"] = [&](std::string path) {
-         std::string delimiter = ":";
-         std::string modName = path.substr(0, path.find(delimiter));
-         std::string modPath = path.substr(path.find(delimiter)+1, path.size());
-
-         return Resources::getTexture("mods/" + modName + "/resources/" + modPath, true);
+         return Resources::getTexture(formatModPath(path), true);
      };
      state["api"]["getFont"] = [&](std::string path) {
-         return client.registry.getFont(path);
+         return client.registry.getFont(formatModPath(path));
      };
      state["api"]["registerFont"] = [&](std::string path) {
-         client.registry.registerFont(path);
+         client.registry.registerFont(formatModPath(path));
      };
-     state["api"]["getTime"] = [&] () {
+     state["api"]["getTime"] = [&]() {
          return Window::getTime();
      };
-     state["api"]["getDelta"] = [&] () {
+     state["api"]["getDelta"] = [&]() {
          return ImGui::GetIO().DeltaTime;
      };
-     state["api"]["getFramerate"] = [&] () {
+     state["api"]["getFramerate"] = [&]() {
          return ImGui::GetIO().Framerate;
      };
 
@@ -376,11 +372,7 @@ void LuaHandler::addCommonFunctions(World &world) {
      };
 
      state["require"] = [&] (const std::string &file) {
-         std::string delimiter = ":";
-         std::string modName = file.substr(0, file.find(delimiter));
-         std::string modPath = file.substr(file.find(delimiter)+1, file.size());
-
-         return state.require_file(file, "mods/" + modName + "/" + modPath);
+         return state.require_file(file, formatModPath(file));
      };
 
      state.do_string(R"(
@@ -445,4 +437,12 @@ void LuaHandler::runScript(std::string script) {
 
 void LuaHandler::registerEventHandler(std::string name, sol::function cb) {
 
+}
+
+std::string LuaHandler::formatModPath(const std::string &input) {
+    std::string delimiter = ":";
+    std::string modName = input.substr(0, input.find(delimiter));
+    std::string modPath = input.substr(input.find(delimiter)+1, input.size());
+
+    return "mods/" + modName + "/" + modPath;
 }

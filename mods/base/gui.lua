@@ -4,11 +4,11 @@ local gui = {}
 
 
 
-api.getTexture("base:textures/GUI.png")
-api.registerFont("base:HelvetiPixel.ttf")
+api.getTexture("base:resources/textures/GUI.png")
+api.registerFont("base:resources/HelvetiPixel.ttf")
 
 
-local font = api.getFont("base:HelvetiPixel.ttf")
+local font = api.getFont("base:resources/HelvetiPixel.ttf")
 local inputCache = ""
 local inputOn = false
 

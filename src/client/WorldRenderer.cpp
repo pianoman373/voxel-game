@@ -6,7 +6,6 @@
 #include "rendering/IBL.hpp"
 #include "rendering/Resources.hpp"
 
-#include <stb_image.h>
 
 static const std::vector<vec3> normalLookup = {
         {1.0f, 0.0f, 0.0f},
@@ -59,43 +58,12 @@ WorldRenderer::~WorldRenderer() {
 }
 
 void WorldRenderer::init() {
-    std::vector<Path> paths = {"resources/grass.png", "resources/dirt.png"};
-    std::vector<unsigned char> data;
-
-    TextureArray texArray;
-    int width, height, components;
-
-    for (int i = 0; i < paths.size(); i++) {
-        
-        unsigned char* image = stbi_load(paths[i].toString().c_str(), &width, &height, &components, STBI_rgb_alpha);
-        int size = width*height*components;
-        
-        for (int j = 0; j < size; j++) {
-            data.push_back(image[j]);
-        }
-
-        if (image) {
-            stbi_image_free(image);
-        }
-        else {
-            std::cerr << "error loading texture: " << paths[i] << std::endl;
-        }
-    }
-
-    texArray.load(data.data(), width, height, paths.size());
-
-    Texture texture;
-    
-
+    atlas.buildAtlas();
     
     if (client.settings.shadows) {
-        //ambient1 = new DirectionalLight(normalize(vec3(-0.9f, -1.2f, -1.0f)), vec3(0.7f, 0.8f, 1.2f)*2.5f);
-        //ambient2 = new DirectionalLight(normalize(vec3(0.9f, 1.2f, 1.0f)), vec3(0.5f, 0.6f, 0.9f)*2.5f);
-        sun = new DirectionalLight(normalize(vec3(-0.4f, -0.6f, -1.0f)), vec3(1.4f, 1.3f, 1.0f) * 2.5f, client.settings.shadow_resolution, 3, client.settings.render_distance*16.0f);
+        sun = new DirectionalLight(normalize(vec3(-0.4f, -0.6f, -1.0f)), vec3(1.4f, 1.3f, 1.0f) * 3.5f, client.settings.shadow_resolution, 3, client.settings.render_distance*16.0f);
     }
     else {
-        //ambient1 = new DirectionalLight(normalize(vec3(-0.9f, -1.2f, -1.0f)), vec3(0.7f, 0.8f, 1.2f)*3.0f);
-        //ambient2 = new DirectionalLight(normalize(vec3(0.9f, 0.8f, 1.0f)), vec3(0.5f, 0.6f, 0.9f)*2.5f);
         sun = new DirectionalLight(normalize(vec3(-0.4f, -1.6f, -0.6f)), vec3(1.4f, 1.3f, 1.0f));
     }
     
@@ -105,18 +73,8 @@ void WorldRenderer::init() {
     skyboxMaterial.setShader(Resources::getShader("resources/skybox.vsh", "resources/skybox.fsh"));
     skyboxMaterial.setUniformVec3("sun.direction", sun->m_direction);
     skyboxMaterial.setUniformVec3("sun.color", sun->m_color);
-    
 
-    texture = Resources::getTexture("resources/terrain.png", true);
-    texture_r = Resources::getTexture("resources/terrain_r.png", true);
-    texture_m = Resources::getTexture("resources/terrain_m.png", true);
-    texture_e = Resources::getTexture("resources/terrain_e.png", true);
-    texture_n = Resources::getTexture("resources/terrain_n.png", true);
-
-
-    nearMaterial.setPBRUniforms(texture, 1.0f, 0.0f);
-    nearMaterial.setUniformTexture("emissionTex", texture_e, 5);
-    nearMaterial.setUniformTextureArray("texArray", texArray, 6);
+    nearMaterial.setUniformTextureArray("texArray", atlas.getTexture(), 0);
     nearMaterial.setShader(blockShader);
 
     for (int i = 0; i < normalLookup.size(); i++) {
@@ -125,6 +83,19 @@ void WorldRenderer::init() {
     for (int i = 0; i < tangentLookup.size(); i++) {
         nearMaterial.setUniformVec3("tangentLookup[" + std::to_string(i) + "]", tangentLookup[i]);
     }
+
+    //liquidMaterial.setUniformTextureArray("texArray", atlas.getTexture(), 7);
+    liquidMaterial.setShader(Resources::getShader("resources/liquidShader.vsh", "resources/liquidShader.fsh"));
+
+    for (int i = 0; i < normalLookup.size(); i++) {
+        liquidMaterial.setUniformVec3("normalLookup[" + std::to_string(i) + "]", normalLookup[i]);
+    }
+    for (int i = 0; i < tangentLookup.size(); i++) {
+        liquidMaterial.setUniformVec3("tangentLookup[" + std::to_string(i) + "]", tangentLookup[i]);
+    }
+
+    liquidMaterial.deferred = false;
+    liquidMaterial.needsGbuffer = true;
     
 
     thread0 = new std::thread([&]() {
@@ -195,7 +166,7 @@ void WorldRenderer::render(Camera &cam) {
                     remeshQueue3.enqueue(job);
                 }
             }
-            cr->render(&nearMaterial);
+            cr->render(&nearMaterial, &liquidMaterial);
         }
     }
 //

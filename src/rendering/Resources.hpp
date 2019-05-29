@@ -54,6 +54,4 @@ namespace Resources {
     Shader &getShader(const Path &vertexShader, const Path &fragmentShader, const Path &geometryShader);
 
     Shader &getPostProcessingShader(const Path &path);
-
-    Material &getMaterial(const Path &path);
 }

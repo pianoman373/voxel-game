@@ -146,7 +146,7 @@ void Client::init() {
     // add post processing effects
     if (settings.fancy_graphics) {
         //Renderer::postProcessingStack.push_back(std::shared_ptr<PostProcessor>(new SsaoPostProcessor())); // SSAO
-        Renderer::postProcessingStack.push_back(std::shared_ptr<PostProcessor>(new BloomPostProcessor())); // Bloom
+        //Renderer::postProcessingStack.push_back(std::shared_ptr<PostProcessor>(new BloomPostProcessor())); // Bloom
     }
     
     Renderer::postProcessingStack.push_back(std::shared_ptr<PostProcessor>(new TonemapPostProcessor())); // Tonemapping
@@ -171,6 +171,8 @@ void Client::init() {
     lua.addClientSideFunctions(*this);
     lua.runScripts();
     lua.runClientScripts();
+
+    world.blockRegistry.clientInit(*this);
 }
 
 void Client::connectToServer(std::string address, int port) {
@@ -269,6 +271,8 @@ void Client::run() {
 
 
             update(deltaTime);
+
+            //std::cout << (Window::getTime() - currentFrameTime) * 1000.0f << "ms" << std::endl;
 
             render();
 

@@ -3,7 +3,7 @@
 layout (location = 0) in vec3 position;
 layout (location = 1) in float aos;
 layout (location = 2) in int normalIndex;
-layout (location = 3) in vec2 uvs;
+layout (location = 3) in vec3 uvs;
 
 uniform mat4 model;
 uniform mat4 view;
@@ -14,7 +14,7 @@ uniform vec3 tangentLookup[6];
 
 out vec3 fragPos;
 out vec3 fragNormal;
-out vec2 uv;
+out vec3 uv;
 out vec3 fragColor;
 out mat3 TBN;
 out float ao;
@@ -23,7 +23,7 @@ void main()
 {
     vec4 viewPos = view * model * vec4(position, 1.0);
     fragPos = viewPos.xyz;
-    ao = pow(aos, 2.2);
+    ao = pow(aos, 3);
 
     gl_Position = projection * viewPos;
 

@@ -1,6 +1,6 @@
 {
 	"shadow_resolution": 4096,
-	"shadows": true,
+	"shadows": false,
 	"fancy_graphics": true,
 	"render_distance": 16,
 	"fov": 70.0,

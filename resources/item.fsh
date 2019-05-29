@@ -1,7 +1,7 @@
 #version 330 core
 
-uniform sampler2D tex;
-uniform vec4 uvOffsets;
+uniform sampler2DArray texArray;
+uniform float textureIndex;
 
 in vec2 fTexCoord;
 in vec3 fNormal;
@@ -9,9 +9,9 @@ in vec3 fNormal;
 out vec4 outColor;
 
 void main() {
-    vec3 color = texture(tex, (fTexCoord * (uvOffsets.zw - uvOffsets.xy)) + uvOffsets.xy).rgb * dot(normalize(fNormal), normalize(vec3(-0.3, 0.5, 0.4)));
+    vec3 color = pow(texture(texArray, vec3(fTexCoord.x, fTexCoord.y, textureIndex)).rgb, vec3(2.2)) * dot(normalize(fNormal), normalize(vec3(-0.45, 0.6, 0.25))) * 1.;
 
-    //color = pow(color, vec3(1.0/2.2));
+    color = pow(color, vec3(1.0/2.2));
 
     outColor = vec4(color, 1.0);
 }
