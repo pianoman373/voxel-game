@@ -16,7 +16,7 @@ public:
 
     void load(std::string vertex, std::string fragment, std::string geometry="");
 
-    void loadPostProcessing(std::string shader);
+    void loadFile(const Path &file);
 
     // Use the program
     void bind() const;

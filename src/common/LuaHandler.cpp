@@ -169,13 +169,10 @@ void LuaHandler::addClientSideFunctions(Client &client) {
      };
 
      state["api"]["getTexture"] = [&](std::string path) {
-         return Resources::getTexture(formatModPath(path), true);
+         return client.registry.getTexture(formatModPath(path));
      };
      state["api"]["getFont"] = [&](std::string path) {
          return client.registry.getFont(formatModPath(path));
-     };
-     state["api"]["registerFont"] = [&](std::string path) {
-         client.registry.registerFont(formatModPath(path));
      };
      state["api"]["getTime"] = [&]() {
          return Window::getTime();

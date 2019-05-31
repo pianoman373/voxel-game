@@ -11,6 +11,8 @@ public:
 
     void load(const unsigned char *data, int width, int height, bool pixelated=false, bool singleChannel=false);
 
+    void load(const Path &file);
+
     void loadFromSingleColor(const vec4 &color);
 
     void bind(unsigned int unit = 0) const;

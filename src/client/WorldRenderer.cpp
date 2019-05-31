@@ -67,10 +67,11 @@ void WorldRenderer::init() {
         sun = new DirectionalLight(normalize(vec3(-0.4f, -1.6f, -0.6f)), vec3(1.4f, 1.3f, 1.0f));
     }
     
-    blockShader = Resources::getShader("resources/blockShader.vsh", "resources/blockShader.fsh");
+    blockShader.loadFile("mods/base/resources/shaders/blockShader.glsl");
 
+    skyboxShader.loadFile("mods/base/resources/shaders/skybox.glsl");
     skyboxMaterial.deferred = false;
-    skyboxMaterial.setShader(Resources::getShader("resources/skybox.vsh", "resources/skybox.fsh"));
+    skyboxMaterial.setShader(skyboxShader);
     skyboxMaterial.setUniformVec3("sun.direction", sun->m_direction);
     skyboxMaterial.setUniformVec3("sun.color", sun->m_color);
 
@@ -85,7 +86,8 @@ void WorldRenderer::init() {
     }
 
     //liquidMaterial.setUniformTextureArray("texArray", atlas.getTexture(), 7);
-    liquidMaterial.setShader(Resources::getShader("resources/liquidShader.vsh", "resources/liquidShader.fsh"));
+    liquidShader.loadFile("mods/base/resources/shaders/liquidShader.glsl");
+    liquidMaterial.setShader(liquidShader);
 
     for (int i = 0; i < normalLookup.size(); i++) {
         liquidMaterial.setUniformVec3("normalLookup[" + std::to_string(i) + "]", normalLookup[i]);

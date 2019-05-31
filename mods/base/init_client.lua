@@ -45,7 +45,6 @@ local function renderInventory(width, height, img)
             --        api.renderBlockItem(x + 5, (width/2) + (blockSize * x) - (blockSize/2), height-(blockSize/2), 25);
         end
     end
-
 end
 
 api.registerEventHandler("gui_ingame", function(width, height)

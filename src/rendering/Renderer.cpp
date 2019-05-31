@@ -130,6 +130,8 @@ namespace Renderer {
         glEnable(GL_TEXTURE_CUBE_MAP_SEAMLESS);
         glEnable(GL_DEPTH_TEST);
 
+        glLineWidth(2.0f);
+
         resize(resolution.x, resolution.y);
     }
 

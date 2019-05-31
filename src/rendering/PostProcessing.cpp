@@ -9,7 +9,7 @@
 
 void PostProcessor::postProcess(const Camera &, const Framebuffer &source, const Framebuffer &destination) {
     destination.bind();
-    Resources::getPostProcessingShader("resources/invert.glsl").bind();
+    Resources::passthroughShader.bind();
 
     source.getAttachment(0).bind();
     Resources::framebufferMesh.render();

@@ -5,10 +5,8 @@ local gui = {}
 
 
 api.getTexture("base:resources/textures/GUI.png")
-api.registerFont("base:resources/HelvetiPixel.ttf")
-
-
 local font = api.getFont("base:resources/HelvetiPixel.ttf")
+
 local inputCache = ""
 local inputOn = false
 

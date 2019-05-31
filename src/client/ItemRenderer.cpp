@@ -14,7 +14,7 @@ ItemRenderer::ItemRenderer(Client &client): client(client) {
 void ItemRenderer::init() {
     mesh = Primitives::cube();
 
-    itemShader = Resources::getShader("resources/item.vsh", "resources/item.fsh");
+    itemShader.loadFile("mods/base/resources/shaders/item.glsl");
 }
 
 void ItemRenderer::renderBlockItem(Block &block, float x, float y, float size) {

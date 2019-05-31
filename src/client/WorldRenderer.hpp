@@ -32,6 +32,8 @@ private:
     Client &client;
 
     Shader blockShader;
+    Shader liquidShader;
+    Shader skyboxShader;
     Material skyboxMaterial;
 
     Material nearMaterial;

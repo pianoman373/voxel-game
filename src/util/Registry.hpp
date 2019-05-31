@@ -8,12 +8,12 @@
 
 class Registry {
 private:
-    std::map<std::string, Font> loadedFonts;
+    std::map<std::string, Font> fontRegistry;
+    std::map<std::string, Texture> textureRegistry;
 
 
 public:
-
-    void registerFont(std::string path);
+    Texture &getTexture(const Path &path);
 
     Font &getFont(std::string path);
 };

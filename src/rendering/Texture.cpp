@@ -35,6 +35,21 @@ void Texture::load(const unsigned char *data, int width, int height, bool pixela
 	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+void Texture::load(const Path &file) {
+	stbi_set_flip_vertically_on_load(false);
+	int width, height, components;
+	unsigned char* image = stbi_load(file.toString().c_str(), &width, &height, &components, STBI_rgb_alpha);
+
+	if (image) {
+		this->load(image, width, height, true, false);
+
+		stbi_image_free(image);
+	}
+	else {
+		std::cerr << "error loading texture: " << file << std::endl;
+	}
+}
+
 void Texture::loadFromSingleColor(const vec4 &color) {
     unsigned char image[4] = {(unsigned char)(color.x * 255.0f), (unsigned char)(color.y * 255.0f), (unsigned char)(color.z * 255.0f), (unsigned char)(color.w * 255.0f)};
 
