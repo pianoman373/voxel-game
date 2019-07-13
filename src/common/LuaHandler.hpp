@@ -54,6 +54,19 @@ public:
          }
     }
 
+    template<typename... Args>
+    static inline void safeCall(sol::protected_function f, Args&&... args) {
+        sol::protected_function_result result = f(args...);
+        if (result.valid()) {
+
+        }
+        else {
+            // Call failed
+            sol::error err = result;
+            std::cout << err.what() << std::endl;
+        }
+    }
+
     void registerEventHandler(std::string name, sol::function cb);
 
     static std::string formatModPath(const std::string &input);

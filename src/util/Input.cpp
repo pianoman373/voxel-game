@@ -6,8 +6,10 @@
 #include <examples/imgui_impl_glfw.h>
 #include <examples/imgui_impl_opengl3.h>
 
-static bool keys[1024];
-static bool mouse[4];
+static bool keyDown[1024] = {false};
+static bool keyPressed[1024] = {false};
+static bool mouseDown[4] = {false};
+static bool mousePressed[4] = {false};
 
 static double xpos = 0;
 static double ypos = 0;
@@ -19,6 +21,8 @@ static GLFWwindow* window;
 static bool cursor = true;
 static float scroll = 0;
 
+static std::string charBuffer;
+
 
 static std::function<void(int)> keyPressedCallback;
 static std::function<void(unsigned int)> charPressedCallback;
@@ -26,29 +30,29 @@ static std::function<void(unsigned int)> charPressedCallback;
 namespace Input {
 	void key_callback(GLFWwindow* window, int key, int scancode, int action, int mode) {
         if (action != GLFW_REPEAT) {
-            if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS) {
-                cursor = !cursor;
-                glfwSetInputMode(window, GLFW_CURSOR, cursor ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
-                //glfwSetWindowShouldClose(window, true);
-            }
-
             if (key >= 0 && key < 1024)
             {
-                if (action == GLFW_PRESS)
-                    keys[key] = true;
-                else if (action == GLFW_RELEASE)
-                    keys[key] = false;
+                if (action == GLFW_PRESS) {
+                    keyDown[key] = true;
+                    keyPressed[key] = true;
+                }
+                    
+                else if (action == GLFW_RELEASE) {
+                    keyDown[key] = false;
+                }
             }
         }
 
         if (cursor)
             ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mode);
 
-        if (keyPressedCallback && action == GLFW_PRESS)
+        if (keyPressedCallback && (action == GLFW_PRESS || action == GLFW_REPEAT))
             keyPressedCallback(key);
 	}
 
     void char_callback(GLFWwindow *window, unsigned int codepoint) {
+        charBuffer.push_back((char)codepoint);
+
         if (cursor)
             ImGui_ImplGlfw_CharCallback(window, codepoint);
 
@@ -60,10 +64,12 @@ namespace Input {
         if (action != GLFW_REPEAT) {
             if (button >= 0 && button < 3)
             {
-                if (action == GLFW_PRESS)
-                    mouse[button] = true;
+                if (action == GLFW_PRESS) {
+                    mouseDown[button] = true;
+                    mousePressed[button] = true;
+                }
                 else if (action == GLFW_RELEASE)
-                    mouse[button] = false;
+                    mouseDown[button] = false;
             }
         }
 
@@ -90,11 +96,23 @@ namespace Input {
     }
 
     bool isKeyDown(int key) {
-        return keys[key];
+        return keyDown[key];
+    }
+
+    bool isKeyPressed(int key) {
+        return keyPressed[key];
+    }
+
+    std::string getCharPresses() {
+        return charBuffer;
     }
 
     bool isMouseButtonDown(int button) {
-        return mouse[button];
+        return mouseDown[button];
+    }
+
+    bool isMouseButtonPressed(int button) {
+        return mousePressed[button];
     }
 
     float getScroll() {
@@ -121,16 +139,16 @@ namespace Input {
         return !cursor;
     }
 
-
-    void registerKeyPressedCallback(std::function<void(int)> callback) {
-	    keyPressedCallback = callback;
-	}
-
-    void registerCharPressedCallback(std::function<void(unsigned int)> callback) {
-	    charPressedCallback = callback;
-	}
+    void setMouseGrabbed(bool grabbed) {
+        cursor = !grabbed;
+        glfwSetInputMode(window, GLFW_CURSOR, cursor ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+    }
 }
 
 void Input::update() {
+    memset(keyPressed, 0, sizeof(keyPressed));
+    memset(mousePressed, 0, sizeof(mousePressed));
+    charBuffer.clear();
+
     scroll = 0;
 }

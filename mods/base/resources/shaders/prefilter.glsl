@@ -15,10 +15,12 @@ in vec3 fPosition;
 uniform samplerCube environmentMap;
 uniform float roughness;
 
+#include "PBR.glsl"
 #include "lighting.glsl"
 
 void main()
 {
+    
     vec3 N = normalize(fPosition);
     vec3 R = N;
     vec3 V = R;

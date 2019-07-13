@@ -26,7 +26,7 @@ public:
     /**
      * Returns the time in seconds that the window has been open.
      */
-    static float getTime();
+    static double getTime();
 
     static float deltaTime();
 

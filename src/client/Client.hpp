@@ -4,7 +4,7 @@
 #include "rendering/Material.hpp"
 
 #include "client/NetworkManagerClient.hpp"
-#include "common/World.hpp"
+#include "client/ClientWorld.hpp"
 #include "client/WorldRenderer.hpp"
 #include "common/LuaHandler.hpp"
 #include "util/Settings.hpp"
@@ -33,10 +33,11 @@ private:
     std::thread *serverThread;
 
     bool running = true;
+    bool abortNetworkProcessing = false;
 
 public:
     NetworkManagerClient network;
-    World world;
+    ClientWorld world;
     WorldRenderer worldRenderer;
     Player player;
     Frustum frustum;
@@ -62,6 +63,8 @@ public:
     void connectToIntegratedServer();
 
     void update(float delta);
+
+    void tick();
 
     void render();
 

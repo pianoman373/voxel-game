@@ -66,12 +66,12 @@ void main()
     if (albedo.a < 0.1)
         discard;
 
-  float roughness = 1.0;
+  float roughness = 0.9;
   float metallic = 0.0;
   vec3 normal = fragNormal;
 
   gNormal = normalize(normal);
-  gAlbedo = vec4(pow(albedo.rgb, vec3(2.2)), ao);
+  gAlbedo = vec4(albedo.rgb, ao);
   gRoughnessMetallic = vec4(roughness, metallic, 1.0, 0.0);
 }
 

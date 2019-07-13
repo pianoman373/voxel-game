@@ -42,7 +42,7 @@ void NetworkManagerClient::init(std::string address, int port) {
 void NetworkManagerClient::processEvents() {
     ENetEvent event;
 
-    packetBuffer.clear();
+    //packetBuffer.clear();
 
     while (enet_host_service(host, &event, 0) > 0) {
         if (event.type == ENET_EVENT_TYPE_CONNECT) {
@@ -53,7 +53,7 @@ void NetworkManagerClient::processEvents() {
                 Packet p;
                 p.appendData(event.packet->data, event.packet->dataLength);
 
-                packetBuffer.push_back(p);
+                packetBuffer.push(p);
             }
         }
         if (event.type == ENET_EVENT_TYPE_DISCONNECT) {
@@ -74,6 +74,13 @@ int NetworkManagerClient::getNumPackets() {
     return packetBuffer.size();
 }
 
-Packet& NetworkManagerClient::getPacket(int index) {
-    return packetBuffer[index];
+Packet NetworkManagerClient::getPacket() {
+    Packet p = packetBuffer.front();
+    packetBuffer.pop();
+
+    return p;
+}
+
+bool NetworkManagerClient::isEmpty() {
+    return packetBuffer.empty();
 }

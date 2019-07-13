@@ -9,6 +9,10 @@
 #include "rendering/GuiRenderer.hpp"
 #include "util/Packet.hpp"
 #include "common/Block.hpp"
+#include "util/Stopwatch.hpp"
+#include "util/Job.hpp"
+
+#include "optick.h"
 
 #include <cstring>
 #include <enet/enet.h>
@@ -16,7 +20,7 @@
 #include <typeindex>
 #include <strstream>
 
-Client::Client(): network(*this), worldRenderer(world, *this), player(world, *this), itemRenderer(*this) {
+Client::Client(): network(*this), worldRenderer(world, *this), player(&world, *this), itemRenderer(*this), world(*this) {
     rleCache = new uint8_t[16*16*256*5];
 }
 
@@ -24,33 +28,60 @@ Client::~Client() {
     delete[] rleCache;
 }
 
+static std::vector<vec2i> chunksToDelete;
+
 void Client::manageChunks(vec2i playerChunkPosition) {
-    auto chunks = world.getChunks();
+    static vec2i lastPlayerChunkPosition;
+    static bool first = true;
+
+    OPTICK_EVENT("Manage Chunks");
+
+    if (playerChunkPosition == lastPlayerChunkPosition && !first)
+        return;
+    
+
+    first = false;
+    lastPlayerChunkPosition = playerChunkPosition;
+    
 
     //chunk deletion
-    for (auto i : chunks) {
-        std::shared_ptr<Chunk> chunk = i.second;
+    {
+        OPTICK_EVENT("Chunk deletion");
+
+        std::unordered_map<vec2i, std::shared_ptr<Chunk>> &chunks = world.getChunks();
+        
+
+        for (auto &i : chunks) {
+            Chunk *chunk = i.second.get();
 
 
-        if (abs(playerChunkPosition.x - chunk->chunk_x) > settings.render_distance || abs(playerChunkPosition.y - chunk->chunk_z) > settings.render_distance) {
-            world.deleteChunk(chunk->chunk_x, chunk->chunk_z);
-            worldRenderer.deleteChunkRenderer(chunk->chunk_x, chunk->chunk_z);
+            if (abs(playerChunkPosition.x - chunk->chunk_x) > settings.render_distance || abs(playerChunkPosition.y - chunk->chunk_z) > settings.render_distance) {
+                chunksToDelete.push_back(vec2i(chunk->chunk_x, chunk->chunk_z));
+            }
         }
+
+        for (int i = 0; i < chunksToDelete.size(); i++) {
+            world.deleteChunk(chunksToDelete[i].x, chunksToDelete[i].y);
+            worldRenderer.deleteChunkRenderer(chunksToDelete[i].x, chunksToDelete[i].y);
+        }
+        chunksToDelete.clear();
     }
 
-    //chunk addition
-    for (int x = -settings.render_distance; x < settings.render_distance+1; x++) {
-        for (int z = -settings.render_distance; z < settings.render_distance+1; z++) {
-            vec2i chunkPos = vec2i(x, z) + playerChunkPosition;
+    {
+        OPTICK_EVENT("Chunk addition");
+        //chunk addition
+        for (int x = -settings.render_distance; x < settings.render_distance+1; x++) {
+            for (int z = -settings.render_distance; z < settings.render_distance+1; z++) {
+                vec2i chunkPos = vec2i(x, z) + playerChunkPosition;
 
-            if (!world.chunkExists(chunkPos.x, chunkPos.y)) {
-                if (expectedChunks.find({chunkPos.x, chunkPos.y}) == expectedChunks.end()) {
-                    requestChunkFromServer(chunkPos.x, chunkPos.y);
+                if (!world.chunkExists(chunkPos.x, chunkPos.y)) {
+                    if (expectedChunks.find({chunkPos.x, chunkPos.y}) == expectedChunks.end()) {
+                        requestChunkFromServer(chunkPos.x, chunkPos.y);
 
-                    expectedChunks[{chunkPos.x, chunkPos.y}] = 1;
+                        expectedChunks[{chunkPos.x, chunkPos.y}] = 1;
+                    }
                 }
             }
-
         }
     }
 }
@@ -62,16 +93,24 @@ void Client::requestChunkFromServer(int x, int z) {
     p << packetID << x << z;
 
     network.sendPacket(p);
-
 }
 
 void Client::receivePackets() {
-    network.processEvents();
+    OPTICK_EVENT();
+
+    {
+        OPTICK_EVENT("process network events");
+        network.processEvents();
+    }
+    
 
     static long bytesReceived = 0;
 
-    for (int i = 0; i < network.getNumPackets(); i++) {
-        Packet &p = network.getPacket(i);
+    int i = 0;
+
+    while (!network.isEmpty() && !abortNetworkProcessing) {
+        i++;
+        Packet p = network.getPacket();
 
         uint16_t packetID;
         p >> packetID;
@@ -79,7 +118,7 @@ void Client::receivePackets() {
         if (packetID == 0) {
 
         }
-        if (packetID == 1) {
+        if (packetID == 1) { 
             std::string s;
             p >> s;
 
@@ -96,6 +135,7 @@ void Client::receivePackets() {
             playerPositions[playerID] = vec3(x, y, z);
         }
         if (packetID == 3) { //chunk data
+            OPTICK_EVENT("Process Chunk Packet");
             int x, z;
             uint16_t length;
 
@@ -105,11 +145,23 @@ void Client::receivePackets() {
             bytesReceived += length;
             //std::cout << "Received a total of " << bytesReceived << " bytes." << std::endl;
 
-            std::shared_ptr<Chunk> chunk = world.getChunk(x, z);
+            std::shared_ptr<Chunk> chunk;
+            {
+                OPTICK_EVENT("getChunk");
+                chunk = world.getChunk(x, z);
+            }
+            
+            {
+                OPTICK_EVENT("Release Data");
+                p.releaseData(rleCache, length);
+            }
+            
 
-            p.releaseData(rleCache, length);
-
-            chunk->unSerialize(rleCache, length);
+            {
+                OPTICK_EVENT("RLE decompression");
+                chunk->unSerialize(rleCache, length);
+            }
+            
 
             chunk->isDirty = true;
 
@@ -122,30 +174,28 @@ void Client::receivePackets() {
 
             p >> x >> y >> z >> blockID;
 
-            world.setBlock(x, y, z, world.blockRegistry.getBlock(blockID));
+            world.setBlockNoPacket(x, y, z, world.blockRegistry.getBlock(blockID));
         }
     }
 }
 
 void Client::init() {
+    OPTICK_SET_MEMORY_ALLOCATOR(
+        [](size_t size) -> void* { return operator new(size); }, 
+        [](void* p) { operator delete(p); }, 
+        []() { /* Do some TLS initialization here if needed */ }
+    );
+
     std::cout << "running client" << std::endl;
 
     settings.load("settings.json");
-
-    Input::registerKeyPressedCallback([&] (int key) {
-        lua.pushEvent("key_press", key);
-    });
-
-    Input::registerCharPressedCallback([&] (int key) {
-        lua.pushEvent("char_press", (char)key);
-    });
 
     Window::create({1400, 800}, "Cube Quest", false, settings.vsync);
 
     Renderer::init(1400*settings.resolution_scale, 800*settings.resolution_scale);
     // add post processing effects
     if (settings.fancy_graphics) {
-        //Renderer::postProcessingStack.push_back(std::shared_ptr<PostProcessor>(new SsaoPostProcessor())); // SSAO
+        Renderer::postProcessingStack.push_back(std::shared_ptr<PostProcessor>(new SsaoPostProcessor())); // SSAO
         //Renderer::postProcessingStack.push_back(std::shared_ptr<PostProcessor>(new BloomPostProcessor())); // Bloom
     }
     
@@ -159,10 +209,6 @@ void Client::init() {
     if (settings.fancy_graphics) {
         Renderer::postProcessingStack.push_back(std::shared_ptr<PostProcessor>(new FxaaPostProcessor())); // FXAA
     }
-    
-
-    camera.position = vec3(3.0f, 62.0f, 3.0f);
-    camera.direction = vec3(0.0f, 0.0f, 1.0f);
 
     itemRenderer.init();
 
@@ -179,8 +225,7 @@ void Client::connectToServer(std::string address, int port) {
     std::cout << "connecting to server" << std::endl;
 
     network.init(address, port);
-
-    world.init(Context::CLIENT);
+    
     worldRenderer.init();
 
     player.position = vec3(16*16, 250, 18*16);
@@ -194,97 +239,151 @@ void Client::connectToIntegratedServer() {
     integratedServer = new Server();
 
     serverThread = new std::thread([&]() {
-        integratedServer->run(running, 1234);
+        OPTICK_THREAD("Integrated Server")
+        integratedServer->run(running, 3737);
     });
 
-    connectToServer("localhost", 1234);
+    connectToServer("localhost", 3737);
 }
 
 void Client::update(float delta) {
-    vec3 lastPosition = player.position;
-    vec2i lastPlayerChunkPosition = vec2i((int)player.position.x >> 4, (int)player.position.z >> 4);
+    OPTICK_EVENT();
+    if (inGame) {
+        vec3 lastPosition = player.position;
+        vec2i lastPlayerChunkPosition = vec2i((int)player.position.x >> 4, (int)player.position.z >> 4);
 
-    world.update(delta);
-    player.update(camera, delta);
+        
+        player.update(camera, delta);
 
-    receivePackets();
+        camera.dimensions = {(float)Window::getWindowSize().x, (float)Window::getWindowSize().y};
 
-    camera.dimensions = {(float)Window::getWindowSize().x, (float)Window::getWindowSize().y};
+        if (!(player.position == lastPosition)) {
+            Packet p;
+            uint16_t packetID = 2;
 
+            p << packetID << player.position.x << player.position.y << player.position.z;
 
-    if (!(player.position == lastPosition)) {
-        Packet p;
-        uint16_t packetID = 2;
-
-        p << packetID << player.position.x << player.position.y << player.position.z;
-
-        network.sendPacket(p);
-    }
-
-    vec2i playerChunkPosition = vec2i((int)camera.position.x >> 4, (int)camera.position.z >> 4);
-
-    if (!(playerChunkPosition == lastPlayerChunkPosition)) {
-        manageChunks(playerChunkPosition);
+            network.sendPacket(p);
+        } 
     }
 }
 
-void Client::render() {
-    frustum.setupInternals(camera.fov, (float)Window::getWindowSize().x/(float)Window::getWindowSize().y, 0.1f, 1000.0f);
-    //if (Input::isKeyDown(Input::KEY_LEFT_CONTROL))
-    frustum.updateCamPosition(camera);
-    //frustum.renderDebug();
-
-
-    worldRenderer.render(camera);
-
-
-    for (auto const& x : playerPositions)
-    {
-        vec3 position = x.second;
-        Renderer::debug.renderDebugAABB(position - vec3(1.0f), position + vec3(1.0f), vec3(1.0f, 0.0f, 0.0f));
+void Client::tick() {
+    OPTICK_EVENT();
+    if (inGame) {
+        world.tick();
     }
+}
 
-    //render scene and update window
-    Renderer::flush(camera);
+float accumulator = 0.0f;
+float alpha = 0.99f;
 
-    vec2 size = vec2((float)Window::getWindowSize().x, (float)Window::getWindowSize().y);
+void Client::render() {
+    OPTICK_EVENT();
+    camera.matchWindowResolution();
+    Renderer::matchWindowResolution(settings.resolution_scale);
 
-    lua.pushEvent("gui_ingame", size.x, size.y);
+    if (inGame) {
+        
+        frustum.setupInternals(camera.fov, (float)Window::getWindowSize().x/(float)Window::getWindowSize().y, 0.1f, 1000.0f);
+        //if (Input::isKeyDown(Input::KEY_E))
+            frustum.updateCamPosition(camera);
+
+       
+        worldRenderer.render(camera);
+        
+
+        for (auto const& x : playerPositions)
+        {
+            vec3 position = x.second;
+            Renderer::debug.renderDebugAABB(position - vec3(1.0f), position + vec3(1.0f), vec3(1.0f, 0.0f, 0.0f));
+        }
+
+        static Job job;
+
+        vec2i playerChunkPosition = vec2i((int)camera.position.x >> 4, (int)camera.position.z >> 4);
+
+        //std::cout << "starting job" << std::endl;
+        job.startJob([&] () {
+            //if (!(playerChunkPosition == lastPlayerChunkPosition)) {
+            
+            manageChunks(playerChunkPosition);
+            
+            //}
+            //if (Input::isKeyDown(Input::KEY_Q))
+            receivePackets();
+            //std::cout << "done receiving packets" << std::endl;
+        });
+        
+        //std::cout << "flushing" << std::endl;
+        Renderer::flush(camera, frustum, true);
+
+        //std::cout << "waiting for job to end" << std::endl;
+        {
+            OPTICK_EVENT("Wait for job");
+            abortNetworkProcessing = true;
+            job.waitForJob();
+            abortNetworkProcessing = false;
+        }
+        
+        //std::cout << "done waiting" << std::endl;
+
+        //thread_obj.join();  
+
+        {
+            OPTICK_EVENT("GUI");
+            vec2 size = vec2((float)Window::getWindowSize().x, (float)Window::getWindowSize().y);
+            lua.pushEvent("gui_ingame", size.x, size.y);
+        }
+        
+    }
+    else {
+        //main menu
+        Renderer::flush(camera);
+
+        vec2 size = vec2((float)Window::getWindowSize().x, (float)Window::getWindowSize().y);
+        lua.pushEvent("gui_main_menu", size.x, size.y);
+    }
 }
 
 void Client::run() {
+    OPTICK_THREAD("Main Thread")
     init();
 
+    double t = 0.0;
+    double dt = 1.0 / 20.0;
+
+    double currentTime = Window::getTime();
+    double accumulator = 0.0;
+
     while (Window::isOpen()) {
+        OPTICK_FRAME("MainThread");
+
+        
         Window::begin();
 
-        camera.matchWindowResolution();
-        Renderer::matchWindowResolution(settings.resolution_scale);
+        double newTime = Window::getTime();
+        double frameTime = newTime - currentTime;
+        if ( frameTime > 0.25 )
+            frameTime = 0.25;
+        currentTime = newTime;
 
-        if (inGame) {
-            static float deltaTime;
-            static float lastFrameTime = Window::getTime();
+        accumulator += frameTime;
 
-            float currentFrameTime = Window::getTime();
-            deltaTime = currentFrameTime - lastFrameTime;
-            lastFrameTime = currentFrameTime;
+        while ( accumulator >= dt )
+        {
+            tick();
 
-
-            update(deltaTime);
-
-            //std::cout << (Window::getTime() - currentFrameTime) * 1000.0f << "ms" << std::endl;
-
-            render();
-
-
+            accumulator -= dt;
         }
-        else {
-            //main menu
-            Renderer::flush(camera);
 
-            vec2 size = vec2((float)Window::getWindowSize().x, (float)Window::getWindowSize().y);
-            lua.pushEvent("gui_main_menu", size.x, size.y);
-        }
+        const double alpha = accumulator / dt;
+
+
+        update(frameTime);
+
+        
+        render();
 
         Window::end();
     }

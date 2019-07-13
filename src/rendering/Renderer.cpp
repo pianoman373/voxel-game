@@ -11,10 +11,14 @@
 #include "rendering/IBL.hpp"
 #include "rendering/DebugRenderer.hpp"
 #include "rendering/Resources.hpp"
+#include "optick.h"
 
 #include <glad/glad.h>
 
 #include <imgui.h>
+
+#include <deque>
+
 
 
 static std::vector<RenderCall> renderQueue;
@@ -31,40 +35,53 @@ static vec3 clearColor;
 static GLuint queries[4]; // The unique query id
 static GLuint queryResults[4]; // Save the time, in nanoseconds
 
+static const bool doQueries = true;
+
 static void beginQuery(int id) {
-    glGetQueryObjectuiv(queries[id], GL_QUERY_RESULT, &queryResults[id]);
-    glBeginQuery(GL_TIME_ELAPSED, queries[id]);
+    if (doQueries) {
+        glGetQueryObjectuiv(queries[id], GL_QUERY_RESULT, &queryResults[id]);
+        glBeginQuery(GL_TIME_ELAPSED, queries[id]);
+    }   
 }
 
 static void endQuery() {
-    glEndQuery(GL_TIME_ELAPSED);
+    if (doQueries) {
+        glEndQuery(GL_TIME_ELAPSED);
+    }
 }
 
 static void iterateCommandBuffer(std::vector<RenderCall> &buffer, const Camera &cam, const Frustum &f, bool doFrustumCulling) {
+    OPTICK_EVENT();
     const Material *lastMaterial = nullptr;
 
     for (RenderCall &call : buffer) {
+        //OPTICK_EVENT("command buffer iteration");
         if (doFrustumCulling) {
-            if (!f.isBoxInside(*call.aabb)) {
-                continue;
+            if (call.aabb) {
+                if (!f.isBoxInside(*call.aabb)) {
+                    continue;
+                }
             }
         }
 
         Shader s = call.material->getShader();
 
         if (call.material != lastMaterial) {
+            OPTICK_EVENT("material rebinding");
             s.bind();
             call.material->bindUniforms();
 
             s.uniformVec3("cameraPos", cam.position);
             s.uniformMat4("view", cam.getView());
             s.uniformMat4("projection", cam.getProjection());
+            
 
             if (call.material->needsGbuffer) {
                 gBuffer.getAttachment(0).bind(0);
                 gBuffer.getAttachment(1).bind(1);
                 gBuffer.getAttachment(2).bind(2);
                 gBuffer.getAttachment(3).bind(3);
+                
 
                 s.uniformInt("gPosition", 0);
                 s.uniformInt("gNormal", 1);
@@ -81,8 +98,8 @@ static void iterateCommandBuffer(std::vector<RenderCall> &buffer, const Camera &
             s.uniformMat4("model", mat4());
         }
         
-
         call.mesh->render();
+        
 
         lastMaterial = call.material;
     }
@@ -204,6 +221,7 @@ namespace Renderer {
     }
 
     void renderToFramebuffer(const Camera &cam, const Frustum &f, bool doFrustumCulling) {
+        OPTICK_EVENT();
         glDisable(GL_BLEND);
 
         beginQuery(0);
@@ -322,11 +340,13 @@ namespace Renderer {
     }
 
     void flush(const Camera &cam) {
+        OPTICK_EVENT();
         Frustum f;
         flush(cam, f, false);
     }
 
     void flush(const Camera &cam, const Frustum &f, bool doFrustumCulling) {
+        OPTICK_EVENT();
         const Texture &t = flushToTexture(cam, f, doFrustumCulling);
 
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -337,11 +357,13 @@ namespace Renderer {
     }
 
     const Texture &flushToTexture(const Camera &cam) {
+        OPTICK_EVENT();
         Frustum f;
         return flushToTexture(cam, f, false);
     }
 
     const Texture &flushToTexture(const Camera &cam, const Frustum &f, bool doFrustumCulling) {
+        OPTICK_EVENT();
         renderToFramebuffer(cam, f, doFrustumCulling);
         
         glDepthFunc(GL_ALWAYS);
@@ -377,19 +399,41 @@ namespace Renderer {
         }
         lastKeydown = Input::isKeyDown(Input::KEY_F1);
 
+        
+
         if (debug) {
+            static std::vector<float> frameTimes(60*2, 3.0f);
+
             bool p_open = false;
             if (ImGui::Begin("Example: Fixed Overlay", &p_open, ImVec2(0, 0), 0.3f,
                             ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove |
                             ImGuiWindowFlags_NoSavedSettings)) {
-                            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate,
+                            ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", Window::deltaTime() * 1000.0f,
                             ImGui::GetIO().Framerate);
 
                             ImGui::Text("geometry: %.2f ms", queryResults[0]*0.000001f);
                             ImGui::Text("shadow pass: %.2f ms", queryResults[1]*0.000001f);
                             ImGui::Text("deferred lighting: %.2f ms", queryResults[2]*0.000001f);
                             ImGui::Text("post processing: %.2f ms", queryResults[3]*0.000001f);
+
+                            float average = 0.0f;
+
+                            for (int i = 0; i < frameTimes.size() - 1; i++) {
+                                frameTimes[i] = frameTimes[i+1];
+                                average += frameTimes[i];
+                            }
+                            average /= frameTimes.size();
+                            frameTimes[frameTimes.size()-1] = Window::deltaTime() * 1000.0f;
+                            std::string message = "average " + std::to_string(average) + "ms";
+
+                            ImGui::PlotLines("##plot", frameTimes.data(), frameTimes.size(), 0, message.data(), 0.0f, 40.0f, ImVec2(400,200));
+                            
+
+                            
+
+
                 ImGui::End();
+
             }
 
             ImGui::ShowDemoWindow();

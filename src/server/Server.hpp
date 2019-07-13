@@ -1,14 +1,14 @@
 #pragma once
 
 #include "server/NetworkManagerServer.hpp"
-#include "common/World.hpp"
 #include "common/LuaHandler.hpp"
 #include "server/ChunkIO.hpp"
+#include "server/ServerWorld.hpp"
 
 
 class Server {
 public:
-    World world;
+    ServerWorld world;
     NetworkManagerServer network;
     LuaHandler lua;
     uint8_t *rleCache;

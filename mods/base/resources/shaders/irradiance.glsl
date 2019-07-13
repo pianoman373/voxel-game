@@ -14,8 +14,6 @@ in vec3 fPosition;
 
 uniform samplerCube environmentMap;
 
-const float PI = 3.14159265359;
-
 void main()
 {
     // the sample direction equals the hemisphere's orientation
@@ -29,6 +27,8 @@ void main()
 
 	float sampleDelta = 0.025;
 	float nrSamples = 0.0;
+	float PI = 3.14159265359;
+
 	for(float phi = 0.0; phi < 2.0 * PI; phi += sampleDelta)
 	{
 		for(float theta = 0.0; theta < 0.5 * PI; theta += sampleDelta)

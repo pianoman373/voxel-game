@@ -12,7 +12,8 @@ layout (location = 0) out vec4 outColor;
 
 in vec2 fTexCoord;
 
-#include "lighting.glsl"
+#include "PBR.glsl"
+
 
 uniform sampler2D gPosition;
 uniform sampler2D gNormal;
@@ -33,6 +34,7 @@ void main() {
 	vec4 RoughnessMetallic = texture(gRoughnessMetallic, fTexCoord);
 	float roughness = RoughnessMetallic.r;
 	float metallic = clamp(RoughnessMetallic.g, 0.0, 1.0);
+	float AO = texture(gAlbedo, fTexCoord).a;
 
     vec3 N = normal;
 	vec3 V = normalize(-fragPos);
@@ -48,6 +50,7 @@ void main() {
 	kD *= 1.0 - metallic;
 
 	vec3 irradianceColor = texture(irradiance, (inverseView * vec4(N, 0.0)).xyz).rgb;
+	irradianceColor = mix(vec3(length(irradianceColor))/3.0, irradianceColor, 0.3); // desaturate ambient colors
 	vec3 diffuse = irradianceColor * albedo;
 
 	const float MAX_REFLECTION_LOD = 4.0;
@@ -57,7 +60,7 @@ void main() {
 	vec3 specular = prefilteredColor * (F * brdfColor.x + brdfColor.y);
 
 	if (length(fragPos) > 0.0) {
-		outColor = vec4(kD * diffuse + specular, 1.0);
+		outColor = vec4((kD * diffuse + specular) * AO, 1.0);
 	}
 	else {
 		discard;

@@ -2,6 +2,7 @@
 
 #include <enet/enet.h>
 #include <vector>
+#include <queue>
 
 #include "util/Packet.hpp"
 
@@ -14,7 +15,7 @@ private:
 
     Client &client;
 
-    std::vector<Packet> packetBuffer;
+    std::queue<Packet> packetBuffer;
 
 public:
     NetworkManagerClient(Client &client);
@@ -27,5 +28,7 @@ public:
 
     int getNumPackets();
 
-    Packet &getPacket(int index);
+    Packet getPacket();
+
+    bool isEmpty();
 };

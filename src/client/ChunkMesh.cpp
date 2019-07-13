@@ -45,13 +45,11 @@ void ChunkMesh::pushFace(uint16_t positionX1, uint16_t positionY1, uint16_t posi
 
 
     indicesBuffer.push_back(bufferLength-1);
-    //pushVertex(positionX3, positionY3, positionZ3, u3, v3, ao3, index3);
 
     indicesBuffer.push_back(bufferLength);
     pushVertex(positionX4, positionY4, positionZ4, u4, v4, layer, ao4, index4);
 
     indicesBuffer.push_back(bufferLength-4);
-    //pushVertex(positionX1, positionY1, positionZ1, u1, v1, ao1, index1);
 }
 
 void ChunkMesh::generate() {
@@ -62,11 +60,6 @@ void ChunkMesh::generate() {
         glGenBuffers(1, &EBO);
     }
 
-
-
-
-
-
     data = buffer;
     indices = indicesBuffer;
     length = bufferLength;
@@ -75,6 +68,7 @@ void ChunkMesh::generate() {
     buffer.shrink_to_fit();
     indicesBuffer.clear();
     indicesBuffer.shrink_to_fit();
+    data.shrink_to_fit();
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
     glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned int), &indices[0], GL_STATIC_DRAW);
@@ -122,17 +116,10 @@ void ChunkMesh::clear() {
 
 void ChunkMesh::render() const {
     glBindVertexArray(VAO);
-//
-//
-//    glDrawArrays(GL_TRIANGLES, 0, length);
-
-
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
 
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-
-    glBindVertexArray(0);
 }
 
 void ChunkMesh::destroy() {

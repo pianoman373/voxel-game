@@ -14,12 +14,14 @@ private:
     int length = 0;
     int bufferLength = 0;
 
-public:
     std::vector<float> data;
     std::vector<float> buffer;
 
     std::vector<unsigned int> indices;
     std::vector<unsigned int> indicesBuffer;
+
+public:
+    
 
     void pushVertex(uint16_t positionX, uint16_t positionY, uint16_t positionZ, float u, float v, float w, uint8_t ao, uint8_t index);
 

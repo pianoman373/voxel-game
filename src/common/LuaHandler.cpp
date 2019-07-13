@@ -1,6 +1,7 @@
 #include "common/LuaHandler.hpp"
 
 #include "common/Block.hpp"
+#include "common/Entity.hpp"
 #include "util/Noise.hpp"
 #include "util/SimplexNoise.hpp"
 #include "client/Client.hpp"
@@ -13,130 +14,6 @@
 #include <imgui.h>
 
 #include <fstream>
-
- namespace sol {
-
-     // First, the expected size
-     // Specialization of a struct
-     template <>
-     struct lua_size<vec2i> : std::integral_constant<int, 2> {};
-
-     // Then, specialize the type
-     // this makes sure Sol can return it properly
-     template <>
-     struct lua_type_of<vec2i> : std::integral_constant<sol::type, sol::type::poly> {};
-
-     // Now, specialize various stack structures
-     namespace stack {
-
-         template <>
-         struct checker<vec2i> {
-             template <typename Handler>
-             static bool check(lua_State* L, int index, Handler&& handler, record& tracking) {
-                 // indices can be negative to count backwards from the top of the stack,
-                 // rather than the bottom up
-                 // to deal with this, we adjust the index to
-                 // its absolute position using the lua_absindex function
-                 int absolute_index = lua_absindex(L, index);
-                 // Check first and second second index for being the proper types
-                 bool success = stack::check<int>(L, absolute_index, handler)
-                                && stack::check<int>(L, absolute_index + 1, handler);
-                 tracking.use(2);
-                 return success;
-             }
-         };
-
-         template <>
-         struct getter<vec2i> {
-             static vec2i get(lua_State* L, int index, record& tracking) {
-                 int absolute_index = lua_absindex(L, index);
-                 // Get the first element
-                 int a = stack::get<int>(L, absolute_index);
-                 // Get the second element,
-                 // in the +1 position from the first
-                 int b = stack::get<int>(L, absolute_index + 1);
-                 // we use 2 slots, each of the previous takes 1
-                 tracking.use(2);
-                 return vec2i{ a, b };
-             }
-         };
-
-         template <>
-         struct pusher<vec2i> {
-             static int push(lua_State* L, const vec2i& things) {
-                 int amount = stack::push(L, things.x);
-                 // amount will be 1: int pushes 1 item
-                 amount += stack::push(L, things.y);
-                 // amount 2 now, since bool pushes a single item
-                 // Return 2 things
-                 return amount;
-             }
-         };
-
-     }
- }
-
- namespace sol {
-
-     // First, the expected size
-     // Specialization of a struct
-     template <>
-     struct lua_size<vec2> : std::integral_constant<int, 2> {};
-
-     // Then, specialize the type
-     // this makes sure Sol can return it properly
-     template <>
-     struct lua_type_of<vec2> : std::integral_constant<sol::type, sol::type::poly> {};
-
-     // Now, specialize various stack structures
-     namespace stack {
-
-         template <>
-         struct checker<vec2> {
-             template <typename Handler>
-             static bool check(lua_State* L, int index, Handler&& handler, record& tracking) {
-                 // indices can be negative to count backwards from the top of the stack,
-                 // rather than the bottom up
-                 // to deal with this, we adjust the index to
-                 // its absolute position using the lua_absindex function
-                 int absolute_index = lua_absindex(L, index);
-                 // Check first and second second index for being the proper types
-                 bool success = stack::check<int>(L, absolute_index, handler)
-                                && stack::check<int>(L, absolute_index + 1, handler);
-                 tracking.use(2);
-                 return success;
-             }
-         };
-
-         template <>
-         struct getter<vec2> {
-             static vec2 get(lua_State* L, int index, record& tracking) {
-                 int absolute_index = lua_absindex(L, index);
-                 // Get the first element
-                 float a = stack::get<float>(L, absolute_index);
-                 // Get the second element,
-                 // in the +1 position from the first
-                 float b = stack::get<float>(L, absolute_index + 1);
-                 // we use 2 slots, each of the previous takes 1
-                 tracking.use(2);
-                 return vec2{ a, b };
-             }
-         };
-
-         template <>
-         struct pusher<vec2> {
-             static int push(lua_State* L, const vec2& things) {
-                 int amount = stack::push(L, things.x);
-                 // amount will be 1: int pushes 1 item
-                 amount += stack::push(L, things.y);
-                 // amount 2 now, since bool pushes a single item
-                 // Return 2 things
-                 return amount;
-             }
-         };
-
-     }
- }
 
 static void panic_handler(sol::optional<std::string> maybe_msg) {
     std::cerr << "Lua is in a panic state and will now abort() the application" << std::endl;
@@ -167,6 +44,12 @@ void LuaHandler::addClientSideFunctions(Client &client) {
      state["api"]["renderBlockItem"] = [&](int blockID, float x, float y, float size) {
          client.itemRenderer.renderBlockItem(client.world.blockRegistry.getBlock(blockID), x, y, size);
      };
+     state["api"]["renderDebugLine"] = [&](const vec3 &v1, const vec3 &v2, const vec3 &color) {
+         Renderer::debug.renderDebugLine(v1, v2, color);
+     };
+     state["api"]["renderDebugAABB"] = [&](const vec3 &v1, const vec3 &v2, const vec3 &color) {
+         Renderer::debug.renderDebugAABB(v1, v2, color);
+     };
 
      state["api"]["getTexture"] = [&](std::string path) {
          return client.registry.getTexture(formatModPath(path));
@@ -183,7 +66,7 @@ void LuaHandler::addClientSideFunctions(Client &client) {
      state["api"]["getFramerate"] = [&]() {
          return ImGui::GetIO().Framerate;
      };
-
+    
 
      state["api"]["input"] = state.create_table();
 
@@ -193,11 +76,26 @@ void LuaHandler::addClientSideFunctions(Client &client) {
      state["api"]["input"]["isKeyDown"] = [](int key) {
          return Input::isKeyDown(key);
      };
+     state["api"]["input"]["isKeyPressed"] = [](int key) {
+         return Input::isKeyPressed(key);
+     };
+     state["api"]["input"]["getCharPresses"] = []() {
+         return Input::getCharPresses();
+     };
      state["api"]["input"]["getCursorPos"] = []() {
          return Input::getCursorPos();
      };
      state["api"]["input"]["isMouseButtonDown"] = [](int button) {
          return Input::isMouseButtonDown(button);
+     };
+     state["api"]["input"]["isMouseButtonPressed"] = [](int button) {
+         return Input::isMouseButtonPressed(button);
+     };
+     state["api"]["input"]["isMouseGrabbed"] = []() {
+         return Input::isMouseGrabbed();
+     };
+     state["api"]["input"]["setMouseGrabbed"] = [](bool grabbed) {
+         Input::setMouseGrabbed(grabbed);
      };
 
      /* Printable keys */
@@ -336,9 +234,102 @@ void LuaHandler::addClientSideFunctions(Client &client) {
          client.connectToIntegratedServer();
      };
 
+     state["api"]["registerPlayerController"] = [&] (sol::table &table) {
+         client.player.table = table;
+     };
+
+     state.new_usertype<Player>("Player",
+        "position", &Player::position,
+        "velocity", &Player::velocity,
+        "direction", &Player::direction,
+        "world", &Player::world
+     );
+
 }
 
 void LuaHandler::addCommonFunctions(World &world) {
+    state.new_usertype<vec3>("vec3",
+        sol::call_constructor, sol::constructors<vec3(), vec3(float, float, float), vec3(const vec3&)>(),
+        "x", &vec3::x,
+        "y", &vec3::y,
+        "z", &vec3::z,
+        sol::meta_function::addition, sol::overload(
+            sol::resolve<vec3(const vec3&, const vec3&)>(::operator+),
+            sol::resolve<vec3(const float, const vec3&)>(::operator+),
+            sol::resolve<vec3(const vec3&, const float)>(::operator+)),
+
+        sol::meta_function::subtraction, sol::overload(
+            sol::resolve<vec3(const vec3&, const vec3&)>(::operator-),
+            sol::resolve<vec3(const float, const vec3&)>(::operator-),
+            sol::resolve<vec3(const vec3&, const float)>(::operator-)),
+        
+        sol::meta_function::multiplication, sol::overload(
+            sol::resolve<vec3(const vec3&, const vec3&)>(::operator*),
+            sol::resolve<vec3(const float, const vec3&)>(::operator*),
+            sol::resolve<vec3(const vec3&, const float)>(::operator*)),
+
+        sol::meta_function::division, sol::overload(
+            sol::resolve<vec3(const vec3&, const vec3&)>(::operator/),
+            sol::resolve<vec3(const float, const vec3&)>(::operator/),
+            sol::resolve<vec3(const vec3&, const float)>(::operator/))
+    );
+
+    state.new_usertype<vec3i>("vec3i",
+        sol::call_constructor, sol::constructors<vec3i(), vec3i(int, int, int), vec3i(const vec3i&)>(),
+        "x", &vec3i::x,
+        "y", &vec3i::y,
+        "z", &vec3i::z,
+        sol::meta_function::addition, sol::overload(
+            sol::resolve<vec3i(const vec3i&, const vec3i&)>(::operator+),
+            sol::resolve<vec3i(const int, const vec3i&)>(::operator+),
+            sol::resolve<vec3i(const vec3i&, const int)>(::operator+)),
+
+        sol::meta_function::subtraction, sol::overload(
+            sol::resolve<vec3i(const vec3i&, const vec3i&)>(::operator-),
+            sol::resolve<vec3i(const int, const vec3i&)>(::operator-),
+            sol::resolve<vec3i(const vec3i&, const int)>(::operator-)),
+        
+        sol::meta_function::multiplication, sol::overload(
+            sol::resolve<vec3i(const vec3i&, const vec3i&)>(::operator*),
+            sol::resolve<vec3i(const int, const vec3i&)>(::operator*),
+            sol::resolve<vec3i(const vec3i&, const int)>(::operator*)),
+
+        sol::meta_function::division, sol::overload(
+            sol::resolve<vec3i(const vec3i&, const vec3i&)>(::operator/),
+            sol::resolve<vec3i(const int, const vec3i&)>(::operator/),
+            sol::resolve<vec3i(const vec3i&, const int)>(::operator/))
+    );
+
+    state.new_usertype<vec2>("vec2",
+        sol::call_constructor, sol::constructors<vec2(), vec2(float, float), vec2(const vec2&)>(),
+        "x", &vec2::x,
+        "y", &vec2::y,
+        sol::meta_function::addition, sol::overload(
+            sol::resolve<vec2(const vec2&, const vec2&)>(::operator+),
+            sol::resolve<vec2(const float, const vec2&)>(::operator+),
+            sol::resolve<vec2(const vec2&, const float)>(::operator+)),
+
+        sol::meta_function::subtraction, sol::overload(
+            sol::resolve<vec2(const vec2&, const vec2&)>(::operator-),
+            sol::resolve<vec2(const float, const vec2&)>(::operator-),
+            sol::resolve<vec2(const vec2&, const float)>(::operator-)),
+        
+        sol::meta_function::multiplication, sol::overload(
+            sol::resolve<vec2(const vec2&, const vec2&)>(::operator*),
+            sol::resolve<vec2(const float, const vec2&)>(::operator*),
+            sol::resolve<vec2(const vec2&, const float)>(::operator*)),
+
+        sol::meta_function::division, sol::overload(
+            sol::resolve<vec2(const vec2&, const vec2&)>(::operator/),
+            sol::resolve<vec2(const float, const vec2&)>(::operator/),
+            sol::resolve<vec2(const vec2&, const float)>(::operator/))
+    );
+
+    state["vecmath"] = state.create_table();
+    state["vecmath"]["normalize"] = sol::resolve<vec3(const vec3&)>(::normalize);
+    state["vecmath"]["cross"] = sol::resolve<vec3(const vec3&, const vec3&)>(::cross);
+
+
      state.get<sol::table>("api").set_function("registerEventHandler", [&](std::string name, sol::function cb)
      {
          eventHandlers[name].push_back(cb);
@@ -352,14 +343,33 @@ void LuaHandler::addCommonFunctions(World &world) {
      state.new_usertype<World>( "World",
              // typical member function that returns a variable
                                     "setBlockRaw", &World::setBlockRaw,
-                                    "getBlock", &World::getBlock
-
+                                    "getBlock", &World::getBlock,
+                                    "setBlock", &World::setBlock,
+                                    "breakBlock", &World::breakBlock,
+                                    "raycastBlocks", &World::raycastBlocks
      );
 
      state.new_usertype<Block>( "Block",
              // typical member function that returns a variable
-                                    "getID", &Block::getID
+                                    "getID", &Block::getID,
+                                    "table", &Block::table
      );
+
+     state.new_usertype<Entity>("Entity",
+        "x", &Entity::x,
+        "y", &Entity::y,
+        "z", &Entity::z,
+        "xVelocity", &Entity::xVelocity,
+        "yVelocity", &Entity::yVelocity,
+        "zVelocity", &Entity::zVelocity,
+        "width", &Entity::width,
+        "height", &Entity::height,
+        "depth", &Entity::depth
+     );
+
+     state["api"]["registerEntity"] = [&](const std::string &id, sol::table entity) {
+         world.entityRegistry.registerEntity(*this, id, entity);
+     };
 
      state["api"]["registerBlock"] = [&](const std::string &id, sol::table block) {
          world.blockRegistry.registerBlockLua(id, block);
@@ -381,6 +391,29 @@ void LuaHandler::addCommonFunctions(World &world) {
      )");
 }
 
+int my_exception_handler(lua_State* L, sol::optional<const std::exception&> maybe_exception, sol::string_view description) {
+	// L is the lua state, which you can wrap in a state_view if necessary
+	// maybe_exception will contain exception, if it exists
+	// description will either be the what() of the exception or a description saying that we hit the general-case catch(...)
+	std::cout << "An exception occurred in a function, here's what it says ";
+	if (maybe_exception) {
+		std::cout << "(straight from the exception): ";
+		const std::exception& ex = *maybe_exception;
+		std::cout << ex.what() << std::endl;
+	}
+	else {
+		std::cout << "(from the description parameter): ";
+		std::cout.write(description.data(), description.size());
+		std::cout << std::endl;
+	}
+
+	// you must push 1 element onto the stack to be 
+	// transported through as the error object in Lua
+	// note that Lua -- and 99.5% of all Lua users and libraries -- expects a string
+	// so we push a single string (in our case, the description of the error)
+	return sol::stack::push(L, description);
+}
+
 void LuaHandler::init() {
     // open some common libraries
     state.open_libraries(sol::lib::base,
@@ -396,6 +429,8 @@ void LuaHandler::init() {
                          sol::lib::ffi,
                          sol::lib::jit
     );
+    state.set_exception_handler(&my_exception_handler);
+
     state["api"] = state.create_table();
 
     Path modsPath = "mods/";
@@ -415,7 +450,12 @@ void LuaHandler::runScripts() {
     for (int i = 0; i < loadedMods.size(); i++) {
         LuaMod &mod = loadedMods[i];
 
-        state.script_file(mod.rootFolder.appendFile("init.lua"), sol::script_default_on_error);
+        try {
+            state.safe_script_file(mod.rootFolder.appendFile("init.lua"));
+        }
+        catch( const sol::error& e ) {
+		    std::cout << e.what() << std::endl;
+	    }
     }
 }
 
@@ -423,12 +463,23 @@ void LuaHandler::runClientScripts() {
     for (int i = 0; i < loadedMods.size(); i++) {
         LuaMod &mod = loadedMods[i];
 
-        state.script_file(mod.rootFolder.appendFile("init_client.lua"), sol::script_default_on_error);
+        try {
+            state.safe_script_file(mod.rootFolder.appendFile("init_client.lua"));
+        }
+        catch( const sol::error& e ) {
+		    std::cout << e.what() << std::endl;
+	    }
+        
     }
 }
 
 void LuaHandler::runScript(std::string script) {
-    state.script_file(script, sol::script_default_on_error);
+    try {
+        state.safe_script_file(script);
+    }
+    catch( const sol::error& e ) {
+        std::cout << e.what() << std::endl;
+    }
 }
 
 

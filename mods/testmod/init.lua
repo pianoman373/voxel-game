@@ -1,4 +1,4 @@
-api.registerBlock("testmod:bricks", {
-    name = "Bricks",
-    textures = nil
-})
+-- api.registerBlock("testmod:bricks", {
+--     name = "Bricks",
+--     textures = nil
+-- })

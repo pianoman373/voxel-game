@@ -4,6 +4,8 @@
 #include <GLFW/glfw3.h>
 #include "util/Input.hpp"
 
+#include "optick.h"
+
 
 #include <imgui.h>
 
@@ -126,6 +128,7 @@ static float delta = 0;
 static float lastFrameTime = 0;
 
 void Window::begin() {
+    OPTICK_EVENT();
     float currentFrameTime = Window::getTime();
     delta = currentFrameTime - lastFrameTime;
     lastFrameTime = currentFrameTime;
@@ -142,10 +145,17 @@ void Window::begin() {
 }
 
 void Window::end() {
-    ImGui::Render();
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-    glfwSwapBuffers(window);
+    {
+        OPTICK_EVENT("ImGUI");
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    }
+    
+    {
+        OPTICK_EVENT("GPU");
+        glfwSwapBuffers(window);
+    }
+    
 }
 
 void Window::terminate() {
@@ -153,7 +163,7 @@ void Window::terminate() {
     glfwTerminate();
 }
 
-float Window::getTime() {
+double Window::getTime() {
     return glfwGetTime();
 }
 

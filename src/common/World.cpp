@@ -2,320 +2,9 @@
 
 #include "rendering/Renderer.hpp"
 #include "rendering/IBL.hpp"
-
-Block &ChunkNeighborhood::getBlock(int x, int y, int z) {
-    //center
-    if (x >= 0 && x < 16 && z >= 0 && z < 16) {
-        return center->getBlock(x, y, z);
-    }
-
-    //positive X
-    if (x >= 16 && z >= 0 && z < 16) {
-        return posX->getBlock(x - 16, y, z);
-    }
-    //negative X
-    if (x < 0 && z >= 0 && z < 16) {
-        return negX->getBlock(x + 16, y, z);
-    }
-
-    //positive Z
-    if (x >= 0 && x < 16 && z >= 16) {
-        return posZ->getBlock(x, y, z - 16);
-    }
-    //negative Z
-    if (x >= 0 && x < 16 && z < 0) {
-        return negZ->getBlock(x, y, z + 16);
-    }
-
-    //positive X positive Z
-    if (x >= 16 &&  z >= 16) {
-        return posXposZ->getBlock(x - 16, y, z - 16);
-    }
-    //positive X negative Z
-    if (x >= 16 && z < 0) {
-        return posXnegZ->getBlock(x - 16, y, z + 16);
-    }
-
-    //negative X positive Z
-    if (x < 0 &&  z >= 16) {
-        return negXposZ->getBlock(x + 16, y, z - 16);
-    }
-    //negative X negative Z
-    if (x < 0 && z < 0) {
-        return negXnegZ->getBlock(x + 16, y, z + 16);
-    }
+#include "common/LuaHandler.hpp"
 
 
-    return center->getBlock(x, y, z);
-}
-
-int ChunkNeighborhood::getHeight(int x, int z) {
-    //center
-    if (x >= 0 && x < 16 && z >= 0 && z < 16) {
-        return center->getHeight(x, z);
-    }
-
-    //positive X
-    if (x >= 16 && z >= 0 && z < 16) {
-        return posX->getHeight(x - 16, z);
-    }
-    //negative X
-    if (x < 0 && z >= 0 && z < 16) {
-        return negX->getHeight(x + 16, z);
-    }
-
-    //positive Z
-    if (x >= 0 && x < 16 && z >= 16) {
-        return posZ->getHeight(x, z - 16);
-    }
-    //negative Z
-    if (x >= 0 && x < 16 && z < 0) {
-        return negZ->getHeight(x, z + 16);
-    }
-
-    //positive X positive Z
-    if (x >= 16 &&  z >= 16) {
-        return posXposZ->getHeight(x - 16, z - 16);
-    }
-    //positive X negative Z
-    if (x >= 16 && z < 0) {
-        return posXnegZ->getHeight(x - 16, z + 16);
-    }
-
-    //negative X positive Z
-    if (x < 0 &&  z >= 16) {
-        return negXposZ->getHeight(x + 16, z - 16);
-    }
-    //negative X negative Z
-    if (x < 0 && z < 0) {
-        return negXnegZ->getHeight(x + 16, z + 16);
-    }
-
-
-    return center->getHeight(x, z);
-}
-
-int ChunkNeighborhood::getBlockID(int x, int y, int z) {
-    //center
-    if (x >= 0 && x < 16 && z >= 0 && z < 16) {
-        return center->getBlockID(x, y, z);
-    }
-
-    //positive X
-    if (x >= 16 && z >= 0 && z < 16) {
-        return posX->getBlockID(x - 16, y, z);
-    }
-    //negative X
-    if (x < 0 && z >= 0 && z < 16) {
-        return negX->getBlockID(x + 16, y, z);
-    }
-
-    //positive Z
-    if (x >= 0 && x < 16 && z >= 16) {
-        return posZ->getBlockID(x, y, z - 16);
-    }
-    //negative Z
-    if (x >= 0 && x < 16 && z < 0) {
-        return negZ->getBlockID(x, y, z + 16);
-    }
-
-    //positive X positive Z
-    if (x >= 16 &&  z >= 16) {
-        return posXposZ->getBlockID(x - 16, y, z - 16);
-    }
-    //positive X negative Z
-    if (x >= 16 && z < 0) {
-        return posXnegZ->getBlockID(x - 16, y, z + 16);
-    }
-
-    //negative X positive Z
-    if (x < 0 &&  z >= 16) {
-        return negXposZ->getBlockID(x + 16, y, z - 16);
-    }
-    //negative X negative Z
-    if (x < 0 && z < 0) {
-        return negXnegZ->getBlockID(x + 16, y, z + 16);
-    }
-
-
-    return center->getBlockID(x, y, z);
-}
-
-int ChunkNeighborhood::getSunlight(int x, int y, int z) {
-    //center
-    if (x >= 0 && x < 16 && z >= 0 && z < 16) {
-        return center->getSunlight(x, y, z);
-    }
-
-    //positive X
-    if (x >= 16 && z >= 0 && z < 16) {
-        return posX->getSunlight(x - 16, y, z);
-    }
-    //negative X
-    if (x < 0 && z >= 0 && z < 16) {
-        return negX->getSunlight(x + 16, y, z);
-    }
-
-    //positive Z
-    if (x >= 0 && x < 16 && z >= 16) {
-        return posZ->getSunlight(x, y, z - 16);
-    }
-    //negative Z
-    if (x >= 0 && x < 16 && z < 0) {
-        return negZ->getSunlight(x, y, z + 16);
-    }
-
-    //positive X positive Z
-    if (x >= 16 &&  z >= 16) {
-        return posXposZ->getSunlight(x - 16, y, z - 16);
-    }
-    //positive X negative Z
-    if (x >= 16 && z < 0) {
-        return posXnegZ->getSunlight(x - 16, y, z + 16);
-    }
-
-    //negative X positive Z
-    if (x < 0 &&  z >= 16) {
-        return negXposZ->getSunlight(x + 16, y, z - 16);
-    }
-    //negative X negative Z
-    if (x < 0 && z < 0) {
-        return negXnegZ->getSunlight(x + 16, y, z + 16);
-    }
-
-    return 15;
-}
-
-void ChunkNeighborhood::setSunlight(int x, int y, int z, int val) {
-    //center
-    if (x >= 0 && x < 16 && z >= 0 && z < 16) {
-        center->setSunlight(x, y, z, val);
-    }
-
-    //positive X
-    if (x >= 16 && z >= 0 && z < 16) {
-        posX->setSunlight(x - 16, y, z, val);
-    }
-    //negative X
-    if (x < 0 && z >= 0 && z < 16) {
-        negX->setSunlight(x + 16, y, z, val);
-    }
-
-    //positive Z
-    if (x >= 0 && x < 16 && z >= 16) {
-        posZ->setSunlight(x, y, z - 16, val);
-    }
-    //negative Z
-    if (x >= 0 && x < 16 && z < 0) {
-        negZ->setSunlight(x, y, z + 16, val);
-    }
-
-    //positive X positive Z
-    if (x >= 16 &&  z >= 16) {
-        posXposZ->setSunlight(x - 16, y, z - 16, val);
-    }
-    //positive X negative Z
-    if (x >= 16 && z < 0) {
-        posXnegZ->setSunlight(x - 16, y, z + 16, val);
-    }
-
-    //negative X positive Z
-    if (x < 0 &&  z >= 16) {
-        negXposZ->setSunlight(x + 16, y, z - 16, val);
-    }
-    //negative X negative Z
-    if (x < 0 && z < 0) {
-        negXnegZ->setSunlight(x + 16, y, z + 16, val);
-    }
-}
-
-int ChunkNeighborhood::getTorchlight(int x, int y, int z) {
-    //center
-    if (x >= 0 && x < 16 && z >= 0 && z < 16) {
-        return center->getTorchlight(x, y, z);
-    }
-
-    //positive X
-    if (x >= 16 && z >= 0 && z < 16) {
-        return posX->getTorchlight(x - 16, y, z);
-    }
-    //negative X
-    if (x < 0 && z >= 0 && z < 16) {
-        return negX->getTorchlight(x + 16, y, z);
-    }
-
-    //positive Z
-    if (x >= 0 && x < 16 && z >= 16) {
-        return posZ->getTorchlight(x, y, z - 16);
-    }
-    //negative Z
-    if (x >= 0 && x < 16 && z < 0) {
-        return negZ->getTorchlight(x, y, z + 16);
-    }
-
-    //positive X positive Z
-    if (x >= 16 &&  z >= 16) {
-        return posXposZ->getTorchlight(x - 16, y, z - 16);
-    }
-    //positive X negative Z
-    if (x >= 16 && z < 0) {
-        return posXnegZ->getTorchlight(x - 16, y, z + 16);
-    }
-
-    //negative X positive Z
-    if (x < 0 &&  z >= 16) {
-        return negXposZ->getTorchlight(x + 16, y, z - 16);
-    }
-    //negative X negative Z
-    if (x < 0 && z < 0) {
-        return negXnegZ->getTorchlight(x + 16, y, z + 16);
-    }
-
-    return 0;
-}
-
-void ChunkNeighborhood::setTorchlight(int x, int y, int z, int val) {
-    //center
-    if (x >= 0 && x < 16 && z >= 0 && z < 16) {
-        center->setTorchlight(x, y, z, val);
-    }
-
-    //positive X
-    if (x >= 16 && z >= 0 && z < 16) {
-        posX->setTorchlight(x - 16, y, z, val);
-    }
-    //negative X
-    if (x < 0 && z >= 0 && z < 16) {
-        negX->setTorchlight(x + 16, y, z, val);
-    }
-
-    //positive Z
-    if (x >= 0 && x < 16 && z >= 16) {
-        posZ->setTorchlight(x, y, z - 16, val);
-    }
-    //negative Z
-    if (x >= 0 && x < 16 && z < 0) {
-        negZ->setTorchlight(x, y, z + 16, val);
-    }
-
-    //positive X positive Z
-    if (x >= 16 &&  z >= 16) {
-        posXposZ->setTorchlight(x - 16, y, z - 16, val);
-    }
-    //positive X negative Z
-    if (x >= 16 && z < 0) {
-        posXnegZ->setTorchlight(x - 16, y, z + 16, val);
-    }
-
-    //negative X positive Z
-    if (x < 0 &&  z >= 16) {
-        negXposZ->setTorchlight(x + 16, y, z - 16, val);
-    }
-    //negative X negative Z
-    if (x < 0 && z < 0) {
-        negXnegZ->setTorchlight(x + 16, y, z + 16, val);
-    }
-}
 
 
 
@@ -323,11 +12,10 @@ World::World() {
 
 }
 
-void World::init(Context ctx) {
-    this->ctx = ctx;
-}
-
-void World::update(float delta) {
+void World::tick() {
+    for (auto *i : entities) {
+        i->tick();
+    }
 }
 
 Block &World::getBlock(int x, int y, int z) {
@@ -350,6 +38,14 @@ void World::setBlockRaw(int x, int y, int z, int blockID) {
     std::shared_ptr<Chunk> c = getChunk(xp, zp);
 
     c->setBlockRaw(xc, yc, zc, blockID);
+}
+
+void World::setBlockFromString(int x, int y, int z, const std::string &block) {
+    setBlock(x, y, z, blockRegistry.getBlock(block));
+}
+
+void World::breakBlock(int x, int y, int z) {
+    setBlock(x, y, z, blockRegistry.getBlock(0));
 }
 
 void World::setBlock(int x, int y, int z, Block &block) {
@@ -379,6 +75,7 @@ void World::setBlock(int x, int y, int z, Block &block) {
     if (zc == 0 && chunkExists(xp, zp - 1)) {
         getChunk(xp, zp - 1)->isDirty = true;
     }
+    
 }
 
 std::shared_ptr<Chunk> World::getChunk(int x, int z) {
@@ -386,13 +83,14 @@ std::shared_ptr<Chunk> World::getChunk(int x, int z) {
         Chunk *c = new Chunk(*this, x, z);
 
         chunks.emplace(vec2i(x, z), c);
+        informChunkChange(x, z);
     }
 
     return chunks[{x, z}];
 }
 
 ChunkNeighborhood World::getChunkNeighborhood(int x, int z) {
-    ChunkNeighborhood neighborhood = {
+    ChunkNeighborhood neighborhood(
             getChunk(x, z),
 
             getChunk(x+1, z),
@@ -406,7 +104,7 @@ ChunkNeighborhood World::getChunkNeighborhood(int x, int z) {
 
             getChunk(x-1, z+1),
             getChunk(x-1, z-1)
-    };
+    );
 
     return neighborhood;
 }
@@ -419,6 +117,46 @@ void World::deleteChunk(int x, int z) {
 
         chunks.erase({x, z});
     }
+    informChunkChange(x, z);
+}
+
+bool World::doesChunkHaveNeighbors(int x, int z) {
+    bool posX = chunkExists(x+1, z);
+    bool negX = chunkExists(x-1, z);
+
+    bool posZ = chunkExists(x, z+1);
+    bool negZ = chunkExists(x, z-1);
+
+    bool posXposZ = chunkExists(x+1, z+1);
+    bool posXnegZ = chunkExists(x+1, z-1);
+
+    bool negXposZ = chunkExists(x-1, z+1);
+    bool negXnegZ = chunkExists(x-1, z-1);
+
+    if (posX && negX && posZ && negZ && posXposZ && posXnegZ && negXposZ && negXnegZ) {
+        return true;
+    }
+    else {
+        return false;
+    }
+}
+
+void World::updateNeighborsFlag(int x, int z) {
+    if (chunkExists(x, z)) {
+        getChunk(x, z)->hasNeighbors = doesChunkHaveNeighbors(x, z);
+    }
+}
+
+void World::informChunkChange(int x, int z) {
+    updateNeighborsFlag(x+1, z);
+    updateNeighborsFlag(x-1, z);
+    updateNeighborsFlag(x, z+1);
+    updateNeighborsFlag(x, z-1);
+
+    updateNeighborsFlag(x-1, z-1);
+    updateNeighborsFlag(x+1, z-1);
+    updateNeighborsFlag(x-1, z+1);
+    updateNeighborsFlag(x+1, z+1);
 }
 
 void World::deleteAllChunks() {
@@ -439,71 +177,84 @@ bool World::chunkExists(int x, int z) {
     return exists;
 }
 
-std::unordered_map<vec2i, std::shared_ptr<Chunk>> World::getChunks() {
+std::unordered_map<vec2i, std::shared_ptr<Chunk>> &World::getChunks() {
     //chunks_mx.lock();
-    std::unordered_map<vec2i, std::shared_ptr<Chunk>> ret = chunks;
+    //std::unordered_map<vec2i, std::shared_ptr<Chunk>> ret = chunks;
     //chunks_mx.unlock();
 
-    return ret;
+    return chunks;
 }
 
-bool World::raycastBlocks(vec3 origin, vec3 direction, float maxDistance, vec3i &blockPosReturn, vec3 &blockNormalReturn) {
-    std::shared_ptr<Chunk> nearestBlockChunk;
-    vec3i nearestBlockPos;
-    float nearestBlockDistance = 10000000000000.0f;
-    vec3 nearestBlockNormal;
+bool World::raycastBlocks(vec3 origin, vec3 direction, float maxDistance, vec3i &blockPosReturn, vec3i &blockNormalReturn) {
+    int xp = (int)origin.x >> 4;
+    int zp = (int)origin.z >> 4;
 
-    for (auto const &ref: chunks) {
-        std::shared_ptr<Chunk> c = ref.second;
+    vec3 p0 = origin;
+    vec3 d = direction;
 
-        vec3 chunkPos = vec3(c->chunk_x * 16, 0, c->chunk_z * 16);
+    float epsilon = 0.01f;
 
-        AABB abb = AABB(chunkPos, chunkPos + vec3(16, 256, 16));
+    float t = 0;
+    while (t <= maxDistance) {
+        vec3 p = p0 + d * t;
 
-        vec3 point;
-        vec3 normal;
+        vec3i pi = vec3i((int)p.x, (int)p.y, (int)p.z);
 
-        //get raycasts
-        if (abb.raycast(origin, direction * maxDistance, point, normal)) {
-            for (int x = 0; x < 16; x++) {
-                for (int y = 0; y < 256; y++) {
-                    for (int z = 0; z < 16; z++) {
-                        Block &block = c->getBlock(x, y, z);
-                        if (block.getID() != 0) {
-                            AABB blockAbb = AABB(chunkPos + vec3(x, y, z), chunkPos + vec3(x + 1, y + 1, z + 1));
+        if (getBlock(pi.x, pi.y, pi.z).getID() != 0) {
+            vec3 n = (p - (vec3(pi.x, pi.y, pi.z) + vec3(0.5))) * 2.0f;
+            vec3i normal;
 
-                            if (blockAbb.raycast(origin, direction * maxDistance, point, normal)) {
-                                float distance = length(origin - point);
-
-                                if (distance < nearestBlockDistance) {
-                                    nearestBlockDistance = distance;
-                                    nearestBlockChunk = c;
-                                    nearestBlockPos = vec3i(x, y, z);
-                                    nearestBlockNormal = normal;
-                                }
-                            }
-                        }
-                    }
+            if (abs(n.x) > abs(n.y) && abs(n.x) > abs(n.z)) {
+                if (n.x > 0) {
+                    normal = vec3i(1, 0, 0);
                 }
+                else {
+                    normal = vec3i(-1, 0, 0);
+                }
+                
             }
+
+            if (abs(n.y) > abs(n.x) && abs(n.y) > abs(n.z)) {
+                if (n.y > 0) {
+                    normal = vec3i(0, 1, 0);
+                }
+                else {
+                    normal = vec3i(0, -1, 0);
+                }
+                
+            }
+
+            if (abs(n.z) > abs(n.y) && abs(n.z) > abs(n.x)) {
+                if (n.z > 0) {
+                    normal = vec3i(0, 0, 1);
+                }
+                else {
+                    normal = vec3i(0, 0, -1);
+                }
+                
+            }
+
+            blockNormalReturn = normal;
+            blockPosReturn = pi;
+            return true;
         }
+    
+        vec3 deltas = (step(0, d) - fract(p)) / d;
+        t += fmax(mincomp(deltas), epsilon);
     }
 
-    if (nearestBlockDistance != 10000000000000.0f) {
-        vec3i chunkPos = vec3i(nearestBlockChunk->chunk_x * 16, 0, nearestBlockChunk->chunk_z * 16);
-
-        blockNormalReturn = nearestBlockNormal;
-        blockPosReturn = nearestBlockPos + chunkPos;
-        return true;
-    }
     return false;
 }
 
 std::vector<AABB> World::getCollisions(AABB test) {
-    vec3i start = vec3i(test.min.x, test.min.y, test.min.z);
-    vec3i end = vec3i(test.max.x, test.max.y, test.max.z);
+    test.min = test.min - 1.0f;
+    test.max = test.max + 1.0f;
+    vec3i start = vec3i(floor(test.min.x), floor(test.min.y), floor(test.min.z));
+    vec3i end = vec3i(ceil(test.max.x), ceil(test.max.y), ceil(test.max.z));
 
     std::vector<AABB> returnVector;
+
+    //return returnVector;
 
     for (int x = start.x; x <= end.x; x++) {
         for (int y = start.y; y <= end.y; y++) {
@@ -511,13 +262,11 @@ std::vector<AABB> World::getCollisions(AABB test) {
                 int xp = x >> 4;
                 int zp = z >> 4;
 
-                if (chunkExists(xp, zp)) {
-                    if (getBlock(x, y, z).isSolid()) {
+                if (getBlock(x, y, z).isSolid()) {
                         AABB blockAbb = AABB(vec3(x, y, z), vec3(x+1, y+1, z+1));
 
                         returnVector.push_back(blockAbb);
                     }
-                }
             }
         }
     }
@@ -527,4 +276,8 @@ std::vector<AABB> World::getCollisions(AABB test) {
 
 void World::setDeleteCallback(std::function<void(std::shared_ptr<Chunk>)> deleteCallback) {
     this->deleteCallback = deleteCallback;
+}
+
+void World::spawnEntity(LuaHandler &lua, const std::string &id, vec3 position) {
+    entities.push_back(new Entity(*this, lua, entityRegistry.getEntityTable(id), position));
 }

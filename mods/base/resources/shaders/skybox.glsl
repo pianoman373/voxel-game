@@ -151,12 +151,22 @@ in vec3 fPosition;
 layout (location = 0) out vec4 outColor;
 layout (location = 1) out vec4 outColor1;
 
+vec3 atmosphere(vec3 dir, vec3 sunDir) {
+    float atmosphere = pow(clamp((-(dir.y*2)) / 2.0, 0.0, 1.0), 1);
+    vec3 skyColor = vec3(0.2,0.4,0.8)*2;
+
+    float sunset = clamp(-sunDir.y, 0.0, 1.0) * pow(clamp(dot(sunDir, dir), 0.0, 1.0), 5.0);
+    vec3 horizonColor = mix(vec3(0.7,0.8,0.9)*2, vec3(1.7,0.8,0.9)*2, 0.0);
+
+    return mix(horizonColor,skyColor,atmosphere) * clamp(-dir.y + 1.0, 0.2, 1.0);
+}
+
 void main() {
     vec3 dir = -normalize(fPosition);
 
     float sunAmount = max( dot( dir, sun.direction ), 0.0 );
-    vec3 atmoColor = mix( vec3(0.5,0.6,1.0), // bluish
-                           vec3(0.5,0.6,1.0), // yellowish
+    vec3 atmoColor = mix( vec3(0.2,0.4,0.8)*4.0, // bluish
+                           vec3(1.0,0.3,0.0)*2.0, // yellowish
                            pow(sunAmount,2.0) );
 
     vec3 sunLevel = vec3(0.0);
@@ -170,15 +180,36 @@ void main() {
     atmoColor = atmoColor * clamp(dot(normalize(sun.direction), vec3(0.0f, -1.0f, 0.0f)) , 0, 1);
 
     vec3 color = mix(atmoColor, vec3(0.1,0.2,0.3), clamp(dot(vec3(0.0, -1.0, 0.0), dir) + 0.2, 0.0, 1.0));
+
+
+
+
+
+    color = atmosphere(dir, sun.direction);
+    
     
 
     
 
     color += sunLevel;
-    color += (texture(stars, -dir).rgb);// * clamp(dot(-sun.direction, vec3(0, -1, 0)) + 0.3, 0, 1);
+
+    // color = atmosphere(
+    //     -dir,           // normalized ray direction
+    //     vec3(0,6372e3,0),               // ray origin
+    //     -normalize(sun.direction),                        // position of the sun
+    //     42.0,                           // intensity of the sun
+    //     6371e3,                         // radius of the planet in meters
+    //     6471e3,                         // radius of the atmosphere in meters
+    //     vec3(5.5e-6, 13.0e-6, 22.4e-6), // Rayleigh scattering coefficient
+    //     21e-6,                          // Mie scattering coefficient
+    //     8e3,                            // Rayleigh scale height
+    //     1.2e3,                          // Mie scale height
+    //     0.758                           // Mie preferred scattering direction
+    // );
 
     outColor = vec4(color, 1.0);
     outColor1 = vec4(color * bloomStrength, 1.0);
+
 }
 
 #pragma ENDFRAGMENT

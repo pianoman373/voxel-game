@@ -6,13 +6,15 @@
 
 #include "sol.hpp"
 
+class World;
+
 class Client;
 
 class Block {
     friend class BlockRegistry;
 
 private:
-    sol::table table = sol::nil;
+    
 
     int blockID = 0;
     std::string name = "";
@@ -24,6 +26,7 @@ private:
     int lightLevel = 0;
 
 public:
+    sol::table table = sol::nil;
     bool isLiquid = false;
 
     Block(sol::table table);
@@ -39,6 +42,8 @@ public:
     int getLightLevel();
 
     int getID();
+
+    void onPlace(World &world, int x, int y, int z);
 };
 
 class BlockRegistry {

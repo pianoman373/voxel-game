@@ -23,7 +23,6 @@ namespace Resources {
     extern Shader ShadowShader;
     extern Shader deferredShader;
     extern Shader deferredAmbientShader;
-    extern Shader deferredPointShader;
     extern Shader deferredDirectionalShadowShader;
     extern Shader deferredDirectionalShader;
 

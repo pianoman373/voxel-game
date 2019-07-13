@@ -13,7 +13,7 @@ Chunk::Chunk(World &world, int x, int z): world(world) {
 }
 
 Chunk::~Chunk() {
-
+    
 }
 
 int rleEncode(uint8_t *input, int inputLength, uint8_t *output) {
@@ -103,6 +103,9 @@ void Chunk::unSerialize(uint8_t *dataIn, int dataLength) {
 }
 
 int Chunk::getBlockID(int x, int y, int z) {
+    if (y < 0)
+        return 1;
+
     int index = (y * 16 * 16) + (x * 16) + z;
     if (index >= 0 && index < 16*16*256) {
         return blocks[index];

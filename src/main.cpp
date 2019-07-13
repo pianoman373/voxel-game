@@ -47,18 +47,10 @@ int main(int argc, char *argv[]) {
         else {
             std::cout << "Usage: voxel-game -s port" << std::endl;
         }
-
-
-
-
     }
     else {
         c->run();
 
-
         delete c;
     }
-
-
-
 }

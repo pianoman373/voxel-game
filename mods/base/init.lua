@@ -4,7 +4,11 @@ api.registerBlock("base:stone", {
     name = "Stone",
     textures = {
         "base:resources/blocks/stone.png"
-    }
+    },
+    onPlace = function(world, x, y, z)
+        print("placing!")
+        world:setBlock(x, y + 1, z, api.getBlock("base:dirt"))
+    end
 })
 
 api.registerBlock("base:dirt", {
@@ -85,3 +89,4 @@ api.registerBlock("base:water", {
     isLiquid = true,
     solid = false
 })
+

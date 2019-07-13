@@ -1,5 +1,6 @@
 #include "common/Block.hpp"
 #include "client/Client.hpp"
+#include "common/World.hpp"
 
 #include "common/LuaHandler.hpp"
 
@@ -24,21 +25,21 @@ Block::Block() {
 
 void Block::clientInit(Client &client) {
     if (table != sol::nil) {
-        sol::table textures = table["textures"];
-
-        if (textures == sol::nil) {
-            
-        }
-        else if (textures.size() == 1) {
-            for (int i = 0; i < 6; i++) {
-                textureIndices[i] = client.worldRenderer.atlas.registerTexture(LuaHandler::formatModPath(textures[1]));
+        if (table["textures"].get_type() == sol::type::table) {
+            sol::table textures = table["textures"];
+        
+            if (textures.size() == 1) {
+                for (int i = 0; i < 6; i++) {
+                    textureIndices[i] = client.worldRenderer.atlas.registerTexture(LuaHandler::formatModPath(textures[1]));
+                }
+            }
+            else if (textures.size() == 6) {
+                for (int i = 0; i < 6; i++) {
+                    textureIndices[i] = client.worldRenderer.atlas.registerTexture(LuaHandler::formatModPath(textures[i+1]));
+                }
             }
         }
-        else if (textures.size() == 6) {
-            for (int i = 0; i < 6; i++) {
-                textureIndices[i] = client.worldRenderer.atlas.registerTexture(LuaHandler::formatModPath(textures[i+1]));
-            }
-        }
+        
     }
 }
 
@@ -56,6 +57,12 @@ int Block::getLightLevel() {
 
 int Block::getID() {
     return blockID;
+}
+
+void Block::onPlace(World &world, int x, int y, int z) {
+    if (table != sol::nil) {
+        LuaHandler::safeCall(table.get<sol::safe_function>("onPlace"), world, x, y, z);
+    }
 }
 
 BlockRegistry::BlockRegistry() {

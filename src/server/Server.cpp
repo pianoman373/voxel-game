@@ -9,9 +9,11 @@
 #include <chrono>
 #include <thread>
 
+#include "optick.h"
+
 #define WORLD_SIZE 128
 
-Server::Server(): network(*this) {
+Server::Server(): network(*this), world(*this) {
     rleCache = new uint8_t[16*16*256*5];
 }
 
@@ -33,6 +35,7 @@ bool Server::isWorldSavePresent() {
 }
 
 void Server::update() {
+    OPTICK_EVENT();
     receivePackets();
 }
 
@@ -76,18 +79,20 @@ void Server::receivePackets() {
 
             //std::cout << "(Server) Received chunk request at: " << x << ", " << z << std::endl;
 
-            Packet returnPacket;
-            returnPacket << packetID << x << z;
+            if (x > 0 && z > 0 && x < WORLD_SIZE & z < WORLD_SIZE) {
+                Packet returnPacket;
+                returnPacket << packetID << x << z;
 
-            std::shared_ptr<Chunk> c = world.getChunk(x, z);
+                std::shared_ptr<Chunk> c = world.getChunk(x, z);
 
-            uint16_t length = c->serialize(rleCache);
+                uint16_t length = c->serialize(rleCache);
 
-            returnPacket << length;
+                returnPacket << length;
 
-            returnPacket.appendData(rleCache, length);
+                returnPacket.appendData(rleCache, length);
 
-            network.sendPacket(p.senderID, returnPacket);
+                network.sendPacket(p.senderID, returnPacket);
+            }
         }
         if (packetID == 4) {
             int x, y, z, blockID;
@@ -98,10 +103,7 @@ void Server::receivePackets() {
 
             world.setBlock(x, y, z, world.blockRegistry.getBlock(blockID));
 
-            Packet returnPacket;
-            returnPacket << packetID << x << y << z << blockID;
-
-            network.broadcastPacketExcept(p.senderID, returnPacket);
+            
         }
     }
 }
@@ -181,7 +183,6 @@ void Server::generateTerrain() {
 void Server::init(int port) {
     network.init(port);
 
-    world.init(Context::SERVER);
     world.setDeleteCallback([&] (std::shared_ptr<Chunk> chunk) {
         if (chunk->changedFromDisk) {
             std::cout << "saving chunk" << std::endl;
@@ -193,7 +194,13 @@ void Server::init(int port) {
     lua.init();
     lua.addCommonFunctions(world);
     lua.runScripts();
-    lua.state.script_file("mods/base/worldgen.lua", sol::script_default_on_error);
+    
+    try {
+        lua.state.safe_script_file("mods/base/worldgen.lua");
+    }
+    catch( const sol::error& e ) {
+        std::cout << e.what() << std::endl;
+    }
 
     if (isWorldSavePresent()) {
         std::cout << "loading chunks from disk..." << std::endl;
@@ -228,6 +235,7 @@ void Server::init(int port) {
 }
 
 void Server::run(bool &running, int port) {
+    
     std::cout << "running server" << std::endl;
 
     init(port);

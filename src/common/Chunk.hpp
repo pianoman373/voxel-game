@@ -23,6 +23,7 @@ public:
 	unsigned char heightMap[16][16] = { 0 };
     bool isDirty = false;
     bool changedFromDisk = false;
+    bool hasNeighbors = false;
 
     int chunk_x;
     int chunk_z;

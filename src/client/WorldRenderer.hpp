@@ -9,6 +9,7 @@
 #include "Math.hpp"
 
 #include <unordered_map>
+#include <map>
 #include <thread>
 
 #include "client/ChunkRenderer.hpp"
@@ -40,6 +41,10 @@ private:
     Material liquidMaterial;
 
     std::unordered_map<vec2i, std::shared_ptr<ChunkRenderer>> chunkRenderers;
+    std::vector<ChunkRenderer*> rendererList;
+
+    std::vector<std::shared_ptr<ChunkRenderer>> deadRenderers;
+
 
     BlockingReaderWriterQueue<ChunkRemeshJob> remeshQueue0;
     BlockingReaderWriterQueue<ChunkRemeshJob> remeshQueue1;
@@ -71,8 +76,6 @@ public:
     bool chunkRendererExists(int x, int z);
 
     void deleteChunkRenderer(int x, int z);
-
-    bool doesChunkHaveNeighbors(int x, int z);
 
     std::shared_ptr<ChunkRenderer> getChunkRenderer(int x, int z);
 

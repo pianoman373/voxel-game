@@ -5,6 +5,10 @@
 #include "rendering/Renderer.hpp"
 #include "rendering/IBL.hpp"
 #include "rendering/Resources.hpp"
+#include "util/Input.hpp"
+#include "optick.h"
+
+#include "client/Window.hpp"
 
 
 static const std::vector<vec3> normalLookup = {
@@ -61,10 +65,10 @@ void WorldRenderer::init() {
     atlas.buildAtlas();
     
     if (client.settings.shadows) {
-        sun = new DirectionalLight(normalize(vec3(-0.4f, -0.6f, -1.0f)), vec3(1.4f, 1.3f, 1.0f) * 3.5f, client.settings.shadow_resolution, 3, client.settings.render_distance*16.0f);
+        sun = new DirectionalLight(normalize(vec3(-0.4f, -0.6f, -1.0f)), vec3(1.4f, 1.3f, 1.0f) * 4.0f, client.settings.shadow_resolution, 2, 16.0f*6);
     }
     else {
-        sun = new DirectionalLight(normalize(vec3(-0.4f, -1.6f, -0.6f)), vec3(1.4f, 1.3f, 1.0f));
+        sun = new DirectionalLight(normalize(vec3(-0.4f, -1.6f, -0.6f)), vec3(1.4f, 1.3f, 1.0f) * 3.0f);
     }
     
     blockShader.loadFile("mods/base/resources/shaders/blockShader.glsl");
@@ -101,56 +105,71 @@ void WorldRenderer::init() {
     
 
     thread0 = new std::thread([&]() {
+        OPTICK_THREAD("Remesh 0");
         remeshThread(remeshQueue0);
     });
     thread0->detach();
 
     thread1 = new std::thread([&]() {
+        OPTICK_THREAD("Remesh 1");
         remeshThread(remeshQueue1);
     });
     thread1->detach();
 
     thread2 = new std::thread([&]() {
+        OPTICK_THREAD("Remesh 2");
         remeshThread(remeshQueue2);
     });
     thread2->detach();
 
     thread3 = new std::thread([&]() {
+        OPTICK_THREAD("Remesh 3");
         remeshThread(remeshQueue3);
     });
     thread3->detach();
 
-    // Renderer::renderSkybox(&skyboxMaterial);
-    // IBL::generateIBLmaps(vec3(0.0f,  0.0f, 0.0f), Renderer::irradiance, Renderer::specular);
-    // Renderer::clear();
+    Renderer::renderSkybox(&skyboxMaterial);
+    IBL::generateIBLmaps(vec3(0.0f,  0.0f, 0.0f), Renderer::irradiance, Renderer::specular);
+    Renderer::clear();
 }
 
 void WorldRenderer::render(Camera &cam) {
+    quaternion q(vec3(1.0f, 0.f, 0.0f), Window::getTime()*0.1f);
+
+    vec3 dir = q * vec3(0.0f, 0.0f, 1.0f);
+
+    // sun->m_direction = dir;
+    // skyboxMaterial.setUniformVec3("sun.direction", sun->m_direction);
+
+    OPTICK_EVENT();
     int regeneratedChunks = 0;
 
     Renderer::renderDirectionalLight(sun);
-    ///Renderer::renderDirectionalLight(ambient1);
-    //Renderer::renderDirectionalLight(ambient2);
 
-    for (auto &i : chunkRenderers) {
-        std::shared_ptr<ChunkRenderer> cr = i.second;
+    for (auto *i : world.entities) {
+        Renderer::debug.renderDebugAABB(i->getPosition() - (vec3(i->width, i->height, i->depth) / 2.0f), i->getPosition() + (vec3(i->width, i->height, i->depth) / 2.0f), vec3(1.0f, 0.0f, 0.0f));
+    }
 
-        int x = i.first.x;
-        int z = i.first.y;
+    
+    for (ChunkRenderer *i : rendererList) {
+        //std::shared_ptr<ChunkRenderer> cr = i.second;
+        int x = i->chunk_x;
+        int z = i->chunk_z;
 
-        //Renderer::debug.renderDebugAABB(vec3(x * 16.0f, 0.0f, x * 16.0f), vec3((x+1) * 16.0f, 256.0f, (z+1) * 16.0f), vec3(0.0f, 1.0f, 0.0f));
+        // //Renderer::debug.renderDebugAABB(vec3(x * 16.0f, 0.0f, x * 16.0f), vec3((x+1) * 16.0f, 256.0f, (z+1) * 16.0f), vec3(0.0f, 1.0f, 0.0f));
 
-        if (doesChunkHaveNeighbors(x, z)) {
-            std::shared_ptr<Chunk> chunk = world.getChunk(x, z);
+        Chunk* chunk = i->chunk.get();
 
+        if (chunk->hasNeighbors) {
             if (chunk->isDirty) {
+                OPTICK_EVENT("isDirty");
                 chunk->isDirty = false;
 
                 int remainderX = x % 2;
                 int remainderZ = z % 2;
 
                 ChunkRemeshJob job = {
-                        cr,
+                        chunkRenderers[{x, z}],
                         world.getChunkNeighborhood(x, z)
                 };
 
@@ -168,17 +187,10 @@ void WorldRenderer::render(Camera &cam) {
                     remeshQueue3.enqueue(job);
                 }
             }
-            cr->render(&nearMaterial, &liquidMaterial);
+            i->render(&nearMaterial, &liquidMaterial);
+            
         }
     }
-//
-//    auto chunks = world.getChunks();
-//
-//    for (auto i : chunks) {
-//        vec2i pos = i.first;
-//
-//        Renderer::debug.renderDebugAABB(vec3(pos.x * 16.0f, 0.0f, pos.y * 16.0f), vec3((pos.x+1) * 16.0f, 256.0f, (pos.y+1) * 16.0f), vec3(1.0f, 0.0f, 0.0f));
-//    }
 
     Renderer::renderSkybox(&skyboxMaterial);
 }
@@ -191,46 +203,52 @@ bool WorldRenderer::chunkRendererExists(int x, int z) {
 
 void WorldRenderer::deleteChunkRenderer(int x, int z) {
     if (chunkRendererExists(x, z)) {
+        auto chunkRenderer = chunkRenderers[{x, z}];
+        
+
+        rendererList[chunkRenderer->rendererIndex] = rendererList.back();
+        rendererList[chunkRenderer->rendererIndex]->rendererIndex = chunkRenderer->rendererIndex;
+        rendererList.pop_back();
+
+        
+        deadRenderers.push_back(chunkRenderer);
+
         chunkRenderers.erase({x, z});
-    }
-}
-
-bool WorldRenderer::doesChunkHaveNeighbors(int x, int z) {
-    bool posX = world.chunkExists(x+1, z);
-    bool negX = world.chunkExists(x-1, z);
-
-    bool posZ = world.chunkExists(x, z+1);
-    bool negZ = world.chunkExists(x, z-1);
-
-    bool posXposZ = world.chunkExists(x+1, z+1);
-    bool posXnegZ = world.chunkExists(x+1, z-1);
-
-    bool negXposZ = world.chunkExists(x-1, z+1);
-    bool negXnegZ = world.chunkExists(x-1, z-1);
-
-    if (posX && negX && posZ && negZ && posXposZ && posXnegZ && negXposZ && negXnegZ) {
-        return true;
-    }
-    else {
-        return false;
     }
 }
 
 std::shared_ptr<ChunkRenderer> WorldRenderer::getChunkRenderer(int x, int z) {
     if (!chunkRendererExists(x, z)) {
-        ChunkRenderer *cr = new ChunkRenderer(x, z);
+
+        std::shared_ptr<ChunkRenderer> cr;
+
+        if (deadRenderers.empty()) {
+            cr = std::shared_ptr<ChunkRenderer>(new ChunkRenderer(x, z, rendererList.size(), world.getChunk(x, z)));
+        }
+        else {
+            cr = deadRenderers.back();
+            deadRenderers.pop_back();
+
+            cr->clear();
+
+            cr->recycle(x, z, rendererList.size(), world.getChunk(x, z));
+        }
+        
 
         chunkRenderers.emplace(vec2i(x, z), cr);
+        rendererList.push_back(cr.get());
     }
 
     return chunkRenderers[{x, z}];
 }
 
 void WorldRenderer::remeshThread(BlockingReaderWriterQueue<ChunkRemeshJob> &queue) {
+    
     while (running) {
         ChunkRemeshJob j;
         queue.wait_dequeue(j);
 
+        OPTICK_EVENT("Remesh");
         j.renderer->generateMesh(j.neighborhood);
     }
 }

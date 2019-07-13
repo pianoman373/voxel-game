@@ -109,7 +109,11 @@ struct vector2 {
         this->x = x;
         this->y = y;
     }
-
+    
+    vector2(const vector2<T> &v) {
+        this->x = v.x;
+        this->y = v.y;
+    }
     vector2<T> operator-();
 };
 
@@ -123,6 +127,12 @@ struct vector3 {
         this->x = x;
         this->y = y;
         this->z = z;
+    }
+
+    vector3(const vector3<T> &v) {
+        this->x = v.x;
+        this->y = v.y;
+        this->z = v.z;
     }
 
     vector3(vector4<T> v) {
@@ -1130,4 +1140,29 @@ inline float randf() {
 
 inline float srandf() {
     return ((static_cast <float> (rand()) / static_cast <float> (RAND_MAX)) * 2.0f) - 1.0f;
+}
+
+inline float fract(float x) {
+    return x - floor(x);
+}
+
+inline vec3 fract(const vec3 &x) {
+    return vec3(fract(x.x), fract(x.y), fract(x.z));
+}
+
+inline float step(float edge, float x)  {
+    if (x < edge) {
+        return 0.0f;
+    }
+    else {
+        return 1.0f;
+    }
+}
+
+inline vec3 step(float edge, const vec3 &x) {
+    return vec3(step(edge, x.x), step(edge, x.y), step(edge, x.z));
+}
+
+inline float mincomp(const vec3 &v) { 
+    return fmin(v.x, fmin(v.y, v.z)); 
 }

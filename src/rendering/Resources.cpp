@@ -34,7 +34,6 @@ namespace Resources {
     Shader ShadowShader;
     Shader deferredShader;
     Shader deferredAmbientShader;
-    Shader deferredPointShader;
     Shader deferredDirectionalShadowShader;
     Shader deferredDirectionalShader;
     
@@ -67,7 +66,6 @@ namespace Resources {
         ShadowShader.loadFile("mods/base/resources/shaders/shadow.glsl");
         deferredShader.loadFile("mods/base/resources/shaders/deferred.glsl");
         deferredAmbientShader.loadFile("mods/base/resources/shaders/deferred_ambient.glsl");
-        deferredPointShader.loadFile("mods/base/resources/shaders/deferred_point.glsl");
         deferredDirectionalShadowShader.loadFile("mods/base/resources/shaders/deferred_directional_shadow.glsl");
         deferredDirectionalShader.loadFile("mods/base/resources/shaders/deferred_directional.glsl");
         brdfShader.loadFile("mods/base/resources/shaders/brdf.glsl");

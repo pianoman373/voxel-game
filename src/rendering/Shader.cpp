@@ -14,12 +14,13 @@ static std::string readShader(std::ifstream &file, std::string directory) {
     {
         std::string prefix = "#include \"";
         if(line.substr(0, prefix.size()) == prefix) {
-            //::cout << "found include" << std::endl;
+            //std::cout << "found include" << std::endl;
 
             if (line.substr(line.size() - 1) == "\"") {
                 //std::cout << line.substr(prefix.size(), (line.size() - 1) - prefix.size()) << std::endl;
 
                 std::string includePath = directory + "/" + line.substr(prefix.size(), (line.size() - 1) - prefix.size());
+                //std::cout << "including file!!!!!!!!!!!!!!!!!!!!!! " << includePath << std::endl;
                 std::ifstream includeFile(includePath);
                 if (includeFile.is_open())
                 {
@@ -108,6 +109,8 @@ void Shader::load(std::string vertex, std::string fragment, std::string geometry
 }
 
 void Shader::loadFile(const Path &file) {
+    std::cout << "loading shader: " << file.toString() << std::endl;
+
     Path directory = file.getParent();
 
     std::ifstream stream(file);

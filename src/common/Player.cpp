@@ -14,12 +14,12 @@
 
 static const float movementSpeed = 7.0f;
 static const float mouseSensitivity = 8.0f;
-static const float gravity = 22.8f;
+static const float gravity = 0.0f;//22.8f;
 static const float jumpPower = 7.7f;
 
 static bool p_open = false;
 
-Player::Player(World &world, Client &client): world(world), client(client) {
+Player::Player(World *world, Client &client): world(world), client(client) {
 
 }
 
@@ -28,31 +28,37 @@ void Player::update(Camera &cam, float delta) {
     bool breakBlock = false;
     bool placeBlock = false;
 
+    table["update"](this, delta);
+
     //mouse movement input
-    static vec2 lastpos;
+    //static vec2 lastpos;
 
     if (Input::isMouseGrabbed()) {
-        vec2 offset = Input::getCursorPos() - lastpos;
-        float xOffset = -offset.x / mouseSensitivity;
-        float yOffset = -offset.y / mouseSensitivity;
+        // vec2 offset = Input::getCursorPos() - lastpos;
+        // float xOffset = -offset.x / mouseSensitivity;
+        // float yOffset = offset.y / mouseSensitivity;
 
-        yRot += (yOffset);
-        xRot += (xOffset);
+        // yRot += (yOffset);
+        // xRot += (xOffset);
 
-        if (yRot > 89.9f)
-            yRot = 89.9f;
-        if (yRot < -89.9f)
-            yRot = -89.9f;
+        // if (yRot > 89.9f)
+        //     yRot = 89.9f;
+        // if (yRot < -89.9f)
+        //     yRot = -89.9f;
 
-        mat4 mat;
-        mat = rotate(mat, vec3(0.0f, 1.0f, 0.0f), xRot);
-        mat = rotate(mat, vec3(1.0f, 0.0f, 0.0f), yRot);
+        // direction.x = sin(radians(xRot)) * cos(radians(yRot));
+        // direction.z = cos(radians(xRot)) * cos(radians(yRot));
+        // direction.y = sin(radians(yRot));
 
-        vec4 vec = mat * vec4(vec3(0.0f, 0.0f, 1.0f), 1.0f);
+        // mat4 mat;
+        // mat = rotate(mat, vec3(0.0f, 1.0f, 0.0f), xRot);
+        // mat = rotate(mat, vec3(1.0f, 0.0f, 0.0f), yRot);
 
-        cam.setDirection(vec3(vec));
+        // vec4 vec = mat * vec4(vec3(0.0f, 0.0f, 1.0f), 1.0f);
 
-        lastpos = Input::getCursorPos();
+        // direction = vec;
+
+        // lastpos = Input::getCursorPos();
 
         //get mouse input for breaking and placing
         static bool leftMouse = false;
@@ -82,44 +88,44 @@ void Player::update(Camera &cam, float delta) {
         }
 
         //apply movement
-        if (Input::isKeyDown(GLFW_KEY_W)) {
-            vec3 dir = cam.getDirection();
-            dir.y = 0.0f;
-            dir = normalize(dir);
-            dir = dir * movementSpeed;
-            velocity = velocity + dir;
-        }
-        if (Input::isKeyDown(GLFW_KEY_S)) {
-            vec3 dir = cam.getDirection();
-            dir.y = 0.0f;
-            dir = normalize(dir);
-            dir = dir * movementSpeed;
-            velocity = velocity - dir;
-        }
-        if (Input::isKeyDown(GLFW_KEY_A)) {
-            vec3 dir = cam.getRight();
-            dir.y = 0.0f;
-            dir = normalize(dir);
-            dir = dir * movementSpeed;
-            velocity = velocity - dir;
-        }
-        if (Input::isKeyDown(GLFW_KEY_D)) {
-            vec3 dir = cam.getRight();
-            dir.y = 0.0f;
-            dir = normalize(dir);
-            dir = dir * movementSpeed;
-            velocity = velocity + dir;
-        }
-        if (Input::isKeyDown(GLFW_KEY_SPACE) && onGround) {
-            velocity.y = jumpPower;
-        }
-        if (Input::isKeyDown(GLFW_KEY_R)) {
-            velocity.y = 8.4f;
-        }
-        if (Input::isKeyDown(GLFW_KEY_F)) {
-            velocity.y = -8.4f;
-        }
+        // if (Input::isKeyDown(GLFW_KEY_W)) {
+        //     direction.y = 0.0f;
+        //     direction = normalize(direction);
+        //     direction = direction * movementSpeed * multiplier;
+        //     velocity = velocity + direction;
+        // }
+        // if (Input::isKeyDown(GLFW_KEY_S)) {
+        //     direction.y = 0.0f;
+        //     direction = normalize(direction);
+        //     direction = direction * movementSpeed * multiplier;
+        //     velocity = velocity - direction;
+        // }
+        // if (Input::isKeyDown(GLFW_KEY_A)) {
+        //     vec3 direction = cam.getRight();
+        //     direction.y = 0.0f;
+        //     direction = normalize(direction);
+        //     direction = direction * movementSpeed * multiplier;
+        //     velocity = velocity - direction;
+        // }
+        // if (Input::isKeyDown(GLFW_KEY_D)) {
+        //     vec3 direction = cam.getRight();
+        //     direction.y = 0.0f;
+        //     direction = normalize(direction);
+        //     direction = direction * movementSpeed * multiplier;
+        //     velocity = velocity + direction;
+        // }
+        // if (Input::isKeyDown(GLFW_KEY_SPACE) && onGround) {
+        //     velocity.y = jumpPower;
+        // }
+        // if (Input::isKeyDown(GLFW_KEY_R)) {
+        //     velocity.y = 8.4f;
+        // }
+        // if (Input::isKeyDown(GLFW_KEY_F)) {
+        //     velocity.y = -8.4f;
+        // }
     }
+
+    cam.direction = direction;
 
     //apply gravity
     velocity.y -= gravity * delta;
@@ -134,8 +140,8 @@ void Player::update(Camera &cam, float delta) {
     AABB playerBoundingBoxLarge = AABB(position - vec3(5.0f), position + vec3(5.0f));
 
     //Renderer::renderDebugAABB(playerBoundingBoxLarge, vec3(1.0f, 0.0f, 0.0f));
-
-    std::vector<AABB> collisions = world.getCollisions(playerBoundingBoxLarge);
+    std::vector<AABB> collisions;
+    
 
     //collision detection
 
@@ -143,6 +149,7 @@ void Player::update(Camera &cam, float delta) {
 
     //Y axis collision
     playerBoundingBox = AABB(position - vec3(0.3f, 0.9f, 0.3f), position + vec3(0.3f, 0.9f, 0.3f));
+    collisions = world->getCollisions(playerBoundingBox);
     for (AABB &blockAbb: collisions) {
         //test if block intersects on the 2D XZ axis
         if (blockAbb.max.x > playerBoundingBox.min.x && blockAbb.min.x < playerBoundingBox.max.x && blockAbb.max.z > playerBoundingBox.min.z && blockAbb.min.z < playerBoundingBox.max.z)
@@ -180,6 +187,7 @@ void Player::update(Camera &cam, float delta) {
 
     //X axis collision
     playerBoundingBox = AABB(position - vec3(0.3f, 0.9f, 0.3f), position + vec3(0.3f, 0.9f, 0.3f));
+    collisions = world->getCollisions(playerBoundingBox);
     for (AABB &blockAbb: collisions) {
         //test if block intersects on the 2D YZ axis
         if (blockAbb.max.y > playerBoundingBox.min.y && blockAbb.min.y < playerBoundingBox.max.y && blockAbb.max.z > playerBoundingBox.min.z && blockAbb.min.z < playerBoundingBox.max.z)
@@ -214,6 +222,7 @@ void Player::update(Camera &cam, float delta) {
 
     //Z axis collision
     playerBoundingBox = AABB(position - vec3(0.3f, 0.9f, 0.3f), position + vec3(0.3f, 0.9f, 0.3f));
+    collisions = world->getCollisions(playerBoundingBox);
     for (AABB &blockAbb: collisions) {
         //test if block intersects on the 2D XY axis
         if (blockAbb.max.x > playerBoundingBox.min.x && blockAbb.min.x < playerBoundingBox.max.x && blockAbb.max.y > playerBoundingBox.min.y && blockAbb.min.y < playerBoundingBox.max.y)
@@ -249,46 +258,35 @@ void Player::update(Camera &cam, float delta) {
 
     //block placing
     vec3i blockpos;
-    vec3 blocknormal;
-    if (world.raycastBlocks(cam.getPosition(), cam.getDirection(), 10.0f, blockpos, blocknormal)) {
-        float bias = 0.01f;
-        //block outline for the block the player is looking at
-        Renderer::debug.renderDebugAABB(vec3(blockpos.x, blockpos.y, blockpos.z) - bias, vec3(blockpos.x + 1, blockpos.y + 1, blockpos.z + 1) + bias, vec3());
+    vec3i blocknormal;
+    // if (world->raycastBlocks(cam.getPosition(), cam.getDirection(), 10.0f, blockpos, blocknormal)) {
+    //     float bias = 0.01f;
+    //     //block outline for the block the player is looking at
+    //     Renderer::debug.renderDebugAABB(vec3(blockpos.x, blockpos.y, blockpos.z) - bias, vec3(blockpos.x + 1, blockpos.y + 1, blockpos.z + 1) + bias, vec3());
 
-		if (breakBlock) {
-			int x = blockpos.x;
-			int y = blockpos.y;
-			int z = blockpos.z;
+	// 	if (breakBlock) {
+	// 		int x = blockpos.x;
+	// 		int y = blockpos.y;
+	// 		int z = blockpos.z;
 
 
-            world.setBlock(x, y, z, world.blockRegistry.getBlock(0));
+    //         world->setBlock(x, y, z, world->blockRegistry.getBlock(0));
 
-            Packet p;
-            uint16_t packetID = 4;
-            int blockID = 0;
+            
+	// 	}
 
-            p << packetID << x << y << z << blockID;
+    //     if (placeBlock) {
+    //         //if (!playerBoundingBox.intersectsWith(AABB(vec3(blockpos.x + blocknormal.x, blockpos.y + blocknormal.y, blockpos.z + blocknormal.z), vec3(blockpos.x  + blocknormal.x + 1, blockpos.y  + blocknormal.y + 1, blockpos.z  + blocknormal.z + 1)))) {
+    //         int x = blockpos.x + blocknormal.x;
+    //         int y = blockpos.%y + blocknormal.y;
+    //         int z = blockpos.z + blocknormal.z;
+    //         int blockID = client.lua.state.get<int>("hotbarSelectorPos")+1;
 
-            client.network.sendPacket(p);
-		}
+    //         world->setBlock(x, y, z, world->blockRegistry.getBlock(blockID));
 
-        if (placeBlock) {
-            //if (!playerBoundingBox.intersectsWith(AABB(vec3(blockpos.x + blocknormal.x, blockpos.y + blocknormal.y, blockpos.z + blocknormal.z), vec3(blockpos.x  + blocknormal.x + 1, blockpos.y  + blocknormal.y + 1, blockpos.z  + blocknormal.z + 1)))) {
-            int x = blockpos.x + blocknormal.x;
-            int y = blockpos.y + blocknormal.y;
-            int z = blockpos.z + blocknormal.z;
-            int blockID = client.lua.state.get<int>("hotbarSelectorPos")+1;
-
-            world.setBlock(x, y, z, world.blockRegistry.getBlock(blockID));
-
-            Packet p;
-            uint16_t packetID = 4;
-
-            p << packetID << x << y << z << blockID;
-
-            client.network.sendPacket(p);
-        }
-    }
+    //         world->spawnEntity(client.lua, "base:player", vec3(x+0.5f, y+15.5f, z+0.5f));
+    //     }
+    // }
 
     int scroll = (int)Input::getScroll();
     heldBlock += scroll;
@@ -302,7 +300,7 @@ void Player::update(Camera &cam, float delta) {
     vec2i chunkPos = vec2i((int)position.x >> 4, (int)position.z >> 4);
 
     // freezes player if not in chunk
-    if (!world.chunkExists(chunkPos.x, chunkPos.y)) {
+    if (!world->chunkExists(chunkPos.x, chunkPos.y)) {
         position = oldPosition;
         velocity.y = 0.0f;
     }

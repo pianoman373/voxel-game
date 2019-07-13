@@ -8,68 +8,40 @@
 #include "common/Player.hpp"
 #include "client/ChunkRenderer.hpp"
 #include "common/Block.hpp"
+#include "common/Entity.hpp"
+#include "common/ChunkNeighborhood.hpp"
 
-enum Context {
-    CLIENT,
-    SERVER,
-    COMMON
-};
+class LuaHandler;
 
 #define WORLD_SIZE 32
 
-struct ChunkNeighborhood {
-    std::shared_ptr<Chunk> center;
-
-    std::shared_ptr<Chunk> posX;
-    std::shared_ptr<Chunk> negX;
-
-    std::shared_ptr<Chunk> posZ;
-    std::shared_ptr<Chunk> negZ;
-
-    std::shared_ptr<Chunk> posXposZ;
-    std::shared_ptr<Chunk> posXnegZ;
-
-    std::shared_ptr<Chunk> negXposZ;
-    std::shared_ptr<Chunk> negXnegZ;
-
-    Block &getBlock(int x, int y, int z);
-
-    int getBlockID(int x, int y, int z);
-
-    int getHeight(int x, int z);
-
-    int getSunlight(int x, int y, int z);
-
-    void setSunlight(int x, int y, int z, int val);
-
-    int getTorchlight(int x, int y, int z);
-
-    void setTorchlight(int x, int y, int z, int val);
-};
-
-
 class World {
 private:
-    Context ctx;
-
     std::function<void(std::shared_ptr<Chunk>)> deleteCallback;
 
     std::unordered_map<vec2i, std::shared_ptr<Chunk>> chunks;
 
+    
+
 public:
+    std::vector<Entity*> entities;
+    EntityRegistry entityRegistry;
+
     BlockRegistry blockRegistry;
 
     World();
 
-    void init(Context ctx);
-
-    void update(float delta);
+    void tick();
 
     Block &getBlock(int x, int y, int z);
 
     void setBlockRaw(int x, int y, int z, int blockID);
 
-    void setBlock(int x, int y, int z, Block &block);
+    void setBlockFromString(int x, int y, int z, const std::string &block);
+
+    void breakBlock(int x, int y, int z);
+
+    virtual void setBlock(int x, int y, int z, Block &block);
 
     std::shared_ptr<Chunk> getChunk(int x, int z);
 
@@ -79,9 +51,15 @@ public:
 
     void deleteChunk(int x, int z);
 
+    bool doesChunkHaveNeighbors(int x, int z);
+
+    void updateNeighborsFlag(int x, int z);
+
+    void informChunkChange(int x, int z);
+
     void deleteAllChunks();
 
-    std::unordered_map<vec2i, std::shared_ptr<Chunk>> getChunks();
+    std::unordered_map<vec2i, std::shared_ptr<Chunk>> &getChunks();
 
     /**
      * Returns the nearest block the specified ray intercepts.
@@ -90,7 +68,7 @@ public:
      *
      * Returns true if a block collision was found.
      */
-    bool raycastBlocks(vec3 origin, vec3 direction, float maxDistance, vec3i &blockPosReturn, vec3 &blockNormalReturn);
+    bool raycastBlocks(vec3 origin, vec3 direction, float maxDistance, vec3i &blockPosReturn, vec3i &blockNormalReturn);
 
     /**
      * Returns all AABB's in the world that collide with the given test AABB
@@ -98,4 +76,6 @@ public:
     std::vector<AABB> getCollisions(AABB test);
 
     void setDeleteCallback(std::function<void(std::shared_ptr<Chunk>)> deleteCallback);
+
+    void spawnEntity(LuaHandler &lua, const std::string &id, vec3 position);
 };

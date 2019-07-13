@@ -146,7 +146,13 @@ namespace Input {
 
     bool isKeyDown(int key);
 
+	bool isKeyPressed(int key);
+
+	std::string getCharPresses();
+
     bool isMouseButtonDown(int button);
+
+	bool isMouseButtonPressed(int button);
 
     float getScroll();
 
@@ -162,10 +168,8 @@ namespace Input {
 
     bool isMouseGrabbed();
 
+	void setMouseGrabbed(bool grabbed);
+
 	/** Internally used by Window. **/
 	void update();
-
-	void registerKeyPressedCallback(std::function<void(int)> callback);
-
-	void registerCharPressedCallback(std::function<void(unsigned int)> callback);
 }

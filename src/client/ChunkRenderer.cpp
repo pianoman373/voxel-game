@@ -7,9 +7,20 @@
 
 #include <queue>
 
-ChunkRenderer::ChunkRenderer(int chunk_x, int chunk_z) {
+ChunkRenderer::ChunkRenderer(int chunk_x, int chunk_z, long rendererIndex, std::shared_ptr<Chunk> chunk) {
     this->chunk_x = chunk_x;
     this->chunk_z = chunk_z;
+    this->rendererIndex = rendererIndex;
+    this->chunk = chunk;
+
+    this->transform = Transform(vec3(chunk_x * 16, 0.0f, chunk_z * 16), quaternion(), vec3(1.0f));
+}
+
+void ChunkRenderer::recycle(int chunk_x, int chunk_z, long rendererIndex, std::shared_ptr<Chunk> chunk) {
+    this->chunk_x = chunk_x;
+    this->chunk_z = chunk_z;
+    this->rendererIndex = rendererIndex;
+    this->chunk = chunk;
 
     this->transform = Transform(vec3(chunk_x * 16, 0.0f, chunk_z * 16), quaternion(), vec3(1.0f));
 }
@@ -575,14 +586,18 @@ void ChunkRenderer::generateMesh(ChunkNeighborhood &neighborhood) {
 void ChunkRenderer::render(Material *mat, Material *liquidMat) {
     if (this->updateMesh) {
         mesh.generate();
-        liquidMesh.generate();
+        //liquidMesh.generate();
 
         this->updateMesh = false;
     }
 
     Renderer::render(&this->mesh, mat, &transform, &aabb);
-    Renderer::render(&this->liquidMesh, liquidMat, &transform, &aabb);
+    //Renderer::render(&this->liquidMesh, liquidMat, &transform, &aabb);
     //Renderer::debug.renderDebugAABB(aabb, vec3(0.0f, 1.0f, 0.0f));
 
    //Renderer::debug.renderDebugAABB(AABB(transform.position, transform.position + vec3(16, 256, 16)), vec3(0.0f, 1.0f, 0.0f));
+}
+
+void ChunkRenderer::clear() {
+    mesh.clear();
 }

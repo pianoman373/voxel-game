@@ -28,7 +28,7 @@ void main() {
 
     // HDR tonemapping
     const float exposure = 1.0;
-    color = aces(color, exposure);
+    color = reinhard(color, exposure);
 
     // float fogStrength = length(texture(gPosition, fTexCoord).rgb);
     // fogStrength = smoothstep(fogInner, fogOuter, fogStrength);

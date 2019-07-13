@@ -1,6 +1,6 @@
 local math = require("math")
 local noise2D = require("base:simplex2D.lua")
-require("base:api.lua")
+local arrays = require("base:arrays.lua")
 
 local size = 16*128
 
@@ -36,22 +36,22 @@ local fillerBlock = api.getBlock("base:stone"):getID() --stone
 local waterBlock = api.getBlock("base:water"):getID()
 local shoreBlock = api.getBlock("base:sand"):getID()
 
-local heights = array2D(18) --heightmap includes adjacent chunk blocks
+local heights = arrays.array2D(18) --heightmap includes adjacent chunk blocks
 
 local function getSteep(x, z)
     local height = heights[x+1][z+1]
 
-    local lineNegX =  normalize(vec3(x - 1, heights[x+2][z+1], z) - vec3(x, height, z))
-    local linePosX =  normalize(vec3(x + 1, heights[x][z+1], z) - vec3(x, height, z))
+    local lineNegX =  vecmath.normalize(vec3(x - 1, heights[x+2][z+1], z) - vec3(x, height, z))
+    local linePosX =  vecmath.normalize(vec3(x + 1, heights[x][z+1], z) - vec3(x, height, z))
 
-    local lineNegY =  normalize(vec3(x, heights[x+1][z], z - 1) - vec3(x, height, z))
-    local linePosY =  normalize(vec3(x, heights[x+1][z+2], z + 1) - vec3(x, height, z))
+    local lineNegY =  vecmath.normalize(vec3(x, heights[x+1][z], z - 1) - vec3(x, height, z))
+    local linePosY =  vecmath.normalize(vec3(x, heights[x+1][z+2], z + 1) - vec3(x, height, z))
 
-    local norm1 = cross(lineNegY, lineNegX)
-    local norm2 = cross(linePosX, lineNegY)
+    local norm1 = vecmath.cross(lineNegY, lineNegX)
+    local norm2 = vecmath.cross(linePosX, lineNegY)
 
-    local norm3 = cross(linePosY, linePosX)
-    local norm4 = cross(lineNegX, linePosY)
+    local norm3 = vecmath.cross(linePosY, linePosX)
+    local norm4 = vecmath.cross(lineNegX, linePosY)
 
     local finalNorm = (norm1 + norm2 + norm3 + norm4) / vec3(4, 4, 4)
     return dot(finalNorm, vec3(0, 1, 0)) < 0.7
