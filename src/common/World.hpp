@@ -15,11 +15,22 @@ class LuaHandler;
 
 #define WORLD_SIZE 32
 
+enum class EnumDirection {
+    POSITIVE_X,
+    NEGATIVE_X,
+    POSITIVE_Y,
+    NEGATIVE_Y,
+    POSITIVE_Z,
+    NEGATIVE_Z
+};
+
 class World {
 private:
     std::function<void(std::shared_ptr<Chunk>)> deleteCallback;
 
     std::unordered_map<vec2i, std::shared_ptr<Chunk>> chunks;
+
+    LuaHandler &lua;
 
     
 
@@ -29,7 +40,7 @@ public:
 
     BlockRegistry blockRegistry;
 
-    World();
+    World(LuaHandler &lua);
 
     void tick();
 
@@ -77,5 +88,5 @@ public:
 
     void setDeleteCallback(std::function<void(std::shared_ptr<Chunk>)> deleteCallback);
 
-    void spawnEntity(LuaHandler &lua, const std::string &id, vec3 position);
+    void spawnEntity(const std::string &id, float x, float y, float z);
 };

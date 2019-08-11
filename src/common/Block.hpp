@@ -7,7 +7,7 @@
 #include "sol.hpp"
 
 class World;
-
+enum class EnumDirection;
 class Client;
 
 class Block {
@@ -18,6 +18,7 @@ private:
 
     int blockID = 0;
     std::string name = "";
+    std::string stringID;
     vec3 color;
 
     std::vector<vec2i> textureCoords;
@@ -42,6 +43,8 @@ public:
     int getLightLevel();
 
     int getID();
+
+    std::string &getStringID();
 
     void onPlace(World &world, int x, int y, int z);
 };

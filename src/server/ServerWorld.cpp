@@ -1,7 +1,7 @@
 #include "server/ServerWorld.hpp"
 #include "server/Server.hpp"
 
-ServerWorld::ServerWorld(Server &server): server(server) {
+ServerWorld::ServerWorld(Server &server, LuaHandler &lua): World(lua), server(server) {
 
 }
 

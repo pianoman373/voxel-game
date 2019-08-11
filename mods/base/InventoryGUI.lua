@@ -1,14 +1,15 @@
 local gui = require("base:gui.lua")
 local crafting = require("base:crafting.lua")
+local item = require("base:item.lua")
 
 crafting.addRecipe("base:inventory", {
-    input = {api.getBlock("base:wood"), 1},
-    output = {api.getBlock("base:planks"), 8},
+    input = {item.get("base:wood"), 1},
+    output = {item.get("base:planks"), 8},
 })
 
 crafting.addRecipe("base:inventory", {
-    input = {api.getBlock("base:stone"), 1},
-    output = {api.getBlock("base:cobblestone"), 8},
+    input = {item.get("base:planks"), 1},
+    output = {item.get("base:stick"), 4},
 })
 
 local InventoryGUI = {}
@@ -49,11 +50,9 @@ local function renderRecipeButton(x, y, recipe)
         api.renderSprite(x, y, 77*4, 16*4, 1, 1, 1, 0.1)
     end
 
-    api.renderBlockItem(recipe.output[1]:getID(), x + 32, y + 32, 30)
+    recipe.output[1]:draw(x + 32, y + 32)
 
-    if recipe.output[1].table.name then
-        gui.drawText(recipe.output[1].table.name, x + 64, y + 20, 1, 1, 1, 1)
-    end
+    gui.drawText(recipe.output[1].name, x + 64, y + 20, 1, 1, 1, 1)
     
 end
 
@@ -94,13 +93,13 @@ function InventoryGUI:render(width, height)
             end
         end)
 
-        api.renderBlockItem(selectedRecipe.output[1]:getID(), x + 115*4, y + 180*4, 30)
-        gui.drawText(selectedRecipe.output[1].table.name .. "  x" .. selectedRecipe.output[2], x + 122*4, y + 177*4, 1, 1, 1, 1)
+        --api.renderBlockItem(selectedRecipe.output[1]:getID(), x + 115*4, y + 180*4, 30)
+        gui.drawText(selectedRecipe.output[1].name .. "  x" .. selectedRecipe.output[2], x + 122*4, y + 177*4, 1, 1, 1, 1)
 
         gui.drawTextCentered("Ingredients", x + 125*4, y + 167*4, 1, 1, 1, 1)
 
-        api.renderBlockItem(selectedRecipe.input[1]:getID(), x + 115*4, y + 155*4, 30)
-        gui.drawText(selectedRecipe.input[1].table.name .. "  x" .. selectedRecipe.input[2], x + 122*4, y + 152*4, 1, 1, 1, 1)
+        --api.renderBlockItem(selectedRecipe.input[1]:getID(), x + 115*4, y + 155*4, 30)
+        gui.drawText(selectedRecipe.input[1].name .. "  x" .. selectedRecipe.input[2], x + 122*4, y + 152*4, 1, 1, 1, 1)
         
     end
     

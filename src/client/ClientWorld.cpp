@@ -1,7 +1,7 @@
 #include "client/ClientWorld.hpp"
 #include "client/Client.hpp"
 
-ClientWorld::ClientWorld(Client &client): client(client) {
+ClientWorld::ClientWorld(Client &client, LuaHandler &lua): World(lua), client(client){
 
 }
 

@@ -8,7 +8,7 @@
 
 
 
-World::World() {
+World::World(LuaHandler &lua): lua(lua) {
 
 }
 
@@ -278,6 +278,6 @@ void World::setDeleteCallback(std::function<void(std::shared_ptr<Chunk>)> delete
     this->deleteCallback = deleteCallback;
 }
 
-void World::spawnEntity(LuaHandler &lua, const std::string &id, vec3 position) {
-    entities.push_back(new Entity(*this, lua, entityRegistry.getEntityTable(id), position));
+void World::spawnEntity(const std::string &id, float x, float y, float z) {
+    entities.push_back(new Entity(*this, lua, entityRegistry.getEntityTable(id), vec3(x, y, z)));
 }

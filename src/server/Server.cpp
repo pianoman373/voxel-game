@@ -13,7 +13,7 @@
 
 #define WORLD_SIZE 128
 
-Server::Server(): network(*this), world(*this) {
+Server::Server(): network(*this), world(*this, lua) {
     rleCache = new uint8_t[16*16*256*5];
 }
 

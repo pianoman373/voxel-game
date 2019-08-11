@@ -18,8 +18,8 @@
 struct RenderCall {
 	const IRenderable *mesh;
 	const Material *material;
-	const Transform *transform;
-	const AABB *aabb;
+	mat4 transform;
+	AABB aabb;
 };
 
 namespace Renderer {
@@ -52,7 +52,7 @@ namespace Renderer {
     /**
      * General purpose abstraction of all render calls to an internal renderer.
      */
-    void render(const IRenderable *mesh, const Material *material, const Transform *transform, const AABB *aabb=nullptr);
+    void render(const IRenderable *mesh, const Material *material, mat4 transform, AABB aabb);
 
     void renderSkybox(const Material *material);
 

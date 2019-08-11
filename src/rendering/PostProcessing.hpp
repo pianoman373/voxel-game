@@ -37,7 +37,7 @@ private:
     Texture noiseTex;
 
 public:
-    float ssaoRadius = 4.0f;
+    float ssaoRadius = 3.0f;
     float strength = 1.0f;
     int ssaoKernelSize = 8;
     bool highQuality = true;

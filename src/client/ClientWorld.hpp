@@ -9,7 +9,7 @@ private:
     Client &client;
 
 public:
-    ClientWorld(Client &client);
+    ClientWorld(Client &client, LuaHandler &lua);
 
     void setBlock(int x, int y, int z, Block &block);
 

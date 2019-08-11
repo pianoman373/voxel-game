@@ -14,12 +14,8 @@
 #include "optick.h"
 
 #include <glad/glad.h>
-
 #include <imgui.h>
-
 #include <deque>
-
-
 
 static std::vector<RenderCall> renderQueue;
 static std::vector<RenderCall> renderQueueForward;
@@ -41,7 +37,7 @@ static void beginQuery(int id) {
     if (doQueries) {
         glGetQueryObjectuiv(queries[id], GL_QUERY_RESULT, &queryResults[id]);
         glBeginQuery(GL_TIME_ELAPSED, queries[id]);
-    }   
+    }
 }
 
 static void endQuery() {
@@ -57,10 +53,8 @@ static void iterateCommandBuffer(std::vector<RenderCall> &buffer, const Camera &
     for (RenderCall &call : buffer) {
         //OPTICK_EVENT("command buffer iteration");
         if (doFrustumCulling) {
-            if (call.aabb) {
-                if (!f.isBoxInside(*call.aabb)) {
-                    continue;
-                }
+            if (!f.isBoxInside(call.aabb)) {
+                continue;
             }
         }
 
@@ -81,22 +75,14 @@ static void iterateCommandBuffer(std::vector<RenderCall> &buffer, const Camera &
                 gBuffer.getAttachment(1).bind(1);
                 gBuffer.getAttachment(2).bind(2);
                 gBuffer.getAttachment(3).bind(3);
-                
 
                 s.uniformInt("gPosition", 0);
                 s.uniformInt("gNormal", 1);
                 s.uniformInt("gAlbedo", 2);
                 s.uniformInt("gRoughnessMetallic", 3);
             }
-
         }
-
-        if (call.transform) {
-            s.uniformMat4("model", call.transform->getMatrix());
-        }
-        else {
-            s.uniformMat4("model", mat4());
-        }
+        s.uniformMat4("model", call.transform);
         
         call.mesh->render();
         
@@ -113,12 +99,12 @@ static void iterateCommandBufferDepthOnly(std::vector<RenderCall> &buffer, const
     
     for (RenderCall c : buffer) {
         if (doFrustumCulling) {
-            if (!f.isBoxInside(*c.aabb)) {
+            if (!f.isBoxInside(c.aabb)) {
                 continue;
             }
         }
 
-        Resources::ShadowShader.uniformMat4("model", c.transform->getMatrix());
+        Resources::ShadowShader.uniformMat4("model", c.transform);
 
         c.mesh->render();
     }
@@ -192,7 +178,7 @@ namespace Renderer {
         directionalLights.push_back(light);
     }
 
-    void render(const IRenderable *mesh, const Material *material, const Transform *transform, const AABB *aabb) {
+    void render(const IRenderable *mesh, const Material *material, mat4 transform, AABB aabb) {
         RenderCall call;
         call.mesh = mesh;
         call.material = material;
@@ -208,7 +194,7 @@ namespace Renderer {
     }
 
     void renderSkybox(const Material *material) {
-        render(&Resources::cubemapMesh, material, nullptr, nullptr);
+        render(&Resources::cubemapMesh, material, mat4(), AABB());
     }
 
     void renderToDepth(const Framebuffer &target, const Camera &cam, const Frustum &f, bool doFrustumCulling) {

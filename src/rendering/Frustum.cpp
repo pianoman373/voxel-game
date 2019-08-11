@@ -94,6 +94,9 @@ void Frustum::renderDebug() const {
 }
 
 bool Frustum::isBoxInside(const AABB &box) const {
+    if (box.min == box.max)
+        return true;
+
     vec3 sides[5] = {dir, normalRight, normalLeft, normalTop, normalBottom};
     vec3 offsets[5] = {pos + (dir * near), pos - (right * nw), pos + (right * nw), pos - (up * nh), pos + (up * nh)};
 

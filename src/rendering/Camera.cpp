@@ -92,18 +92,18 @@ void Camera::updateSpaceCamera(float speed) {
 
         //vertical
         mat4 mat;
-        mat = rotate(mat, right, yOffset);
+        mat = mat * rotate(right, yOffset);
         vec4 vec = mat * vec4(direction, 1.0f);
         direction = normalize(vec3(vec));
 
         //horizontal
         mat = mat4();
-        mat = rotate(mat, up, xOffset);
+        mat = mat * rotate(up, xOffset);
         vec4 vecj = mat * vec4(direction, 1.0f);
         direction = normalize(vec3(vecj));
 
         mat = mat4();
-        mat = rotate(mat, direction, zOffset);
+        mat = mat * rotate(direction, zOffset);
         vec4 veck = mat * vec4(right, 1.0f);
         right = normalize(vec3(veck));
 
@@ -146,13 +146,13 @@ void Camera::updateFpsCamera(float speed) {
 
         //vertical
         mat4 mat;
-        mat = rotate(mat, right, yOffset);
+        mat = mat * rotate(right, yOffset);
         vec4 vec = mat * vec4(direction, 1.0f);
         direction = normalize(vec3(vec));
 
         //horizontal
         mat = mat4();
-        mat = rotate(mat, up, xOffset);
+        mat = mat * rotate(up, xOffset);
         vec4 vecj = mat * vec4(direction, 1.0f);
         direction = normalize(vec3(vecj));
 

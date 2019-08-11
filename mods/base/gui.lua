@@ -199,7 +199,8 @@ function ItemSlot:render(x, y, width, height)
     if self.grabbed then
 
         if not isEmpty(grabbedItemstack)  then
-            api.renderBlockItem(grabbedItemstack.item:getID(), cur.x, cur.y, 30)
+            --api.renderBlockItem(grabbedItemstack.item:getID(), cur.x, cur.y, 30)
+            grabbedItemstack.item:draw(cur.x, cur.y)
 
             gui.drawText(tostring(grabbedItemstack.count), cur.x, cur.y, 1, 1, 1, 1)
         else
@@ -207,7 +208,8 @@ function ItemSlot:render(x, y, width, height)
         end
     else
         if not isEmpty(self.itemStack) then
-            api.renderBlockItem(self.itemStack.item:getID(), x + (width/2), y + (height/2), 30)
+            --api.renderBlockItem(self.itemStack.item:getID(), x + (width/2), y + (height/2), 30)
+            self.itemStack.item:draw(x + (width/2), y + (height/2))
 
             gui.drawText(tostring(self.itemStack.count), x + (width/2), y + (height/2), 1, 1, 1, 1)
         end

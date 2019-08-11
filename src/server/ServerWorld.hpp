@@ -9,7 +9,7 @@ private:
     Server &server;
 
 public:
-    ServerWorld(Server &server);
+    ServerWorld(Server &server, LuaHandler &lua);
 
     void setBlock(int x, int y, int z, Block &block);
 };

@@ -24,15 +24,6 @@ inline float degrees(float radians)
     return radians / PI * 180.0f;
 }
 
-enum class EnumDirection {
-    POSITIVE_X,
-    NEGATIVE_X,
-    POSITIVE_Y,
-    NEGATIVE_Y,
-    POSITIVE_Z,
-    NEGATIVE_Z
-};
-
 template <class T>
 struct matrix4 {
     T m00, m01, m02, m03;
@@ -576,18 +567,18 @@ inline vector3<T> lerp(vector3<T> a, vector3<T> b, T f) {
 }
 
 template <typename T>
-inline matrix4<T> translate(const matrix4<T> &mat, const vector3<T> &vec) {
+inline matrix4<T> translate(const vector3<T> &vec) {
     matrix4<T> temp;
 
     temp.m03 = vec.x;
     temp.m13 = vec.y;
     temp.m23 = vec.z;
 
-    return mat * temp;
+    return temp;
 }
 
 template <typename T>
-inline matrix4<T> rotate(const matrix4<T> &mat, const vector3<T>& axis, const T& angle) {
+inline matrix4<T> rotate(const vector3<T>& axis, const T& angle) {
     matrix4<T> result;
 
     const float c = cos(radians(angle));
@@ -606,29 +597,29 @@ inline matrix4<T> rotate(const matrix4<T> &mat, const vector3<T>& axis, const T&
     result.m12 = t*axis.y*axis.z - s*axis.x;
     result.m22 = t*axis.z*axis.z + c;
 
-    return mat * result;
+    return result;
 }
 
 template <typename T>
-inline matrix4<T> scale(const matrix4<T> &mat, const vector3<T> &scale) {
+inline matrix4<T> scale(const vector3<T> &scale) {
     matrix4<T> scaling;
 
     scaling.m00 = scale.x;
     scaling.m11 = scale.y;
     scaling.m22 = scale.z;
 
-    return mat * scaling;
+    return scaling;
 }
 
 template <typename T>
-inline matrix4<T> scale(const matrix4<T> &mat, T scale) {
+inline matrix4<T> scale(T scale) {
     matrix4<T> scaling;
 
     scaling.m00 = scale;
     scaling.m11 = scale;
     scaling.m22 = scale;
 
-    return mat * scaling;
+    return scaling;
 }
 
 template <typename T>
@@ -697,6 +688,25 @@ inline mat4 orthographic(float left, float right, float bottom, float top, float
     return ortho;
 }
 
+inline mat4 compose(const vec3 &forward, const vec3 &up) {
+    vec3 side = normalize(cross(forward, up));
+
+    mat4 mat;
+    mat.m00 = side.x;
+    mat.m01 = side.y;
+    mat.m02 = side.z;
+
+    mat.m10 = up.x;
+    mat.m11 = up.y;
+    mat.m12 = up.z;
+
+    mat.m20 = -forward.x;
+    mat.m21 = -forward.y;
+    mat.m22 = -forward.z;
+
+    return mat;
+}
+
 inline mat4 LookAt(const vec3 &eye, const vec3 &center, const vec3 &up) {
     vec3 forward = vec3(0, 0, -1);
     vec3 upVec = vec3(0, 1, 0);
@@ -731,7 +741,7 @@ inline mat4 LookAt(const vec3 &eye, const vec3 &center, const vec3 &up) {
     mat.m21 = -forward.y;
     mat.m22 = -forward.z;
 
-    return translate(mat, vec3(-eye.x, -eye.y, -eye.z));
+    return mat * translate(vec3(-eye.x, -eye.y, -eye.z));
 }
 
 inline float determinant3x3(float t00, float t01, float t02, float t10, float t11, float t12, float t20, float t21, float t22) {
@@ -1096,8 +1106,8 @@ struct Transform {
 
     mat4 getMatrix() const {
         mat4 mat;
-        mat = translate(mat, position);
-        mat = ::scale(mat, this->scale);
+        mat = mat * translate(position);
+        mat = mat * ::scale(this->scale);
         mat = mat * toMatrix(rotation);
 
         return mat;

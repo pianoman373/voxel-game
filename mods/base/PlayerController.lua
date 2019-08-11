@@ -1,5 +1,6 @@
 local math = require("math")
 local Inventory = require("base:Inventory.lua")
+local item = require("base:item.lua")
 
 local movementSpeed = 7.0
 local xRot = 0
@@ -13,13 +14,14 @@ local lastGrabbed = false
 
 local PlayerController = {}
 
-PlayerController.inventory = Inventory.new(12*3)
+PlayerController.inventory = Inventory:new(12*3)
 PlayerController.selectedSlot = 1
 
-PlayerController.inventory:addItems(api.getBlock("base:cobblestone"), 16)
-PlayerController.inventory:addItems(api.getBlock("base:dirt"), 2)
-PlayerController.inventory:addItems(api.getBlock("base:grass"), 3)
-PlayerController.inventory:addItems(api.getBlock("base:cobblestone"), 3)
+PlayerController.inventory:addItems(item.get("base:wood"), 16)
+PlayerController.inventory:addItems(item.get("base:stick"), 2)
+PlayerController.inventory:addItems(item.get("base:stone"), 3)
+PlayerController.inventory:addItems(item.get("base:planks"), 3)
+PlayerController.inventory:addItems(item.get("base:skeleton_spawner"), 1)
 
 function PlayerController.update(player, delta)
     player.velocity.y = player.velocity.y - 22.9 * delta
@@ -104,9 +106,9 @@ function PlayerController.update(player, delta)
             local slot = PlayerController.inventory:getSlot(PlayerController.selectedSlot)
 
             if slot.item ~= nil and slot.count > 0 then
-                slot.count = slot.count - 1
+                slot.item:onUse(player, slot)
 
-                player.world:setBlock(blockPosition.x + blockNormal.x, blockPosition.y + blockNormal.y, blockPosition.z + blockNormal.z, slot.item)
+                
                 animationCooldown = 0.2
             end
 
@@ -115,7 +117,7 @@ function PlayerController.update(player, delta)
         if api.input.isMouseButtonDown(0) and animationCooldown == 0 and hit then
             local block = player.world:getBlock(blockPosition.x, blockPosition.y, blockPosition.z)
 
-            PlayerController.inventory:addItems(block, 1)
+            PlayerController.inventory:addItems(item.get(block:getStringID()), 1)
 
             player.world:breakBlock(blockPosition.x, blockPosition.y, blockPosition.z)
             animationCooldown = 0.2

@@ -346,13 +346,15 @@ void LuaHandler::addCommonFunctions(World &world) {
                                     "getBlock", &World::getBlock,
                                     "setBlock", &World::setBlock,
                                     "breakBlock", &World::breakBlock,
-                                    "raycastBlocks", &World::raycastBlocks
+                                    "raycastBlocks", &World::raycastBlocks,
+                                    "spawnEntity", &World::spawnEntity
      );
 
      state.new_usertype<Block>( "Block",
              // typical member function that returns a variable
                                     "getID", &Block::getID,
-                                    "table", &Block::table
+                                    "table", &Block::table,
+                                    "getStringID", &Block::getStringID
      );
 
      state.new_usertype<Entity>("Entity",
@@ -362,9 +364,14 @@ void LuaHandler::addCommonFunctions(World &world) {
         "xVelocity", &Entity::xVelocity,
         "yVelocity", &Entity::yVelocity,
         "zVelocity", &Entity::zVelocity,
+        "xDirection", &Entity::xDirection,
+        "yDirection", &Entity::yDirection,
+        "zDirection", &Entity::zDirection,
         "width", &Entity::width,
         "height", &Entity::height,
-        "depth", &Entity::depth
+        "depth", &Entity::depth,
+        "collidedHorizontal", &Entity::collidedHorizontal,
+        "onGround", &Entity::onGround
      );
 
      state["api"]["registerEntity"] = [&](const std::string &id, sol::table entity) {

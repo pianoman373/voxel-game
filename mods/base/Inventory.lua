@@ -1,17 +1,15 @@
-local Inventory = {}
-    
-function Inventory.new(slots)
-    local o = {}
+local class = require("base:class.lua")
 
-    o.slotCount = slots
-    o.contents = {}
+local Inventory = class("Inventory")
+    
+function Inventory:initialize(slots)
+    
+    self.slotCount = slots
+    self.contents = {}
 
     for i = 1,slots do
-        o.contents[i] = {item = nil, count = 0}
+        self.contents[i] = {item = nil, count = 0}
     end
-    
-    setmetatable(o, {__index = Inventory})
-    return o
 end
 
 function Inventory:setSlot(slotID, item, count)
@@ -28,7 +26,7 @@ function Inventory:addItems(item, count)
         local slot = self.contents[i]
 
         if slot.item ~= nil then
-            if slot.item:getID() == item:getID() and slot.count > 0 then
+            if slot.item == item and slot.count > 0 then
                 slot.count = slot.count + count
                 return
             end
@@ -54,7 +52,7 @@ function Inventory:takeItems(item, count)
         local slot = self.contents[i]
 
         if slot.item ~= nil then
-            if slot.item:getID() == item:getID() and slot.count > 0 then
+            if slot.item == item and slot.count > 0 then
                 if slot.count < count then
                     
                 elseif slot.count >= count then

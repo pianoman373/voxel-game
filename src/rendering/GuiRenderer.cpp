@@ -9,8 +9,8 @@ void GuiRenderer::renderSprite(vec2 position, vec2 size, vec4 uvs, vec4 color, c
 
     mat4 model;
 
-    model = translate(model, vec3(position.x, position.y, 0.0f));
-    model = scale(model, vec3(size.x, size.y, 0.0f));
+    model = model * translate(vec3(position.x, position.y, 0.0f));
+    model = model * scale(vec3(size.x, size.y, 0.0f));
 
     mat4 view;
 
@@ -34,8 +34,8 @@ void GuiRenderer::renderSprite(vec2 position, vec2 size, vec4 color, Shader &sha
 
     mat4 model;
 
-    model = translate(model, vec3(position.x, position.y, 0.0f));
-    model = scale(model, vec3(size.x, size.y, 0.0f));
+    model = model * translate(vec3(position.x, position.y, 0.0f));
+    model = model * scale(vec3(size.x, size.y, 0.0f));
 
     mat4 view;
 

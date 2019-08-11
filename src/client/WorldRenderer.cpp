@@ -72,6 +72,7 @@ void WorldRenderer::init() {
     }
     
     blockShader.loadFile("mods/base/resources/shaders/blockShader.glsl");
+    entityShader.loadFile("mods/base/resources/shaders/entityShader.glsl");
 
     skyboxShader.loadFile("mods/base/resources/shaders/skybox.glsl");
     skyboxMaterial.deferred = false;
@@ -131,6 +132,8 @@ void WorldRenderer::init() {
     Renderer::renderSkybox(&skyboxMaterial);
     IBL::generateIBLmaps(vec3(0.0f,  0.0f, 0.0f), Renderer::irradiance, Renderer::specular);
     Renderer::clear();
+
+    entityRenderer = new EntityRenderer(*this);
 }
 
 void WorldRenderer::render(Camera &cam) {
@@ -146,8 +149,8 @@ void WorldRenderer::render(Camera &cam) {
 
     Renderer::renderDirectionalLight(sun);
 
-    for (auto *i : world.entities) {
-        Renderer::debug.renderDebugAABB(i->getPosition() - (vec3(i->width, i->height, i->depth) / 2.0f), i->getPosition() + (vec3(i->width, i->height, i->depth) / 2.0f), vec3(1.0f, 0.0f, 0.0f));
+    for (auto i : world.entities) {
+        entityRenderer->render(*i);
     }
 
     

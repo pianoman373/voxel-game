@@ -37,9 +37,8 @@ void Entity::tick() {
 
     vec3 velocityDistance = (vec3(xVelocity, yVelocity, zVelocity));
 
-    
-
-    bool onGround = false;
+    onGround = false;
+    collidedHorizontal = false;
 
     //Y axis collision
     AABB playerBoundingBox = AABB(position - vec3(0.3f, 0.9f, 0.3f), position + vec3(0.3f, 0.9f, 0.3f));
@@ -93,6 +92,7 @@ void Entity::tick() {
                 //if distance to block is closer than distance about to be traveled, truncate that distance to meet the block
                 if (dist < -velocityDistance.x) {
                     velocityDistance.x = -dist;
+                    collidedHorizontal = true;
                 }
             }
             //for moving +x
@@ -105,6 +105,7 @@ void Entity::tick() {
                 //if distance to block is closer than distance about to be traveled, truncate that distance to meet the block
                 if (dist < velocityDistance.x) {
                     velocityDistance.x = dist;
+                    collidedHorizontal = true;
                 }
             }
         }
@@ -127,6 +128,7 @@ void Entity::tick() {
                 //if distance to block is closer than distance about to be traveled, truncate that distance to meet the block
                 if (dist < -velocityDistance.z) {
                     velocityDistance.z = -dist;
+                    collidedHorizontal = true;
                 }
             }
             //for moving +z
@@ -139,6 +141,7 @@ void Entity::tick() {
                 //if distance to block is closer than distance about to be traveled, truncate that distance to meet the block
                 if (dist < velocityDistance.z) {
                     velocityDistance.z = dist;
+                    collidedHorizontal = true;
                 }
             }
         }

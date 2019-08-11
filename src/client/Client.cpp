@@ -20,7 +20,7 @@
 #include <typeindex>
 #include <strstream>
 
-Client::Client(): network(*this), worldRenderer(world, *this), player(&world, *this), itemRenderer(*this), world(*this) {
+Client::Client(): network(*this), worldRenderer(world, *this), player(&world, *this), itemRenderer(*this), world(*this, lua) {
     rleCache = new uint8_t[16*16*256*5];
 }
 

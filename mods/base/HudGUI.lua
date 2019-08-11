@@ -39,7 +39,8 @@ function HudGUI:render(width, height)
 
         if not self.player.inventory:isSlotEmpty(i + 1) then
             local slot = self.player.inventory:getSlot(i + 1)
-            api.renderBlockItem(slot.item:getID(), xOffset + (blockSize * i) + (blockSize/2), blockSize / 2, 30)
+            --api.renderBlockItem(slot.item:getID(), xOffset + (blockSize * i) + (blockSize/2), blockSize / 2, 30)
+            slot.item:draw(xOffset + (blockSize * i) + (blockSize/2), blockSize / 2)
 
             gui.drawText(tostring(slot.count), xOffset + (blockSize * i) + (blockSize/2), blockSize / 2, 1, 1, 1, 1)
         end

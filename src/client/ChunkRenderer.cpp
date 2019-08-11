@@ -591,7 +591,7 @@ void ChunkRenderer::render(Material *mat, Material *liquidMat) {
         this->updateMesh = false;
     }
 
-    Renderer::render(&this->mesh, mat, &transform, &aabb);
+    Renderer::render(&this->mesh, mat, transform.getMatrix(), aabb);
     //Renderer::render(&this->liquidMesh, liquidMat, &transform, &aabb);
     //Renderer::debug.renderDebugAABB(aabb, vec3(0.0f, 1.0f, 0.0f));
 

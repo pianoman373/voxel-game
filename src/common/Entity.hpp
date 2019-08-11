@@ -27,6 +27,13 @@ public:
     float height = 0.0f;
     float depth = 0.0f;
 
+    float xDirection = 0.0f;
+    float yDirection = 0.0f;
+    float zDirection = 1.0f;
+
+    bool collidedHorizontal = false;
+    bool onGround = false;
+
     World &world;
 
     Entity(World &world, LuaHandler &lua, sol::table baseTable, vec3 position);

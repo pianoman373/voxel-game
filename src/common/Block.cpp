@@ -59,6 +59,10 @@ int Block::getID() {
     return blockID;
 }
 
+std::string &Block::getStringID() {
+    return stringID;
+}
+
 void Block::onPlace(World &world, int x, int y, int z) {
     if (table != sol::nil) {
         LuaHandler::safeCall(table.get<sol::safe_function>("onPlace"), world, x, y, z);
@@ -82,6 +86,7 @@ void BlockRegistry::registerBlock(const std::string &id, Block *block) {
     delete registry[(unsigned char)nextID];
 
     block->blockID = nextID;
+    block->stringID = id;
     registry[(unsigned char)nextID] = block;
     nameRegistry[id] = nextID;
 

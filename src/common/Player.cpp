@@ -28,6 +28,10 @@ void Player::update(Camera &cam, float delta) {
     bool breakBlock = false;
     bool placeBlock = false;
 
+    if (Input::isKeyPressed(Input::KEY_L)) {
+        world->spawnEntity("base:skeleton", position.x, position.y, position.z);
+    }
+
     table["update"](this, delta);
 
     //mouse movement input
@@ -138,6 +142,7 @@ void Player::update(Camera &cam, float delta) {
 
     //the collider for narrowing down all the world's blocks to a smaller area
     AABB playerBoundingBoxLarge = AABB(position - vec3(5.0f), position + vec3(5.0f));
+    
 
     //Renderer::renderDebugAABB(playerBoundingBoxLarge, vec3(1.0f, 0.0f, 0.0f));
     std::vector<AABB> collisions;

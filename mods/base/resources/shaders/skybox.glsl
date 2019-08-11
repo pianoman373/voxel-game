@@ -158,7 +158,7 @@ vec3 atmosphere(vec3 dir, vec3 sunDir) {
     float sunset = clamp(-sunDir.y, 0.0, 1.0) * pow(clamp(dot(sunDir, dir), 0.0, 1.0), 5.0);
     vec3 horizonColor = mix(vec3(0.7,0.8,0.9)*2, vec3(1.7,0.8,0.9)*2, 0.0);
 
-    return mix(horizonColor,skyColor,atmosphere) * clamp(-dir.y + 1.0, 0.2, 1.0);
+    return mix(horizonColor,skyColor,atmosphere) * clamp(-dir.y + 1.0, 0.7, 1.0);
 }
 
 void main() {

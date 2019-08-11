@@ -13,6 +13,7 @@
 #include <thread>
 
 #include "client/ChunkRenderer.hpp"
+#include "client/EntityRenderer.hpp"
 #include "client/BlockTextureAtlas.hpp"
 #include "common/World.hpp"
 #include "readerwriterqueue.h"
@@ -29,12 +30,9 @@ using namespace moodycamel;
 
 class WorldRenderer {
 private:
-    World &world;
-    Client &client;
+    
 
-    Shader blockShader;
-    Shader liquidShader;
-    Shader skyboxShader;
+    
     Material skyboxMaterial;
 
     Material nearMaterial;
@@ -62,8 +60,18 @@ private:
     DirectionalLight *ambient1 = nullptr;
     DirectionalLight *ambient2 = nullptr;
 
+    EntityRenderer *entityRenderer;
+
 public:
+    Shader blockShader;
+    Shader liquidShader;
+    Shader skyboxShader;
+    Shader entityShader;
+
     BlockTextureAtlas atlas;
+
+    World &world;
+    Client &client;
 
     WorldRenderer(World &world, Client &client);
 

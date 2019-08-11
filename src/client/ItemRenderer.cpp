@@ -1,5 +1,6 @@
 #include "client/ItemRenderer.hpp"
 #include "common/Block.hpp"
+#include "common/World.hpp"
 #include "client/Client.hpp"
 
 #include "rendering/Primitives.hpp"
@@ -25,10 +26,10 @@ void ItemRenderer::renderBlockItem(Block &block, float x, float y, float size) {
 
     mat4 model;
 
-    model = translate(model, vec3(position.x, position.y, 0.0f));
-    model = scale(model, vec3(size, size, 0.0f));
-    model = rotate(model, vec3(1.0f, 0.0f, 0.0f), 30.0f);
-    model = rotate(model, vec3(0.0f, 1.0f, 0.0f), 45.0f);
+    model = model * translate(vec3(position.x, position.y, 0.0f));
+    model = model * scale(vec3(size, size, 0.0f));
+    model = model * rotate(vec3(1.0f, 0.0f, 0.0f), 30.0f);
+    model = model * rotate(vec3(0.0f, 1.0f, 0.0f), 45.0f);
 
     mat4 view;
 

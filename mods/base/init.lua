@@ -1,4 +1,5 @@
-print("Running Lua code...")
+local item = require("base:item.lua")
+
 
 api.registerBlock("base:stone", {
     name = "Stone",
@@ -10,6 +11,7 @@ api.registerBlock("base:stone", {
         world:setBlock(x, y + 1, z, api.getBlock("base:dirt"))
     end
 })
+item.registerBlockItem("base:stone")
 
 api.registerBlock("base:dirt", {
     name = "Dirt",
@@ -17,6 +19,7 @@ api.registerBlock("base:dirt", {
         "base:resources/blocks/dirt.png"
     }
 })
+item.registerBlockItem("base:dirt")
 
 api.registerBlock("base:grass", {
     name = "Grass",
@@ -29,6 +32,7 @@ api.registerBlock("base:grass", {
         "base:resources/blocks/grass.png"
     }
 })
+item.registerBlockItem("base:grass")
 
 
 
@@ -38,6 +42,7 @@ api.registerBlock("base:cobblestone", {
         "base:resources/blocks/cobblestone.png"
     }
 })
+item.registerBlockItem("base:cobblestone")
 
 api.registerBlock("base:planks", {
     name = "Planks",
@@ -45,6 +50,7 @@ api.registerBlock("base:planks", {
         "base:resources/blocks/planks.png"
     }
 })
+item.registerBlockItem("base:planks")
 
 api.registerBlock("base:wood", {
     name = "Wood",
@@ -52,6 +58,7 @@ api.registerBlock("base:wood", {
         "base:resources/blocks/wood.png"
     }
 })
+item.registerBlockItem("base:wood")
 
 api.registerBlock("base:leaves", {
     name = "Leaves",
@@ -60,12 +67,14 @@ api.registerBlock("base:leaves", {
     },
     solid = false
 })
+item.registerBlockItem("base:leaves")
 
 api.registerBlock("base:glowstone", {
     name = "Glowstone",
     textures = nil,
     lightLevel = 15
 })
+item.registerBlockItem("base:glowstone")
 
 api.registerBlock("base:sand", {
     name = "Sand",
@@ -78,11 +87,13 @@ api.registerBlock("base:gold", {
     name = "Gold",
     textures = nil
 })
+item.registerBlockItem("base:gold")
 
 api.registerBlock("base:bricks", {
     name = "Bricks",
     textures = nil
 })
+item.registerBlockItem("base:bricks")
 
 api.registerBlock("base:water", {
     name = "Water",
@@ -90,3 +101,21 @@ api.registerBlock("base:water", {
     solid = false
 })
 
+
+
+item.register("base:stick", {
+    texture = "base:resources/items/stick.png",
+    name = "Stick"
+})
+
+item.register("base:skeleton_spawner", {
+    texture = "base:resources/items/skeleton_spawner.png",
+    name = "Skeleton Spawner",
+    onUse = function(self, player, itemSlot)
+        local blockPosition = vec3i()
+        local blockNormal = vec3i()
+        local hit = player.world:raycastBlocks(player.position + vec3(0, 0.7, 0), player.direction, 10, blockPosition, blockNormal)
+        
+        player.world:spawnEntity("base:skeleton", blockPosition.x + blockNormal.x, blockPosition.y + blockNormal.y + 2, blockPosition.z + blockNormal.z)
+    end
+})
