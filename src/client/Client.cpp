@@ -20,8 +20,10 @@
 #include <typeindex>
 #include <strstream>
 
-Client::Client(): network(*this), worldRenderer(world, *this), player(&world, *this), itemRenderer(*this), world(*this, lua) {
+Client::Client(): network(*this), worldRenderer(world, *this), itemRenderer(*this), world(*this, lua) {
     rleCache = new uint8_t[16*16*256*5];
+
+    player = new Player(&world, *this);
 }
 
 Client::~Client() {
@@ -228,8 +230,8 @@ void Client::connectToServer(std::string address, int port) {
     
     worldRenderer.init();
 
-    player.position = vec3(16*16, 250, 18*16);
-    vec2i playerChunkPosition = vec2i((int)player.position.x >> 4, (int)player.position.z >> 4);
+    player->position = vec3(16*16, 250, 18*16);
+    vec2i playerChunkPosition = vec2i((int)player->position.x >> 4, (int)player->position.z >> 4);
     manageChunks(playerChunkPosition);
 
     inGame = true;
@@ -249,19 +251,19 @@ void Client::connectToIntegratedServer() {
 void Client::update(float delta) {
     OPTICK_EVENT();
     if (inGame) {
-        vec3 lastPosition = player.position;
-        vec2i lastPlayerChunkPosition = vec2i((int)player.position.x >> 4, (int)player.position.z >> 4);
+        vec3 lastPosition = player->position;
+        vec2i lastPlayerChunkPosition = vec2i((int)player->position.x >> 4, (int)player->position.z >> 4);
 
         
-        player.update(camera, delta);
+        player->update(camera, delta);
 
         camera.dimensions = {(float)Window::getWindowSize().x, (float)Window::getWindowSize().y};
 
-        if (!(player.position == lastPosition)) {
+        if (!(player->position == lastPosition)) {
             Packet p;
             uint16_t packetID = 2;
 
-            p << packetID << player.position.x << player.position.y << player.position.z;
+            p << packetID << player->position.x << player->position.y << player->position.z;
 
             network.sendPacket(p);
         } 
@@ -392,6 +394,8 @@ void Client::run() {
     std::cout << "Shutting down client" << std::endl;
 
     enet_deinitialize();
+
+    delete player;
 
     if (integratedServer) {
         serverThread->join();

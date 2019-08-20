@@ -235,7 +235,7 @@ void LuaHandler::addClientSideFunctions(Client &client) {
      };
 
      state["api"]["registerPlayerController"] = [&] (sol::table &table) {
-         client.player.table = table;
+         client.player->table = table;
      };
 
      state.new_usertype<Player>("Player",

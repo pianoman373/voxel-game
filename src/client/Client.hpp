@@ -36,14 +36,15 @@ private:
     bool abortNetworkProcessing = false;
 
 public:
+    LuaHandler lua;
     NetworkManagerClient network;
     ClientWorld world;
     WorldRenderer worldRenderer;
-    Player player;
+    Player *player = nullptr;
     Frustum frustum;
     Settings settings;
     Registry registry;
-    LuaHandler lua;
+    
     ItemRenderer itemRenderer;
 
     Client();

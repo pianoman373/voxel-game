@@ -39,22 +39,24 @@ local shoreBlock = api.getBlock("base:sand"):getID()
 local heights = arrays.array2D(18) --heightmap includes adjacent chunk blocks
 
 local function getSteep(x, z)
-    local height = heights[x+1][z+1]
+    return false
 
-    local lineNegX =  vecmath.normalize(vec3(x - 1, heights[x+2][z+1], z) - vec3(x, height, z))
-    local linePosX =  vecmath.normalize(vec3(x + 1, heights[x][z+1], z) - vec3(x, height, z))
+    -- local height = heights[x+1][z+1]
 
-    local lineNegY =  vecmath.normalize(vec3(x, heights[x+1][z], z - 1) - vec3(x, height, z))
-    local linePosY =  vecmath.normalize(vec3(x, heights[x+1][z+2], z + 1) - vec3(x, height, z))
+    -- local lineNegX =  vecmath.normalize(vec3(x - 1, heights[x+2][z+1], z) - vec3(x, height, z))
+    -- local linePosX =  vecmath.normalize(vec3(x + 1, heights[x][z+1], z) - vec3(x, height, z))
 
-    local norm1 = vecmath.cross(lineNegY, lineNegX)
-    local norm2 = vecmath.cross(linePosX, lineNegY)
+    -- local lineNegY =  vecmath.normalize(vec3(x, heights[x+1][z], z - 1) - vec3(x, height, z))
+    -- local linePosY =  vecmath.normalize(vec3(x, heights[x+1][z+2], z + 1) - vec3(x, height, z))
 
-    local norm3 = vecmath.cross(linePosY, linePosX)
-    local norm4 = vecmath.cross(lineNegX, linePosY)
+    -- local norm1 = vecmath.cross(lineNegY, lineNegX)
+    -- local norm2 = vecmath.cross(linePosX, lineNegY)
 
-    local finalNorm = (norm1 + norm2 + norm3 + norm4) / vec3(4, 4, 4)
-    return dot(finalNorm, vec3(0, 1, 0)) < 0.7
+    -- local norm3 = vecmath.cross(linePosY, linePosX)
+    -- local norm4 = vecmath.cross(lineNegX, linePosY)
+
+    -- local finalNorm = (norm1 + norm2 + norm3 + norm4) / vec3(4, 4, 4)
+    -- return vecmath.dot(finalNorm, vec3(0, 1, 0)) < 0.7
 end
 
 local wood = api.getBlock("base:wood"):getID()
@@ -114,22 +116,22 @@ end
 
 
 decorateChunk = function(chunk_x, chunk_z, world)
-    for i = 0, math.random(0, 4) do
-        local x = chunk_x*16 + math.random(0, 15)
-        local z = chunk_z*16 + math.random(0, 15)
+    -- for i = 0, math.random(0, 4) do
+    --     local x = chunk_x*16 + math.random(0, 15)
+    --     local z = chunk_z*16 + math.random(0, 15)
 
-        if noise2D(x/255, z/255) > 0 then
-            for y = 255, 0, -1 do
-                if world:getBlock(x, y, z):getID() == 0 then
+    --     if noise2D(x/255, z/255) > 0 then
+    --         for y = 255, 0, -1 do
+    --             if world:getBlock(x, y, z):getID() == 0 then
 
-                elseif world:getBlock(x, y, z):getID() == topBlock then
-                    placeTree(x, y+1, z, world)
-                else
-                    break
-                end
-            end
-        end
-    end
+    --             elseif world:getBlock(x, y, z):getID() == topBlock then
+    --                 placeTree(x, y+1, z, world)
+    --             else
+    --                 break
+    --             end
+    --         end
+    --     end
+    -- end
 end
 
 

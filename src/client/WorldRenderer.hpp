@@ -50,10 +50,10 @@ private:
     BlockingReaderWriterQueue<ChunkRemeshJob> remeshQueue3;
 
     bool running = true;
-    std::thread *thread0;
-    std::thread *thread1;
-    std::thread *thread2;
-    std::thread *thread3;
+    std::thread *thread0 = nullptr;
+    std::thread *thread1 = nullptr;
+    std::thread *thread2 = nullptr;
+    std::thread *thread3 = nullptr;
 
     DirectionalLight *sun = nullptr;
 

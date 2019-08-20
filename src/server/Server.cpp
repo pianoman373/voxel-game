@@ -1,6 +1,7 @@
 #include "server/Server.hpp"
 #include "server/NetworkManagerServer.hpp"
 #include "util/Noise.hpp"
+#include "common/WorldGenerator.hpp"
 
 #include <iostream>
 #include <fstream>
@@ -109,75 +110,7 @@ void Server::receivePackets() {
 }
 
 void Server::generateTerrain() {
-    auto start = std::chrono::high_resolution_clock::now();
-
-    std::cout << "generating terrain..." << std::endl;
-
-    for (int x = 0; x < WORLD_SIZE; x++) {
-        for (int z = 0; z < WORLD_SIZE; z++) {
-            sol::protected_function f(lua.state["generateChunk"]);
-            sol::protected_function_result result = f(x, z, world.getChunk(x, z).get());
-            if (result.valid()) {
-
-            }
-            else {
-                // Call failed
-                sol::error err = result;
-                std::cout << err.what() << std::endl;
-            }
-        }
-    }
-
-    std::cout << "decorating terrain..." << std::endl;
-
-    for (int x = 0; x < WORLD_SIZE; x++) {
-        for (int z = 0; z < WORLD_SIZE; z++) {
-            sol::protected_function f(lua.state["decorateChunk"]);
-            sol::protected_function_result result = f(x, z, world);
-            if (result.valid()) {
-
-            }
-            else {
-                // Call failed
-                sol::error err = result;
-                std::cout << err.what() << std::endl;
-            }
-        }
-    }
-
-    auto finish = std::chrono::high_resolution_clock::now();
-    float seconds = std::chrono::duration_cast<std::chrono::milliseconds>(finish-start).count() / 1000.0f;
-    std::cout << "completed in " << seconds << "s " << std::endl;
-
-
-    std::cout << "generating heightmaps..." << std::endl;
-    start = std::chrono::high_resolution_clock::now();
-
-    //generate lighting
-    for (int x = 0; x < WORLD_SIZE; x++) {
-        for (int z = 0; z < WORLD_SIZE; z++) {
-            world.getChunk(x, z)->calculateHeightmap();
-        }
-    }
-
-    finish = std::chrono::high_resolution_clock::now();
-    seconds = std::chrono::duration_cast<std::chrono::milliseconds>(finish-start).count() / 1000.0f;
-    std::cout << "completed in " << seconds << "s " << std::endl;
-
-
-    std::cout << "generating lighting..." << std::endl;
-    start = std::chrono::high_resolution_clock::now();
-
-    //generate lighting
-    for (int x = 0; x < WORLD_SIZE; x++) {
-        for (int z = 0; z < WORLD_SIZE; z++) {
-            world.getChunk(x, z)->calculateSunLighting();
-        }
-    }
-
-    finish = std::chrono::high_resolution_clock::now();
-    seconds = std::chrono::duration_cast<std::chrono::milliseconds>(finish-start).count() / 1000.0f;
-    std::cout << "completed in " << seconds << "s " << std::endl;
+    
 }
 
 void Server::init(int port) {
@@ -194,40 +127,19 @@ void Server::init(int port) {
     lua.init();
     lua.addCommonFunctions(world);
     lua.runScripts();
+
+    if (!isWorldSavePresent()) {
+        WorldGenerator generator;
+
+        generator.generate(lua, WORLD_SIZE);
+    }
     
-    try {
-        lua.state.safe_script_file("mods/base/worldgen.lua");
-    }
-    catch( const sol::error& e ) {
-        std::cout << e.what() << std::endl;
-    }
 
-    if (isWorldSavePresent()) {
-        std::cout << "loading chunks from disk..." << std::endl;
+    std::cout << "loading chunks from disk..." << std::endl;
 
-        for (int x = 0; x < WORLD_SIZE; x++) {
-            for (int z = 0; z < WORLD_SIZE; z++) {
-                chunkIO.loadChunk(world.getChunk(x, z));
-            }
-        }
-    }
-    else {
-        generateTerrain();
-
-        for (int x = 0; x < WORLD_SIZE; x++) {
-            for (int z = 0; z < WORLD_SIZE; z++) {
-                chunkIO.saveChunk(world.getChunk(x, z));
-            }
-        }
-
-
-        std::ofstream i("save/info.json");
-        json j;
-
-        j["generated"] = true;
-
-        if (i) {
-            i << j;
+    for (int x = 0; x < WORLD_SIZE; x++) {
+        for (int z = 0; z < WORLD_SIZE; z++) {
+            chunkIO.loadChunk(world.getChunk(x, z));
         }
     }
 

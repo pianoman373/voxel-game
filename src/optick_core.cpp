@@ -1,8 +1,7 @@
-#include "optick.config.h"
+#include "optick_core.h"
 
 #if USE_OPTICK
 
-#include "optick_core.h"
 #include "optick_server.h"
 
 #include <algorithm>
@@ -70,13 +69,13 @@ uint64_t MurmurHash64A(const void * key, int len, uint64_t seed)
 
 	switch (len & 7)
 	{
-	case 7: h ^= uint64_t(data2[6]) << 48;
-	case 6: h ^= uint64_t(data2[5]) << 40;
-	case 5: h ^= uint64_t(data2[4]) << 32;
-	case 4: h ^= uint64_t(data2[3]) << 24;
-	case 3: h ^= uint64_t(data2[2]) << 16;
-	case 2: h ^= uint64_t(data2[1]) << 8;
-	case 1: h ^= uint64_t(data2[0]);
+	case 7: h ^= uint64_t(data2[6]) << 48; // fallthrough
+	case 6: h ^= uint64_t(data2[5]) << 40; // fallthrough
+	case 5: h ^= uint64_t(data2[4]) << 32; // fallthrough
+	case 4: h ^= uint64_t(data2[3]) << 24; // fallthrough
+	case 3: h ^= uint64_t(data2[2]) << 16; // fallthrough
+	case 2: h ^= uint64_t(data2[1]) << 8;  // fallthrough
+	case 1: h ^= uint64_t(data2[0]);       // fallthrough
 		h *= m;
 	};
 
@@ -231,7 +230,7 @@ EventData* Event::Start(const EventDescription& description)
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void Event::Stop(EventData& data)
 {
-	if (EventStorage* storage = Core::storage)
+	if (Core::storage != nullptr)
 	{
 		data.Stop();
 	}
@@ -261,7 +260,7 @@ void Event::Push(const char* name)
 	if (EventStorage* storage = Core::storage)
 	{
 		EventDescription* desc = EventDescription::CreateShared(name);
-		Push(*desc);
+		PushEvent(storage, desc, GetHighPrecisionTime());
 	}
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -574,6 +573,8 @@ bool CallstackCollector::SerializeSymbols(OutputDataStream& stream)
 	typedef unordered_set<uint64> SymbolSet;
 	SymbolSet symbolSet;
 
+	Core::Get().DumpProgress("Collecting Callstacks...");
+
 	for (CallstacksPool::const_iterator it = callstacksPool.begin(); it != callstacksPool.end();)
 	{
 		CallstacksPool::const_iterator startIt = it;
@@ -614,16 +615,23 @@ bool CallstackCollector::SerializeSymbols(OutputDataStream& stream)
 	vector<const Symbol*> symbols;
 	symbols.reserve(symbolSet.size());
 
-	Core::Get().DumpProgress("Resolving addresses... ");
+	Core::Get().DumpProgress("Resolving addresses ... ");
 
 	if (symEngine)
 	{
+		int total = (int)symbolSet.size();
+		const int progressBatchSize = 100;
 		for (auto it = symbolSet.begin(); it != symbolSet.end(); ++it)
 		{
 			uint64 address = *it;
 			if (const Symbol* symbol = symEngine->GetSymbol(address))
 			{
 				symbols.push_back(symbol);
+
+				if ((symbols.size() % progressBatchSize == 0) && Core::Get().IsTimeToReportProgress())
+				{
+					Core::Get().DumpProgressFormatted("Resolving addresses %d / %d", (int)symbols.size(), total);
+				}
 			}
 		}
 	}
@@ -759,11 +767,45 @@ void Core::DumpProgressFormatted(const char* format, ...)
 	DumpProgress(buffer);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+bool IsFrameDescription(const EventDescription* desc)
+{
+	for (int i = 0; i < FrameType::COUNT; ++i)
+		if (GetFrameDescription((FrameType::Type)i) == desc)
+			return true;
+
+	return false;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+bool IsSleepDescription(const EventDescription* desc)
+{
+	return desc->color == Color::White;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+bool IsSleepOnlyScope(const ScopeData& scope)
+{
+	//if (!scope.categories.empty())
+	//	return false;
+
+	const vector<EventData>& events = scope.events;
+	for (auto it = events.begin(); it != events.end(); ++it)
+	{
+		const EventData& data = *it;
+
+		if (!IsSleepDescription(data.description))
+		{
+			return false;
+		}
+	}
+
+	return true;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void Core::DumpEvents(EventStorage& entry, const EventTime& timeSlice, ScopeData& scope)
 {
 	if (!entry.eventBuffer.IsEmpty())
 	{
 		const EventData* rootEvent = nullptr;
+		const int64 batchLimitMs = 3;
 
 		entry.eventBuffer.ForEach([&](const EventData& data)
 		{
@@ -776,7 +818,13 @@ void Core::DumpEvents(EventStorage& entry, const EventTime& timeSlice, ScopeData
 				} 
 				else if (rootEvent->finish < data.finish)
 				{
-					scope.Send();
+					// Batching together small buckets
+					// Flushing if we hit the following conditions:
+					// * Frame Description - don't batch frames together
+					// * SleepOnly scope - we ignore them
+					// * Sleep Event - flush the previous batch
+					if (IsFrameDescription(rootEvent->description) || TicksToMs(scope.header.event.finish - scope.header.event.start) > batchLimitMs || IsSleepDescription(data.description) || IsSleepOnlyScope(scope))
+						scope.Send();
 
 					rootEvent = &data;
 					scope.InitRootEvent(*rootEvent);
@@ -821,7 +869,6 @@ void Core::DumpTags(EventStorage& entry, ScopeData& scope)
 		entry.ClearTags(false);
 	}
 }
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void Core::DumpThread(ThreadEntry& entry, const EventTime& timeSlice, ScopeData& scope)
 {
@@ -941,9 +988,9 @@ void Core::DumpFrames(uint32 mode)
 
 	if (!callstackCollector.IsEmpty())
 	{
-		DumpProgress("Resolving callstacks");
 		OutputDataStream symbolsStream;
 		symbolsStream << boardNumber;
+		DumpProgress("Serializing Modules");
 		callstackCollector.SerializeModules(symbolsStream);
 		callstackCollector.SerializeSymbols(symbolsStream);
 		Server::Get().Send(DataResponse::CallstackDescriptionBoard, symbolsStream);
@@ -1632,25 +1679,6 @@ void ThreadEntry::Sort()
 	SortMemoryPool(storage.eventBuffer);
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-bool IsSleepOnlyScope(const ScopeData& scope)
-{
-	//if (!scope.categories.empty())
-	//	return false;
-
-	const vector<EventData>& events = scope.events;
-	for(auto it = events.begin(); it != events.end(); ++it)
-	{
-		const EventData& data = *it;
-
-		if (data.description->color != Color::White)
-		{
-			return false;
-		}
-	}
-
-	return true;
-}
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void ScopeData::Send()
 {
 	if (!events.empty() || !categories.empty())
@@ -1666,8 +1694,15 @@ void ScopeData::Send()
 	Clear();
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void ScopeData::ResetHeader()
+{
+	header.event.start = INT64_MAX;
+	header.event.finish = INT64_MIN;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void ScopeData::Clear()
 {
+	ResetHeader();
 	events.clear();
 	categories.clear();
 }

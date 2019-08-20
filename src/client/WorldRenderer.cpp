@@ -36,25 +36,25 @@ WorldRenderer::WorldRenderer(World &world, Client &client): world(world), client
 WorldRenderer::~WorldRenderer() {
     running = false;
 
-    if (thread0->joinable()) {
-        thread0->join();
-    }
-    delete thread0;
+    // if (thread0->joinable()) {
+    //     thread0->join();
+    // }
+    // delete thread0;
 
-    if (thread1->joinable()) {
-        thread1->join();
-    }
-    delete thread1;
+    // if (thread1->joinable()) {
+    //     thread1->join();
+    // }
+    // delete thread1;
 
-    if (thread2->joinable()) {
-        thread2->join();
-    }
-    delete thread2;
+    // if (thread2->joinable()) {
+    //     thread2->join();
+    // }
+    // delete thread2;
 
-    if (thread3->joinable()) {
-        thread3->join();
-    }
-    delete thread3;
+    // if (thread3->joinable()) {
+    //     thread3->join();
+    // }
+    // delete thread3;
 
     delete sun;
     delete ambient1;
@@ -109,19 +109,19 @@ void WorldRenderer::init() {
         OPTICK_THREAD("Remesh 0");
         remeshThread(remeshQueue0);
     });
-    thread0->detach();
+    //thread0->detach();
 
     thread1 = new std::thread([&]() {
         OPTICK_THREAD("Remesh 1");
         remeshThread(remeshQueue1);
     });
-    thread1->detach();
+    //thread1->detach();
 
     thread2 = new std::thread([&]() {
         OPTICK_THREAD("Remesh 2");
         remeshThread(remeshQueue2);
     });
-    thread2->detach();
+    //thread2->detach();
 
     thread3 = new std::thread([&]() {
         OPTICK_THREAD("Remesh 3");
