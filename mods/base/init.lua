@@ -9,7 +9,8 @@ api.registerBlock("base:stone", {
     onPlace = function(world, x, y, z)
         print("placing!")
         world:setBlock(x, y + 1, z, api.getBlock("base:dirt"))
-    end
+    end,
+    color = 0x736e65,
 })
 item.registerBlockItem("base:stone")
 
@@ -17,7 +18,8 @@ api.registerBlock("base:dirt", {
     name = "Dirt",
     textures = {
         "base:resources/blocks/dirt.png"
-    }
+    },
+    color = 0x574837,
 })
 item.registerBlockItem("base:dirt")
 
@@ -30,7 +32,8 @@ api.registerBlock("base:grass", {
         "base:resources/blocks/dirt.png",
         "base:resources/blocks/grass.png",
         "base:resources/blocks/grass.png"
-    }
+    },
+    color = 0x626e37,
 })
 item.registerBlockItem("base:grass")
 
@@ -40,7 +43,8 @@ api.registerBlock("base:cobblestone", {
     name = "Cobblestone",
     textures = {
         "base:resources/blocks/cobblestone.png"
-    }
+    },
+    color = 0x3d3d3d,
 })
 item.registerBlockItem("base:cobblestone")
 
@@ -56,7 +60,8 @@ api.registerBlock("base:wood", {
     name = "Wood",
     textures = {
         "base:resources/blocks/wood.png"
-    }
+    },
+    color = 0x4d3c24,
 })
 item.registerBlockItem("base:wood")
 
@@ -65,7 +70,8 @@ api.registerBlock("base:leaves", {
     textures = {
         "base:resources/blocks/leaves.png"
     },
-    solid = false
+    solid = false,
+    color = 0x4e6426,
 })
 item.registerBlockItem("base:leaves")
 

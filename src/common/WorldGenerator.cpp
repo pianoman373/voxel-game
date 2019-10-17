@@ -8,7 +8,19 @@
 #include <chrono>
 
 
-void WorldGenerator::generate(LuaHandler &lua, int size) {
+#define STB_IMAGE_WRITE_IMPLEMENTATION
+#include <stb_image_write.h>
+
+
+void WorldGenerator::generate(int size) {
+    LuaHandler lua;
+    World world(lua);
+
+    
+    lua.init();
+    lua.addCommonFunctions(world);
+    lua.runScripts();
+
     try {
         lua.state.safe_script_file("mods/base/worldgen.lua");
     }
@@ -16,7 +28,7 @@ void WorldGenerator::generate(LuaHandler &lua, int size) {
         std::cout << e.what() << std::endl;
     }
 
-    World world(lua);
+    
 
     auto start = std::chrono::high_resolution_clock::now();
 
@@ -63,31 +75,63 @@ void WorldGenerator::generate(LuaHandler &lua, int size) {
     std::cout << "generating heightmaps..." << std::endl;
     start = std::chrono::high_resolution_clock::now();
 
-    //generate lighting
     for (int x = 0; x < size; x++) {
         for (int z = 0; z < size; z++) {
+            std::cout << (float)((x * size) + z) / (float)(size*size) << std::endl; 
             world.getChunk(x, z)->calculateHeightmap();
         }
     }
 
-    finish = std::chrono::high_resolution_clock::now();
-    seconds = std::chrono::duration_cast<std::chrono::milliseconds>(finish-start).count() / 1000.0f;
-    std::cout << "completed in " << seconds << "s " << std::endl;
+    std::cout << "Generating map" << std::endl;
 
+    unsigned char *data = new unsigned char[size*16*size*16*3];
 
-    std::cout << "generating lighting..." << std::endl;
-    start = std::chrono::high_resolution_clock::now();
-
-    //generate lighting
     for (int x = 0; x < size; x++) {
         for (int z = 0; z < size; z++) {
-            world.getChunk(x, z)->calculateSunLighting();
+            Chunk *c = world.getChunk(x, z).get();
+
+            for (int cx = 0; cx < 16; cx++) {
+                for (int cz = 0; cz < 16; cz++) {
+                    unsigned char height = c->heightMap[cx][cz];
+
+                    int worldX = (x*16)+cx;
+                    int worldZ = (z*16)+cz;
+
+                    long index = ((worldZ * size*16*3) + worldX*3);
+
+                    Block &b = c->getBlock(cx, 70, cz);
+                    uint32_t color = b.color;
+
+
+
+                    data[index] = (color >> 16) & 0xFF;
+                    data[index+1] =(color >> 8) & 0xFF;
+                    data[index+2] = color & 0xFF;
+                }
+            }
         }
     }
 
+    stbi_write_png("save/map.png", size*16, size*16, 3, data, size*16 * 3);
+
     finish = std::chrono::high_resolution_clock::now();
     seconds = std::chrono::duration_cast<std::chrono::milliseconds>(finish-start).count() / 1000.0f;
     std::cout << "completed in " << seconds << "s " << std::endl;
+
+
+    // std::cout << "generating lighting..." << std::endl;
+    // start = std::chrono::high_resolution_clock::now();
+
+    // //generate lighting
+    // for (int x = 0; x < size; x++) {
+    //     for (int z = 0; z < size; z++) {
+    //         world.getChunk(x, z)->calculateSunLighting();
+    //     }
+    // }
+
+    // finish = std::chrono::high_resolution_clock::now();
+    // seconds = std::chrono::duration_cast<std::chrono::milliseconds>(finish-start).count() / 1000.0f;
+    // std::cout << "completed in " << seconds << "s " << std::endl;
 
 
     ChunkIO chunkIO;
@@ -97,7 +141,6 @@ void WorldGenerator::generate(LuaHandler &lua, int size) {
             chunkIO.saveChunk(world.getChunk(x, z));
         }
     }
-
 
     std::ofstream i("save/info.json");
     json j;

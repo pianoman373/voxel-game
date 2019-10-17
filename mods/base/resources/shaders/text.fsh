@@ -15,6 +15,7 @@ void main() {
 	texColor.rgb = vec3(1.0);
 
 	outColor = mix(vec4(1.0), texColor, textureStrength) * color;
+	
 
     if (outColor.w < 0.01) {
         discard;

@@ -266,15 +266,20 @@ void Chunk::setTorchlight(int x, int y, int z, int val) {
 void Chunk::calculateHeightmap() {
     for (int x = 0; x < 16; x++) {
         for (int z = 0; z < 16; z++) {
+            //std::cout << getBlockID(x, 0, z) << std::endl;
             int y = 255;
 
             while (y > 0) {
+                //std::cout << getBlock(x, y, z).getStringID() << std::endl;
                 if (getBlock(x, y, z).isSolid()) {
                     heightMap[x][z] = y;
+                    
                     break;
                 }
                 y--;
             }
+
+            //std::cout << "setting value to " << (int)y << std::endl;
         }
     }
 }

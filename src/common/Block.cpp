@@ -13,6 +13,7 @@ Block::Block(sol::table table) {
     solid = table["solid"].get_or(true);
     lightLevel = table["lightLevel"].get_or(0);
     isLiquid = table["isLiquid"].get_or(false);
+    color = table["color"].get_or(0);
 
     for (int i = 0; i < 6; i++) {
         textureIndices.push_back(0);
@@ -20,7 +21,8 @@ Block::Block(sol::table table) {
 }
 
 Block::Block() {
-    
+    name = "null";
+    stringID = "null";
 }
 
 void Block::clientInit(Client &client) {

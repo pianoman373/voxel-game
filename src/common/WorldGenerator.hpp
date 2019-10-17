@@ -8,5 +8,5 @@ private:
 
 
 public:
-    void generate(LuaHandler &lua, int size);
+    void generate(int size);
 };

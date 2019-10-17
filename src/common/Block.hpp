@@ -19,8 +19,7 @@ private:
     int blockID = 0;
     std::string name = "";
     std::string stringID;
-    vec3 color;
-
+    
     std::vector<vec2i> textureCoords;
     std::vector<int> textureIndices;
     bool solid = false;
@@ -29,6 +28,8 @@ private:
 public:
     sol::table table = sol::nil;
     bool isLiquid = false;
+    uint32_t color;
+
 
     Block(sol::table table);
 

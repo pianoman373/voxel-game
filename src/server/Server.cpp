@@ -131,7 +131,7 @@ void Server::init(int port) {
     if (!isWorldSavePresent()) {
         WorldGenerator generator;
 
-        generator.generate(lua, WORLD_SIZE);
+        generator.generate(WORLD_SIZE);
     }
     
 
