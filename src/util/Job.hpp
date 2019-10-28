@@ -5,6 +5,7 @@
 using namespace moodycamel;
 
 #include <thread>
+#include <functional>
 
 class Job {
 private:

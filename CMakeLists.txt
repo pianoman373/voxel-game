@@ -10,8 +10,6 @@ option(GLFW_BUILD_EXAMPLES OFF)
 option(GLFW_BUILD_TESTS OFF)
 add_subdirectory(lib/glfw)
 
-add_subdirectory(lib/freetype)
-
 include_directories(lib/crucible/include/
                     lib/luajit/src/
                     ${CMAKE_BINARY_DIR}/lib/luajit
@@ -56,15 +54,14 @@ file(GLOB PROJECT_HEADERS src/*.h
 
 add_definitions(-DGLFW_INCLUDE_NONE
                 -DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\"
-                -DGLFW_STATIC
                 -DIMGUI_IMPL_OPENGL_LOADER_GLAD)
 
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS})
 
 if(WIN32)
-    target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES} opengl32 freetype liblua enet ws2_32 winmm)
+    target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES} opengl32 liblua enet ws2_32 winmm)
 elseif(UNIX AND NOT APPLE)
-    target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES} GL freetype liblua enet)
+    target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES} GL liblua enet)
 endif(WIN32)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
