@@ -12,7 +12,7 @@
 
 #include "optick.h"
 
-#define WORLD_SIZE 128
+#define WORLD_SIZE 64
 
 Server::Server(): network(*this), world(*this, lua) {
     rleCache = new uint8_t[16*16*256*5];
@@ -129,9 +129,13 @@ void Server::init(int port) {
     lua.runScripts();
 
     if (!isWorldSavePresent()) {
-        WorldGenerator generator;
+        WorldGenerator generator(WORLD_SIZE);
 
-        generator.generate(WORLD_SIZE);
+        generator.generate();
+
+        while (!generator.isComplete()) {
+
+        }
     }
     
 

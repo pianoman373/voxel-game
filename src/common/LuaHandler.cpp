@@ -2,6 +2,7 @@
 
 #include "common/Block.hpp"
 #include "common/Entity.hpp"
+#include "common/WorldGenerator.hpp"
 #include "util/Noise.hpp"
 #include "util/SimplexNoise.hpp"
 #include "client/Client.hpp"
@@ -243,6 +244,12 @@ void LuaHandler::addClientSideFunctions(Client &client) {
         "velocity", &Player::velocity,
         "direction", &Player::direction,
         "world", &Player::world
+     );
+
+     state.new_usertype<WorldGenerator>("WorldGenerator",
+        sol::constructors<WorldGenerator(int)>(),
+        "generate", &WorldGenerator::generate,
+        "isFinished", &WorldGenerator::isComplete
      );
 
 }

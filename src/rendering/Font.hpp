@@ -7,17 +7,23 @@
 
 struct Character {
     Texture tex;
-    vec2i size;       // Size of glyph
-    vec2i bearing;    // Offset from baseline to left/top of glyph
+    vec2i origin;       // Size of glyph
+    vec2i size;    // Offset from baseline to left/top of glyph
     int advance;    // Offset to advance to next glyph
 };
 
 class Font {
 private:
-    unsigned int size;
+    
 
 public:
-    int descender;
+    int ascent;
+    int descent;
+    int lineGap;
+
+    float scale;
+
+    int fontSize;
 
     std::map<unsigned char, Character> characters;
 

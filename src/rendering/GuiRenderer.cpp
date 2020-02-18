@@ -63,16 +63,16 @@ void GuiRenderer::renderText(vec2 position, const std::string &text, const Font 
     while (*textRaw) {
         const Character &ch = font.characters.at(*textRaw);
 
-        float xpos = x + ch.bearing.x * scale;
-        float ypos = y - (ch.size.y - ch.bearing.y) + font.descender * scale;
+        float xpos = x + ch.origin.x;
+        float ypos = y + ch.origin.y;
 
-        float w = ch.size.x * 0.05f;
-        float h = ch.size.y * 0.05f;
+        float w = ch.size.x;
+        float h = ch.size.y;
 
-        renderSprite({x, y}, {w, h}, {0.0f, 0.0f, 1.0f, 1.0f}, color, ch.tex, Resources::textShader);
+        renderSprite({xpos, ypos}, {w, h}, {0.0f, 0.0f, 1.0f, 1.0f}, color, ch.tex, Resources::textShader);
 
         // Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
-        x += (ch.advance >> 6) * 4.0f; // Bitshift by 6 to get value in pixels (2^6 = 64)
+        x += (ch.advance*font.scale); // Bitshift by 6 to get value in pixels (2^6 = 64)
 
         ++textRaw;
     }
