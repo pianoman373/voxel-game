@@ -25,7 +25,7 @@ FFI unsigned char* getChunkData(void *c) {
 
 int main(int argc, char *argv[]) {
     bool running = true;
-    s = new Server();
+    s = new Server("serverWorld");
     c = new Client();
 
     // a. Initialize enet

@@ -30,14 +30,14 @@ LuaHandler::LuaHandler(): state(sol::c_call<decltype(&panic_handler), &panic_han
 }
 
 void LuaHandler::addClientSideFunctions(Client &client) {
-     state["api"]["renderSpriteColor"] = [](float positionX, float positionY, float sizeX, float sizeY, float colorR, float colorG, float colorB, float colorA) {
-         GuiRenderer::renderSprite({positionX, positionY}, {sizeX, sizeY}, {colorR, colorG, colorB, colorA});
+     state["api"]["renderSpriteColor"] = [](float positionX, float positionY, float sizeX, float sizeY, float colorR, float colorG, float colorB, float colorA, float roundRadius) {
+         GuiRenderer::renderSprite({positionX, positionY}, {sizeX, sizeY}, {colorR, colorG, colorB, colorA}, roundRadius);
      };
-     state["api"]["renderSprite"] = [](float positionX, float positionY, float sizeX, float sizeY, float colorR, float colorG, float colorB, float colorA) {
-         GuiRenderer::renderSprite({positionX, positionY}, {sizeX, sizeY},{colorR, colorG, colorB, colorA});
+     state["api"]["renderSprite"] = [](float positionX, float positionY, float sizeX, float sizeY, float colorR, float colorG, float colorB, float colorA, float roundRadius) {
+         GuiRenderer::renderSprite({positionX, positionY}, {sizeX, sizeY},{colorR, colorG, colorB, colorA}, roundRadius);
      };
-     state["api"]["renderSpriteTexture"] = [](float positionX, float positionY, float sizeX, float sizeY, float uvU1, float uvV1, float uvU2, float uvV2, Texture &tex) {
-         GuiRenderer::renderSprite({positionX, positionY}, {sizeX, sizeY}, {uvU1, uvV1, uvU2, uvV2},{1.0f, 1.0f, 1.0f, 1.0f}, tex);
+     state["api"]["renderSpriteTexture"] = [](float positionX, float positionY, float sizeX, float sizeY, float uvU1, float uvV1, float uvU2, float uvV2, Texture &tex, float roundRadius) {
+         GuiRenderer::renderSprite({positionX, positionY}, {sizeX, sizeY}, {uvU1, uvV1, uvU2, uvV2},{1.0f, 1.0f, 1.0f, 1.0f}, tex, roundRadius);
      };
      state["api"]["renderText"] = [&](float x, float y, std::string text, const Font &font, float r, float g, float b, float a) {
          GuiRenderer::renderText({x, y}, text, font, {r, g, b, a});
@@ -231,8 +231,8 @@ void LuaHandler::addClientSideFunctions(Client &client) {
      state["api"]["connectToServer"] = [&](const std::string &address, int port) {
          client.connectToServer(address, port);
      };
-     state["api"]["connectToIntegratedServer"] = [&] () {
-         client.connectToIntegratedServer();
+     state["api"]["connectToIntegratedServer"] = [&] (const std::string &folder) {
+         client.connectToIntegratedServer(folder);
      };
 
      state["api"]["registerPlayerController"] = [&] (sol::table &table) {
@@ -247,10 +247,22 @@ void LuaHandler::addClientSideFunctions(Client &client) {
      );
 
      state.new_usertype<WorldGenerator>("WorldGenerator",
-        sol::constructors<WorldGenerator(int)>(),
+        sol::constructors<WorldGenerator(std::string, int)>(),
         "generate", &WorldGenerator::generate,
         "isFinished", &WorldGenerator::isComplete
      );
+
+     state["api"]["getSaveList"] = [&] () {
+         std::vector<Path> paths = Path::listDirectory("saves/", true);
+
+         sol::table t = state.create_table();
+
+         for (int i = 0; i < paths.size(); i++) {
+             t.add<std::string>(paths[i]);
+         }
+
+         return t;
+     };
 
 }
 

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <iostream>
-#include <math.h>
 
 #undef near
 #undef far
@@ -26,10 +25,10 @@ inline float degrees(float radians)
 
 template <class T>
 struct matrix4 {
-    T m00, m01, m02, m03;
-    T m10, m11, m12, m13;
-    T m20, m21, m22, m23;
-    T m30, m31, m32, m33;
+    T m00, m10, m20, m30;
+    T m01, m11, m21, m31;
+    T m02, m12, m22, m32;
+    T m03, m13, m23, m33;
 
     matrix4() {
         m00 = 1;
@@ -73,7 +72,6 @@ struct matrix4 {
         this->m30 = m30;
         this->m31 = m31;
         this->m32 = m32;
-
     }
 };
 
@@ -214,6 +212,16 @@ inline std::ostream& operator<<(std::ostream &lhs, const vector3<T> &rhs) {
 template <typename T>
 inline std::ostream& operator<<(std::ostream &lhs, const vector4<T> &rhs) {
     lhs << "(" << rhs.x << ", " << rhs.y << rhs.z << ", " << rhs.w << ")";
+
+    return lhs;
+}
+
+template <typename T>
+inline std::ostream& operator<<(std::ostream &lhs, const matrix4<T> &rhs) {
+    lhs << "| " << rhs.m00 << "\t" << rhs.m01 << "\t" << rhs.m02 << "\t" << rhs.m03 << " |" << std::endl;
+    lhs << "| " << rhs.m10 << "\t" << rhs.m11 << "\t" << rhs.m12 << "\t" << rhs.m13 << " |" << std::endl;
+    lhs << "| " << rhs.m20 << "\t" << rhs.m21 << "\t" << rhs.m22 << "\t" << rhs.m23 << " |" << std::endl;
+    lhs << "| " << rhs.m30 << "\t" << rhs.m31 << "\t" << rhs.m32 << "\t" << rhs.m33 << " |";
 
     return lhs;
 }
@@ -524,8 +532,23 @@ inline vector4<T> operator*(const vector4<T> &lhs, const matrix4<T> &rhs) {
 //--------operators--------//
 
 template <typename T>
+inline T lengthSquared(const vector2<T> &vec) {
+    return vec.x * vec.x + vec.y * vec.y;
+}
+
+template <typename T>
 inline T lengthSquared(const vector3<T> &vec) {
     return vec.x * vec.x + vec.y * vec.y + vec.z * vec.z;
+}
+
+template <typename T>
+inline T lengthSquared(const vector4<T> &vec) {
+    return vec.x * vec.x + vec.y * vec.y + vec.z * vec.z + vec.w * vec.w;
+}
+
+template <typename T>
+inline float length(const vector2<T> &vec) {
+    return sqrt(lengthSquared(vec));
 }
 
 template <typename T>
@@ -534,7 +557,22 @@ inline float length(const vector3<T> &vec) {
 }
 
 template <typename T>
+inline float length(const vector4<T> &vec) {
+    return sqrt(lengthSquared(vec));
+}
+
+template <typename T>
+inline vector2<T> normalize(const vector2<T> &vec) {
+    return vec / length(vec);
+}
+
+template <typename T>
 inline vector3<T> normalize(const vector3<T> &vec) {
+    return vec / length(vec);
+}
+
+template <typename T>
+inline vector4<T> normalize(const vector4<T> &vec) {
     return vec / length(vec);
 }
 
@@ -548,8 +586,18 @@ inline vector3<T> cross(const vector3<T> &lhs, const vector3<T> &rhs) {
 }
 
 template <typename T>
+inline T dot(const vector2<T> &lhs, const vector2<T> &rhs) {
+    return lhs.x * rhs.x + lhs.y * rhs.y;
+}
+
+template <typename T>
 inline T dot(const vector3<T> &lhs, const vector3<T> &rhs) {
     return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z;
+}
+
+template <typename T>
+inline T dot(const vector4<T> &lhs, const vector4<T> &rhs) {
+    return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z + lhs.w * rhs.w;
 }
 
 inline float lerp(float a, float b, float f)
@@ -558,11 +606,29 @@ inline float lerp(float a, float b, float f)
 }
 
 template <typename T>
+inline vector2<T> lerp(vector2<T> a, vector2<T> b, T f) {
+    return vector2<T>(
+            lerp(a.x, b.x, f),
+            lerp(a.y, b.y, f)
+            );
+}
+
+template <typename T>
 inline vector3<T> lerp(vector3<T> a, vector3<T> b, T f) {
     return vector3<T>(
             lerp(a.x, b.x, f),
             lerp(a.y, b.y, f),
             lerp(a.z, b.z, f)
+            );
+}
+
+template <typename T>
+inline vector4<T> lerp(vector4<T> a, vector4<T> b, T f) {
+    return vector4<T>(
+            lerp(a.x, b.x, f),
+            lerp(a.y, b.y, f),
+            lerp(a.z, b.z, f),
+            lerp(a.w, b.w, f)
             );
 }
 
@@ -652,7 +718,7 @@ inline matrix4<T> transpose(const matrix4<T> &mat) {
 inline mat4 perspective(float fov, float aspect, float near, float far) {
     mat4 result;
 
-    float top    =  near * tan(radians(fov) / 2.0);
+    float top    =  near * tan(radians(fov) / 2.0f);
     float bottom = -top;
     float right  =  top * aspect;
     float left   = -top * aspect;
@@ -834,11 +900,53 @@ inline mat4 inverse(const mat4 &src) {
 //---------less than----------//
 
 template <typename T>
+inline bool operator<(const vector2<T> &lhs, const vector2<T> &rhs) {
+    float l1 = length(lhs);
+    float l2 = length(rhs);
+
+    return l1 < l2;
+}
+
+template <typename T>
 inline bool operator<(const vector3<T> &lhs, const vector3<T> &rhs) {
     float l1 = length(lhs);
     float l2 = length(rhs);
 
     return l1 < l2;
+}
+
+template <typename T>
+inline bool operator<(const vector4<T> &lhs, const vector4<T> &rhs) {
+    float l1 = length(lhs);
+    float l2 = length(rhs);
+
+    return l1 < l2;
+}
+
+//---------greater than----------//
+
+template <typename T>
+inline bool operator>(const vector2<T> &lhs, const vector2<T> &rhs) {
+    float l1 = length(lhs);
+    float l2 = length(rhs);
+
+    return l1 > l2;
+}
+
+template <typename T>
+inline bool operator>(const vector3<T> &lhs, const vector3<T> &rhs) {
+    float l1 = length(lhs);
+    float l2 = length(rhs);
+
+    return l1 > l2;
+}
+
+template <typename T>
+inline bool operator>(const vector4<T> &lhs, const vector4<T> &rhs) {
+    float l1 = length(lhs);
+    float l2 = length(rhs);
+
+    return l1 > l2;
 }
 
 
@@ -1036,7 +1144,7 @@ inline quaternion slerp(quaternion v0, quaternion v1, float t) {
         d = -d;
     }
 
-    const float DOT_THRESHOLD = 0.9995;
+    const float DOT_THRESHOLD = 0.9995f;
     if (d > DOT_THRESHOLD) {
         // If the inputs are too close for comfort, linearly interpolate
         // and normalize the result.
@@ -1169,10 +1277,26 @@ inline float step(float edge, float x)  {
     }
 }
 
+inline vec2 step(float edge, const vec2 &x) {
+    return vec2(step(edge, x.x), step(edge, x.y));
+}
+
 inline vec3 step(float edge, const vec3 &x) {
     return vec3(step(edge, x.x), step(edge, x.y), step(edge, x.z));
 }
 
+inline vec4 step(float edge, const vec4 &x) {
+    return vec4(step(edge, x.x), step(edge, x.y), step(edge, x.z), step(edge, x.w));
+}
+
+inline float mincomp(const vec2 &v) { 
+    return fmin(v.x, v.y); 
+}
+
 inline float mincomp(const vec3 &v) { 
     return fmin(v.x, fmin(v.y, v.z)); 
+}
+
+inline float mincomp(const vec4 &v) { 
+    return fmin(v.x, fmin(v.y, fmin(v.z, v.w))); 
 }

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <sstream>
+#include <filesystem>
 #include "tinydir.h"
 
 #ifdef _WIN32
@@ -368,6 +369,10 @@ std::vector<Path> Path::listDirectory(const Path &path, bool directoryOnly) {
     tinydir_close(&dir);
 
     return ret;
+}
+
+void Path::createDirectory(const Path &path) {
+    std::filesystem::create_directories(path.toString());
 }
 
 std::ostream &operator<<(std::ostream &os, const Path &m) {

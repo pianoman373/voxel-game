@@ -12,9 +12,9 @@
 
 #include "optick.h"
 
-#define WORLD_SIZE 64
+#define WORLD_SIZE 4
 
-Server::Server(): network(*this), world(*this, lua) {
+Server::Server(const std::string &folder): network(*this), world(*this, lua), folder(folder) {
     rleCache = new uint8_t[16*16*256*5];
 }
 
@@ -120,7 +120,7 @@ void Server::init(int port) {
         if (chunk->changedFromDisk) {
             std::cout << "saving chunk" << std::endl;
 
-            chunkIO.saveChunk(chunk);
+            chunkIO.saveChunk(chunk, folder);
         }
     });
 
@@ -128,22 +128,22 @@ void Server::init(int port) {
     lua.addCommonFunctions(world);
     lua.runScripts();
 
-    if (!isWorldSavePresent()) {
-        WorldGenerator generator(WORLD_SIZE);
+    // if (!isWorldSavePresent()) {
+    //     WorldGenerator generator("server", WORLD_SIZE);
 
-        generator.generate();
+    //     generator.generate();
 
-        while (!generator.isComplete()) {
+    //     while (!generator.isComplete()) {
 
-        }
-    }
+    //     }
+    // }
     
 
     std::cout << "loading chunks from disk..." << std::endl;
 
     for (int x = 0; x < WORLD_SIZE; x++) {
         for (int z = 0; z < WORLD_SIZE; z++) {
-            chunkIO.loadChunk(world.getChunk(x, z));
+            chunkIO.loadChunk(world.getChunk(x, z), folder);
         }
     }
 

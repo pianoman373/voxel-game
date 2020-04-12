@@ -25,14 +25,41 @@ void main() {
 uniform sampler2D sprite;
 uniform vec4 uvOffsets;
 uniform vec4 color;
+uniform vec4 bounds;
 uniform float textureStrength;
+uniform float roundRadius;
 
 in vec2 fTexCoord;
 
 out vec4 outColor;
 
 void main() {
+
 	outColor = mix(vec4(1.0), texture(sprite, (fTexCoord * (uvOffsets.zw - uvOffsets.xy)) + uvOffsets.xy), textureStrength) * color;
+
+    vec2 position = bounds.xy;
+    vec2 size = bounds.zw;
+
+    vec2 pixelPosition = (fTexCoord*size);
+
+    if (pixelPosition.x < roundRadius && pixelPosition.y < roundRadius) {
+        if (length(vec2(roundRadius, roundRadius) - pixelPosition) > roundRadius)
+            discard;
+    }
+    if (pixelPosition.x > size.x-roundRadius && pixelPosition.y < roundRadius) {
+        if (length(vec2(size.x-roundRadius, roundRadius) - pixelPosition) > roundRadius)
+            discard;
+    }
+    if (pixelPosition.x < roundRadius && pixelPosition.y > size.y-roundRadius) {
+        if (length(vec2(roundRadius, size.y-roundRadius) - pixelPosition) > roundRadius)
+            discard;
+    }
+    if (pixelPosition.x > size.x-roundRadius && pixelPosition.y > size.y-roundRadius) {
+        if (length(vec2(size.x-roundRadius, size.y-roundRadius) - pixelPosition) > roundRadius)
+            discard;
+    }
+
+    
 
     if (outColor.w < 0.01) {
         discard;

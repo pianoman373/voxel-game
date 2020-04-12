@@ -28,9 +28,9 @@ private:
     std::mutex mx;
 
 public:
-    void saveChunk(std::shared_ptr<Chunk> c);
+    void saveChunk(std::shared_ptr<Chunk> c, const std::string &folder);
 
-    void loadChunk(std::shared_ptr<Chunk> c);
+    void loadChunk(std::shared_ptr<Chunk> c, const std::string &folder);
 
     bool chunkHasFile(std::shared_ptr<Chunk> c);
 

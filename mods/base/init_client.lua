@@ -11,7 +11,6 @@ local inventory = false
 
 local inventoryGUI = InventoryGUI.new(PlayerController.inventory)
 local hudGUI = HudGUI.new(PlayerController)
-local mainMenuGUI = MainMenuGUI.new()
 
 
 local Skeleton = {
@@ -91,5 +90,5 @@ api.registerEventHandler("gui_ingame", function(width, height)
 end)
 
 api.registerEventHandler("gui_main_menu", function(width, height)
-    mainMenuGUI:render(width, height)
+    MainMenuGUI.render(width, height)
 end)

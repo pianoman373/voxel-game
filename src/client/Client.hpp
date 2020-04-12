@@ -61,7 +61,7 @@ public:
 
     void connectToServer(std::string address, int port);
 
-    void connectToIntegratedServer();
+    void connectToIntegratedServer(const std::string &folder);
 
     void update(float delta);
 

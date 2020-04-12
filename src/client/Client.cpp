@@ -237,8 +237,8 @@ void Client::connectToServer(std::string address, int port) {
     inGame = true;
 }
 
-void Client::connectToIntegratedServer() {
-    integratedServer = new Server();
+void Client::connectToIntegratedServer(const std::string &folder) {
+    integratedServer = new Server(folder);
 
     serverThread = new std::thread([&]() {
         OPTICK_THREAD("Integrated Server")

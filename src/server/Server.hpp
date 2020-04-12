@@ -13,6 +13,7 @@ public:
     LuaHandler lua;
     uint8_t *rleCache;
     ChunkIO chunkIO;
+    std::string folder;
 
     bool isWorldSavePresent();
 
@@ -24,7 +25,7 @@ public:
 
     void init(int port);
 
-    Server();
+    Server(const std::string &folder);
 
     ~Server();
 

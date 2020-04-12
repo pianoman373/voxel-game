@@ -35,7 +35,8 @@ void Font::loadFromFile(const std::string &path, unsigned int fontSize) {
     for (unsigned char c = 0; c < 255; c++)
     {
         int width, height, xoff, yoff, advanceWidth, leftSideBearing;
-        unsigned char* buffer = stbtt_GetCodepointBitmap(&font, scale, scale, c, &width, &height, &xoff, &yoff);
+        unsigned char* buffer = stbtt_GetCodepointBitmapSubpixel(&font, scale, scale, 0.0f, 0.0f, c, &width, &height, &xoff, &yoff);
+
 
         int c_x1, c_y1, c_x2, c_y2;
         stbtt_GetCodepointBox(&font, c, &c_x1, &c_y1, &c_x2, &c_y2);

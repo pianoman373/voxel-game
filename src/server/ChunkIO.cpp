@@ -137,9 +137,9 @@ void ChunkIO::resizeSector(FILE *pFile, int chunkIndex, int growAmount) {
     //std::cout << "completed sector resizing" << std::endl;
 }
 
-void ChunkIO::saveChunk(std::shared_ptr<Chunk> c) {
+void ChunkIO::saveChunk(std::shared_ptr<Chunk> c, const std::string &folder) {
     mx.lock();
-    std::string filename = "save/" + std::to_string(c->chunk_x >> 4) + "_" + std::to_string(c->chunk_z >> 4) + ".voxeldata";
+    std::string filename = "saves/" + folder + "/" + std::to_string(c->chunk_x >> 4) + "_" + std::to_string(c->chunk_z >> 4) + ".voxeldata";
 
     //std::cout << "----------------------------------" << std::endl;
 
@@ -218,7 +218,7 @@ void ChunkIO::saveChunk(std::shared_ptr<Chunk> c) {
 
 static uint8_t compressedChunk[32*SECTOR_SIZE];
 
-void ChunkIO::loadChunk(std::shared_ptr<Chunk> c) {
+void ChunkIO::loadChunk(std::shared_ptr<Chunk> c, const std::string &folder) {
     mx.lock();
     if (!c) {
         mx.unlock();
@@ -227,7 +227,7 @@ void ChunkIO::loadChunk(std::shared_ptr<Chunk> c) {
 
     //std::cout << "----------------------------------" << std::endl;
 
-    std::string filename = "save/" + std::to_string(c->chunk_x >> 4) + "_" + std::to_string(c->chunk_z >> 4) + ".voxeldata";
+    std::string filename = "saves/" + folder + "/" + std::to_string(c->chunk_x >> 4) + "_" + std::to_string(c->chunk_z >> 4) + ".voxeldata";
 
     //std::cout << "loading chunk " << filename << std::endl;
 

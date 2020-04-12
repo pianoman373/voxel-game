@@ -169,6 +169,8 @@ public:
      * @param directoryOnly Forces the output to be directories only.
      */
     static std::vector<Path> listDirectory(const Path &path, bool directoryOnly=false);
+
+    static void createDirectory(const Path &path);
 };
 
 std::ostream &operator<<(std::ostream &os, const Path &m);

@@ -2,6 +2,7 @@
 
 #include <thread>
 #include <atomic>
+#include <string>
 
 class World;
 class LuaHandler;
@@ -12,12 +13,13 @@ private:
 
     std::atomic<bool> isFinished = false;
 
-    void generateThread(int size);
+    void generateThread(std::string folder, int size);
 
     int size;
+    std::string folder;
 
 public:
-    WorldGenerator(int size);
+    WorldGenerator(std::string folder, int size);
 
     void generate();
 

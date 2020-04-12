@@ -3,7 +3,7 @@
 #include "rendering/Renderer.hpp"
 #include "client/Window.hpp"
 
-void GuiRenderer::renderSprite(vec2 position, vec2 size, vec4 uvs, vec4 color, const Texture &tex, Shader &shader) {
+void GuiRenderer::renderSprite(vec2 position, vec2 size, vec4 uvs, vec4 color, const Texture &tex, float roundRadius, Shader &shader) {
     shader.bind();
     vec2i res = Window::getWindowSize();
 
@@ -22,13 +22,15 @@ void GuiRenderer::renderSprite(vec2 position, vec2 size, vec4 uvs, vec4 color, c
     shader.uniformVec4("uvOffsets", uvs);
     shader.uniformVec4("color", color);
     shader.uniformFloat("textureStrength", 1.0f);
+    shader.uniformFloat("roundRadius", roundRadius);
+    shader.uniformVec4("bounds", vec4(position.x, position.y, size.x, size.y));
     tex.bind();
 
     Resources::spriteMesh.render();
 
 }
 
-void GuiRenderer::renderSprite(vec2 position, vec2 size, vec4 color, Shader &shader) {
+void GuiRenderer::renderSprite(vec2 position, vec2 size, vec4 color, float roundRadius, Shader &shader) {
     shader.bind();
     vec2i res = Window::getWindowSize();
 
@@ -46,6 +48,8 @@ void GuiRenderer::renderSprite(vec2 position, vec2 size, vec4 color, Shader &sha
     shader.uniformMat4("projection", projection);
     shader.uniformVec4("color", color);
     shader.uniformFloat("textureStrength", 0.0f);
+    shader.uniformFloat("roundRadius", roundRadius);
+    shader.uniformVec4("bounds", vec4(position.x, position.y, size.x, size.y));
     Texture::bindNull();
 
 
@@ -69,7 +73,7 @@ void GuiRenderer::renderText(vec2 position, const std::string &text, const Font 
         float w = ch.size.x;
         float h = ch.size.y;
 
-        renderSprite({xpos, ypos}, {w, h}, {0.0f, 0.0f, 1.0f, 1.0f}, color, ch.tex, Resources::textShader);
+        renderSprite({xpos, ypos}, {w, h}, {0.0f, 0.0f, 1.0f, 1.0f}, color, ch.tex, 0.0f, Resources::textShader);
 
         // Now advance cursors for next glyph (note that advance is number of 1/64 pixels)
         x += (ch.advance*font.scale); // Bitshift by 6 to get value in pixels (2^6 = 64)
