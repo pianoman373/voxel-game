@@ -1,6 +1,7 @@
 local gui = require("base:gui.lua")
 local crafting = require("base:crafting.lua")
 local item = require("base:item.lua")
+local class = require("base:class.lua")
 
 crafting.addRecipe("base:inventory", {
     input = {item.get("base:wood"), 1},
@@ -12,26 +13,21 @@ crafting.addRecipe("base:inventory", {
     output = {item.get("base:stick"), 4},
 })
 
-local InventoryGUI = {}
+local InventoryGUI = class("InventoryGUI")
 
 
 
 local inventoryTexture = api.getTexture("base:resources/textures/inventory.png")
 
 
-function InventoryGUI.new(inventory)
-    local o = {}
+function InventoryGUI:initialize(inventory)
+    self.inventory = inventory
 
-    o.inventory = inventory
-
-    o.itemSlots = {}
+    self.itemSlots = {}
 
     for i = 1,12*3 do
-        o.itemSlots[i] = ItemSlot:new(inventory:getSlot(i))
+        self.itemSlots[i] = ItemSlot:new(inventory:getSlot(i))
     end
-
-    setmetatable(o, {__index = InventoryGUI})
-    return o
 end
 
 local selectedRecipe = nil

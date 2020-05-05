@@ -51,20 +51,14 @@ function gui.button(x, y, width, height, text, onClick)
     gui.drawTextCentered(text, x + (width/2), y + (height/2))
 end
 
-TextBox = {}
+TextBox = class("TextBox")
 
-function TextBox:new (text)
-    o = {
-        editing = false,
-        content = text or "",
-        cursorTimer = 0,
-        cursorBlink = true,
-        cursorPosition = 1,
-    }
-    setmetatable(o, self)
-    self.__index = self
-    
-    return o
+function TextBox:initialize (text)
+    self.editing = false
+    self.content = text or ""
+    self.cursorTimer = 0
+    self.cursorBlink = true
+    self.cursorPosition = 1
 end
 
 function TextBox:render(x, y, width, height)

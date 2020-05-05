@@ -1,17 +1,14 @@
 local gui = require("base:gui.lua")
+local class = require("base:class.lua")
 
-local HudGUI = {}
+
+local HudGUI = class("HudGUI")
 
 local img = api.getTexture("base:resources/textures/GUI.png")
 
 
-function HudGUI.new(player)
-    local o = {}
-
-    o.player = player
-
-    setmetatable(o, {__index = HudGUI})
-    return o
+function HudGUI:initialize(player)
+    self.player = player
 end
 
 function HudGUI:render(width, height)

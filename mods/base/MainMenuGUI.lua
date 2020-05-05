@@ -1,15 +1,11 @@
 local gui = require("base:gui.lua")
+local class = require("base:class.lua")
 
-local MainMenuGUI = {}
+local MainMenuGUI = class("MainMenuGUI")
 
 
-function MainMenuGUI.new()
-    local o = {}
-
-    o.addressBox = TextBox:new("localhost:3737")
-
-    setmetatable(o, {__index = MainMenuGUI})
-    return o
+function MainMenuGUI:initialize()
+    self.addressBox = TextBox:new("localhost:3737")
 end
 
 local background = api.getTexture("base:resources/textures/background.png")
