@@ -3,6 +3,9 @@
 #include <string>
 #include "rendering/Texture.hpp"
 
+#include <ft2build.h>
+#include FT_FREETYPE_H  
+
 #include <map>
 
 struct Character {

@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 project(voxel-game)
 
 add_subdirectory(lib/luajit)
-
+add_subdirectory(lib/freetype)
 add_subdirectory(lib/enet)
 
 option(GLFW_BUILD_DOCS OFF)
@@ -14,7 +14,7 @@ include_directories(lib/crucible/include/
                     lib/luajit/src/
                     ${CMAKE_BINARY_DIR}/lib/luajit
                     lib/enet/include/
-
+                    lib/freetype/include/
                     lib/crucible/include/
                     lib/GLFW/include/
                     lib/stb/
@@ -59,9 +59,9 @@ add_definitions(-DGLFW_INCLUDE_NONE
 add_executable(${PROJECT_NAME} ${PROJECT_SOURCES} ${PROJECT_HEADERS})
 
 if(WIN32)
-    target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES} opengl32 liblua enet ws2_32 winmm)
+    target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES} opengl32 liblua enet ws2_32 winmm freetype)
 elseif(UNIX AND NOT APPLE)
-    target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES} GL liblua enet)
+    target_link_libraries(${PROJECT_NAME} glfw ${GLFW_LIBRARIES} GL liblua enet freetype)
 endif(WIN32)
 
 set_target_properties(${PROJECT_NAME} PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
