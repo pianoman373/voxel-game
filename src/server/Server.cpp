@@ -12,7 +12,7 @@
 
 #include "optick.h"
 
-#define WORLD_SIZE 128
+#define WORLD_SIZE 64
 
 Server::Server(): network(*this), world(*this, lua) {
     rleCache = new uint8_t[16*16*256*5];

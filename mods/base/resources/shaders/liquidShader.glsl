@@ -78,7 +78,7 @@ void main()
 {
   vec2 screenUV = (screenPos.xy / screenPos.z) * 0.5f + 0.5f;
 
-  vec3 color = vec3(0.3, 0.3, 1.0)*0.3;
+  vec3 color = vec3(0.7, 0.7, 1.0)*0.3;
 
   vec3 light = directionalLighting(normalize(vec3(0.4, -0.8, 0.2)), vec3(1.0), fragPos, color, fragNormal, 0.1, 0.0);
 

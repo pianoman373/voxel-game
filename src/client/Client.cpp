@@ -230,7 +230,7 @@ void Client::connectToServer(std::string address, int port) {
     
     worldRenderer.init();
 
-    player->position = vec3(16*16, 250, 18*16);
+    player->position = vec3(32*16+4, 250, 32*16+4);
     vec2i playerChunkPosition = vec2i((int)player->position.x >> 4, (int)player->position.z >> 4);
     manageChunks(playerChunkPosition);
 

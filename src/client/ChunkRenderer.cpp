@@ -319,6 +319,10 @@ void ChunkRenderer::generateMesh(ChunkNeighborhood &neighborhood) {
                     continue;
                 }
 
+                if (y > highestY) {
+                    highestY = y;
+                }
+
 
                 bool block_X_posY_Z = !neighborhood.getBlock(x, y + 1, z).isSolid();
                 bool block_X_negY_Z = !neighborhood.getBlock(x, y - 1, z).isSolid();
@@ -586,13 +590,13 @@ void ChunkRenderer::generateMesh(ChunkNeighborhood &neighborhood) {
 void ChunkRenderer::render(Material *mat, Material *liquidMat) {
     if (this->updateMesh) {
         mesh.generate();
-        //liquidMesh.generate();
+        liquidMesh.generate();
 
         this->updateMesh = false;
     }
 
     Renderer::render(&this->mesh, mat, transform.getMatrix(), aabb);
-    //Renderer::render(&this->liquidMesh, liquidMat, &transform, &aabb);
+    Renderer::render(&this->liquidMesh, liquidMat, transform.getMatrix(), aabb);
     //Renderer::debug.renderDebugAABB(aabb, vec3(0.0f, 1.0f, 0.0f));
 
    //Renderer::debug.renderDebugAABB(AABB(transform.position, transform.position + vec3(16, 256, 16)), vec3(0.0f, 1.0f, 0.0f));
@@ -600,4 +604,5 @@ void ChunkRenderer::render(Material *mat, Material *liquidMat) {
 
 void ChunkRenderer::clear() {
     mesh.clear();
+    liquidMesh.clear();
 }

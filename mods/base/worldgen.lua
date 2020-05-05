@@ -2,7 +2,7 @@ local math = require("math")
 local noise2D = require("base:simplex2D.lua")
 local arrays = require("base:arrays.lua")
 
-local size = 16*128
+local size = 16*64
 
 local function ridgedNoise(x, y, octaves, frequency, persistence)
     local total = 0.0
